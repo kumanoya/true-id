@@ -1,8 +1,14 @@
+import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
 import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
-import { PublicAccount, TransactionGroup } from 'symbol-sdk';
+import {
+  PublicAccount,
+  TransactionGroup,
+  Address,
+  Account,
+} from 'symbol-sdk';
 import useSssInit from '@/hooks/useSssInit';
 import { networkType } from '@/consts/blockchainProperty';
 import { useRouter } from 'next/router';
@@ -20,6 +26,8 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
   const [clientAddress, setClientAddress] = useState<string>('');
   const [escrowDataList, setescrowDataList] = useState<escrowAggregateTransaction[]>([]);
+  // CUSTOM REACTIVE VARIABLES
+  const [address, setAddress] = useState<Address>();
 
   useEffect(() => {
     if (sssState === 'ACTIVE') {
@@ -34,6 +42,9 @@ function Home(): JSX.Element {
     if (sssState === 'ACTIVE' && clientAddress !== '') {
       initalescrowDataList();
       setProgress(false);
+
+      // CUSTOM LOGIC
+      setAddress(Address.createFromRawAddress(clientAddress));
     }
   }, [clientAddress, sssState]);
 
@@ -47,6 +58,26 @@ function Home(): JSX.Element {
     <>
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
       <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
+
+      {address === undefined ? (
+        <Backdrop open={address === undefined}>
+          <CircularProgress color='inherit' />
+        </Backdrop>
+      ) : (
+        <Box
+          p={3}
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          flexDirection='column'
+        >
+          <Typography component='div' variant='h6' mt={5} mb={1}>
+            あなたのアドレス
+          </Typography>
+          { address.plain() }
+        </Box>
+      )}
+
       {progress ? (
         <Backdrop open={progress}>
           <CircularProgress color='inherit' />

@@ -5,7 +5,6 @@ import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
   PublicAccount,
-  TransactionGroup,
   Address,
   Deadline,
   UInt64,
@@ -24,14 +23,11 @@ import {
   networkType,
 } from '@/consts/blockchainProperty';
 
-import { connectNode } from '@/utils/connectNode';
-import { nodeList } from '@/consts/nodeList';
+//import { connectNode } from '@/utils/connectNode';
+//import { nodeList } from '@/consts/nodeList';
 
 import useSssInit from '@/hooks/useSssInit';
 import { useRouter } from 'next/router';
-import { searchEscrow } from '@/utils/searchEscrow';
-import CardEscrowPartial from '@/components/CardEscrowPartial';
-import { escrowAggregateTransaction } from '@/types/escrowAggregateTransaction';
 import { useForm, SubmitHandler } from "react-hook-form";
 
 function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
@@ -64,14 +60,12 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
 
 function Home(): JSX.Element {
   //共通設定
-  const [progress, setProgress] = useState<boolean>(true); //ローディングの設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   const router = useRouter();
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
   const [clientAddress, setClientAddress] = useState<string>('');
-  const [escrowDataList, setescrowDataList] = useState<escrowAggregateTransaction[]>([]);
   // CUSTOM REACTIVE VARIABLES
   const [address, setAddress] = useState<Address>();
 
@@ -91,12 +85,6 @@ function Home(): JSX.Element {
     }
   }, [clientPublicKey, sssState, router]);
 
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
-      initalescrowDataList();
-      setProgress(false);
-    }
-  }, [clientAddress, sssState]);
 
   type Inputs = {
     recipientRawAddress: string;
@@ -108,7 +96,7 @@ function Home(): JSX.Element {
     if (sssState === 'ACTIVE' && clientAddress !== '') {
       setAddress(Address.createFromRawAddress(clientAddress));
     }
-  }, [clientPublicKey, sssState, router]);
+  }, [clientAddress, sssState]);
 
   const {
     register,
@@ -138,12 +126,6 @@ function Home(): JSX.Element {
         txRepo.announce(signedTx);
       })();
   }
-
-  const initalescrowDataList = async () => {
-    const result = await searchEscrow(clientAddress, TransactionGroup.Partial);
-    if (result === undefined) return;
-    setescrowDataList(result);
-  };
 
   return (
     <>
@@ -198,33 +180,6 @@ function Home(): JSX.Element {
         </Box>
       )}
 
-      {progress ? (
-        <Backdrop open={progress}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
-      ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            取引一覧
-          </Typography>
-
-          {escrowDataList.map((escrowData, index) => (
-            <Box key={index} mb={1}>
-              <CardEscrowPartial
-                key={index}
-                clientAddress={clientAddress}
-                escrowData={escrowData}
-              />
-            </Box>
-          ))}
-        </Box>
-      )}
     </>
   );
 }

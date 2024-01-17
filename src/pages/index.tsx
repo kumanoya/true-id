@@ -148,33 +148,41 @@ function Home(): JSX.Element {
             あなたのアドレス
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(submit)}>
-            <label className="w-full">
-              宛先アドレス:
+          <form onSubmit={handleSubmit(submit)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+            <div className="flex flex-col">
+              <label>
+                宛先アドレス
+              </label>
               <input
                 {...register("recipientRawAddress", { required: "宛先アドレスを入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="recipientRawAddress"
               />
-            </label><br/>
-            <label className="w-full">
-              メッセージ:
+            </div>
+
+            <div className="flex flex-col">
+              <label className="w-32">
+                メッセージ
+              </label>
               <textarea
                 {...register("message", { required: "messageを入力してください" })}
-                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none h-80"
                 name="message"
               />
-            </label><br/>
-            <label className="w-full">
-              xym:
+            </div>
+
+            <div className="flex flex-col">
+              <label className="w-32">
+                xym
+              </label>
               <input
                 {...register("xym", { required: "xymを入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="xym"
               />
-            </label>
+            </div>
             <button>送信</button>
           </form>
         </Box>

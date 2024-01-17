@@ -1,6 +1,8 @@
 import type { AppProps } from 'next/app';
 import { RecoilRoot } from 'recoil';
 
+import '../globals.css'
+
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   return (
     <RecoilRoot>

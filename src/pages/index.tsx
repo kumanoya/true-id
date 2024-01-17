@@ -32,6 +32,7 @@ import { useRouter } from 'next/router';
 import { searchEscrow } from '@/utils/searchEscrow';
 import CardEscrowPartial from '@/components/CardEscrowPartial';
 import { escrowAggregateTransaction } from '@/types/escrowAggregateTransaction';
+import { useForm, SubmitHandler } from "react-hook-form";
 
 function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
 {
@@ -94,10 +95,29 @@ function Home(): JSX.Element {
     if (sssState === 'ACTIVE' && clientAddress !== '') {
       initalescrowDataList();
       setProgress(false);
+    }
+  }, [clientAddress, sssState]);
 
-      // CUSTOM LOGIC
+  type Inputs = {
+    recipientRawAddress: string;
+    message: string;
+    xym: number;
+  };
+
+  useEffect(() => {
+    if (sssState === 'ACTIVE' && clientAddress !== '') {
       setAddress(Address.createFromRawAddress(clientAddress));
-      const transferTx = createMessageTransaction(clientAddress, 'Hello, World!', 0);
+    }
+  }, [clientPublicKey, sssState, router]);
+
+  const {
+    register,
+    handleSubmit,
+  } = useForm<Inputs>();
+
+  // SUBMIT LOGIC
+  const submit: SubmitHandler<Inputs> = (data) => {
+      const transferTx = createMessageTransaction(data.recipientRawAddress, data.message, data.xym);
       console.log(transferTx);
       window.SSS.setTransaction(transferTx);
 
@@ -117,8 +137,7 @@ function Home(): JSX.Element {
         const txRepo = repo.createTransactionRepository();
         txRepo.announce(signedTx);
       })();
-    }
-  }, [clientAddress, sssState]);
+  }
 
   const initalescrowDataList = async () => {
     const result = await searchEscrow(clientAddress, TransactionGroup.Partial);
@@ -147,6 +166,35 @@ function Home(): JSX.Element {
             あなたのアドレス
           </Typography>
           { address.plain() }
+          <form onSubmit={handleSubmit(submit)}>
+            <label className="w-full">
+              宛先アドレス:
+              <input
+                {...register("recipientRawAddress", { required: "宛先アドレスを入力してください" })}
+                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                type="text"
+                name="recipientRawAddress"
+              />
+            </label><br/>
+            <label className="w-full">
+              メッセージ:
+              <textarea
+                {...register("message", { required: "messageを入力してください" })}
+                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                name="message"
+              />
+            </label><br/>
+            <label className="w-full">
+              xym:
+              <input
+                {...register("xym", { required: "xymを入力してください" })}
+                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                type="text"
+                name="xym"
+              />
+            </label>
+            <button>送信</button>
+          </form>
         </Box>
       )}
 

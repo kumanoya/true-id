@@ -8,6 +8,7 @@ import {
   Address,
   Deadline,
   UInt64,
+  Listener,
   Mosaic,
   MosaicId,
   PlainMessage,
@@ -15,6 +16,7 @@ import {
   TransferTransaction,
   RepositoryFactoryHttp,
   SignedTransaction,
+  Account,
 } from 'symbol-sdk';
 
 import {
@@ -29,6 +31,45 @@ import {
 import useSssInit from '@/hooks/useSssInit';
 import { useRouter } from 'next/router';
 import { useForm, SubmitHandler } from "react-hook-form";
+
+const NODE = "https://sym-test-03.opening-line.jp:3001";
+//const NODE = await connectNode(nodeList);
+//if (NODE === '') return undefined;
+
+const repo = new RepositoryFactoryHttp(NODE, {
+  websocketUrl: NODE.replace('http', 'ws') + '/ws',
+  websocketInjected: WebSocket,
+});
+
+async function setupListener(address: Address): Promise<void>
+{
+  // Start monitoring of transaction status with websocket
+  const listener = repo.createListener();
+  await listener.open();
+  /*
+  listener.status(address).subscribe((status: any) => {
+    console.dir({ status }, { depth: null });
+    listener.close();
+    console.log("Transaction status error");
+  });
+  listener
+    .unconfirmedAdded(address)
+    .subscribe((unconfirmedTransaction: Transaction) => {
+      console.log("EVENT: Transaction unconfirmed");
+      //console.dir({ unconfirmedTransaction }, { depth: null });
+    });
+  */
+  listener
+    .confirmed(address)
+    .subscribe((confirmedTransaction: Transaction) => {
+      console.dir({ confirmedTransaction }, { depth: null });
+      listener.close();
+      console.log("EVENT: Transaction confirmed");
+      console.log(
+        `https://testnet.symbol.fyi/transactions/${confirmedTransaction.transactionInfo?.hash}`
+      );
+    });
+}
 
 function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
 {
@@ -98,6 +139,12 @@ function Home(): JSX.Element {
     }
   }, [clientAddress, sssState]);
 
+  useEffect(() => {
+    if (sssState === 'ACTIVE' && clientAddress !== '') {
+      setupListener(Address.createFromRawAddress(clientAddress));
+    }
+  }, [clientAddress, sssState]);
+
   const {
     register,
     handleSubmit,
@@ -106,22 +153,16 @@ function Home(): JSX.Element {
   // SUBMIT LOGIC
   const submit: SubmitHandler<Inputs> = (data) => {
       const transferTx = createMessageTransaction(data.recipientRawAddress, data.message, data.xym);
+
+      console.log("SUBMIT:");
       console.log(transferTx);
       window.SSS.setTransaction(transferTx);
 
       (async () => {
-        const NODE = "https://sym-test-03.opening-line.jp:3001";
-        //const NODE = await connectNode(nodeList);
-        //if (NODE === '') return undefined;
-
         const signedTx: SignedTransaction = await new Promise((resolve) => {
           resolve(window.SSS.requestSign());
         });
 
-        const repo = new RepositoryFactoryHttp(NODE, {
-          websocketUrl: NODE.replace('http', 'ws') + '/ws',
-          websocketInjected: WebSocket,
-        });
         const txRepo = repo.createTransactionRepository();
         txRepo.announce(signedTx);
       })();

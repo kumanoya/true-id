@@ -14,6 +14,7 @@ import {
   PlainMessage,
   Transaction,
   TransferTransaction,
+  TransactionGroup,
   RepositoryFactoryHttp,
   SignedTransaction,
   Account,
@@ -110,6 +111,9 @@ function Home(): JSX.Element {
   // CUSTOM REACTIVE VARIABLES
   const [address, setAddress] = useState<Address>();
 
+  // メッセージ一覧表示用
+  const [dataList, setDataList] = useState<Transaction[]>([]);
+
   //SSS用設定
   interface SSSWindow extends Window {
     SSS: any;
@@ -144,6 +148,31 @@ function Home(): JSX.Element {
       setupListener(Address.createFromRawAddress(clientAddress));
     }
   }, [clientAddress, sssState]);
+
+  useEffect(() => {
+    if (sssState === 'ACTIVE' && clientAddress !== '') {
+      (async() => {
+        const txRepo = repo.createTransactionRepository();
+        const accountRepo = repo.createAccountRepository();
+      
+        //clientAddressからAccountInfoを導出
+        const clientAccountInfo = await firstValueFrom(
+          accountRepo.getAccountInfo(Address.createFromRawAddress(clientAddress))
+        );
+        const resultSearch = await firstValueFrom(
+          txRepo.search({
+            // type: [TransactionType.AGGREGATE_BONDED],
+            group: TransactionGroup.Confirmed,
+            address: clientAccountInfo.address,
+            // order: Order.Desc,
+            pageSize: 100,
+          })
+        );
+        console.log('resultSearch :', resultSearch);
+        setDataList(resultSearch.data);
+      })();
+    }
+  },  [clientAddress, sssState]);
 
   const {
     register,

@@ -73,35 +73,6 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
 
 function Home(): JSX.Element {
 
-  async function setupListener(address: Address): Promise<void>
-  {
-    // Start monitoring of transaction status with websocket
-    const listener = repo.createListener();
-    await listener.open();
-    /*
-    listener.status(address).subscribe((status: any) => {
-      console.dir({ status }, { depth: null });
-      listener.close();
-      console.log("Transaction status error");
-    });
-    listener
-      .unconfirmedAdded(address)
-      .subscribe((unconfirmedTransaction: Transaction) => {
-        console.log("EVENT: Transaction unconfirmed");
-        //console.dir({ unconfirmedTransaction }, { depth: null });
-      });
-    */
-    listener
-      .confirmed(address)
-      .subscribe((confirmedTransaction: Transaction) => {
-        listener.close();
-        console.log("EVENT: Transaction confirmed");
-        console.dir({ confirmedTransaction }, { depth: null });
-        // XXX: dataListが更新されない
-        setDataList([...dataList, confirmedTransaction]);
-      });
-  }
-
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   const router = useRouter();
@@ -146,12 +117,6 @@ function Home(): JSX.Element {
 
   useEffect(() => {
     if (sssState === 'ACTIVE' && clientAddress !== '') {
-      setupListener(Address.createFromRawAddress(clientAddress));
-    }
-  }, [clientAddress, sssState]);
-
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
       (async() => {
         const txRepo = repo.createTransactionRepository();
         const accountRepo = repo.createAccountRepository();
@@ -171,6 +136,18 @@ function Home(): JSX.Element {
         );
         console.log('resultSearch :', resultSearch);
         setDataList(resultSearch.data);
+
+        // Start monitoring of transaction status with websocket
+        const address = Address.createFromRawAddress(clientAddress);
+        const listener = repo.createListener();
+        await listener.open();
+        listener
+          .confirmed(address)
+          .subscribe((confirmedTx: Transaction) => {
+            console.log("EVENT: TRANSACTION CONFIRMED");
+            //console.dir({ confirmedTx }, { depth: null });
+            setDataList(current => [confirmedTx, ...current]);
+          });
       })();
     }
   },  [clientAddress, sssState]);

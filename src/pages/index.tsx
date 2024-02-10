@@ -18,6 +18,7 @@ import {
   RepositoryFactoryHttp,
   SignedTransaction,
   Account,
+  Order,
 } from 'symbol-sdk';
 
 import {
@@ -41,36 +42,6 @@ const repo = new RepositoryFactoryHttp(NODE, {
   websocketUrl: NODE.replace('http', 'ws') + '/ws',
   websocketInjected: WebSocket,
 });
-
-async function setupListener(address: Address): Promise<void>
-{
-  // Start monitoring of transaction status with websocket
-  const listener = repo.createListener();
-  await listener.open();
-  /*
-  listener.status(address).subscribe((status: any) => {
-    console.dir({ status }, { depth: null });
-    listener.close();
-    console.log("Transaction status error");
-  });
-  listener
-    .unconfirmedAdded(address)
-    .subscribe((unconfirmedTransaction: Transaction) => {
-      console.log("EVENT: Transaction unconfirmed");
-      //console.dir({ unconfirmedTransaction }, { depth: null });
-    });
-  */
-  listener
-    .confirmed(address)
-    .subscribe((confirmedTransaction: Transaction) => {
-      console.dir({ confirmedTransaction }, { depth: null });
-      listener.close();
-      console.log("EVENT: Transaction confirmed");
-      console.log(
-        `https://testnet.symbol.fyi/transactions/${confirmedTransaction.transactionInfo?.hash}`
-      );
-    });
-}
 
 function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
 {
@@ -101,6 +72,36 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
 }
 
 function Home(): JSX.Element {
+
+  async function setupListener(address: Address): Promise<void>
+  {
+    // Start monitoring of transaction status with websocket
+    const listener = repo.createListener();
+    await listener.open();
+    /*
+    listener.status(address).subscribe((status: any) => {
+      console.dir({ status }, { depth: null });
+      listener.close();
+      console.log("Transaction status error");
+    });
+    listener
+      .unconfirmedAdded(address)
+      .subscribe((unconfirmedTransaction: Transaction) => {
+        console.log("EVENT: Transaction unconfirmed");
+        //console.dir({ unconfirmedTransaction }, { depth: null });
+      });
+    */
+    listener
+      .confirmed(address)
+      .subscribe((confirmedTransaction: Transaction) => {
+        listener.close();
+        console.log("EVENT: Transaction confirmed");
+        console.dir({ confirmedTransaction }, { depth: null });
+        // XXX: dataListが更新されない
+        setDataList([...dataList, confirmedTransaction]);
+      });
+  }
+
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   const router = useRouter();
@@ -154,7 +155,7 @@ function Home(): JSX.Element {
       (async() => {
         const txRepo = repo.createTransactionRepository();
         const accountRepo = repo.createAccountRepository();
-      
+
         //clientAddressからAccountInfoを導出
         const clientAccountInfo = await firstValueFrom(
           accountRepo.getAccountInfo(Address.createFromRawAddress(clientAddress))
@@ -164,7 +165,7 @@ function Home(): JSX.Element {
             // type: [TransactionType.AGGREGATE_BONDED],
             group: TransactionGroup.Confirmed,
             address: clientAccountInfo.address,
-            // order: Order.Desc,
+            order: Order.Desc,
             pageSize: 100,
           })
         );
@@ -257,6 +258,22 @@ function Home(): JSX.Element {
           </form>
         </Box>
       )}
+      <table>
+        <thead>
+          <tr>
+            <th>メッセージ</th>
+            <th>送信元</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dataList.map((data, index) => (
+            <tr key={index}>
+              <td>{ data?.message?.payload }</td>
+              <td>{ data.signer.address.address }</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
     </>
   );

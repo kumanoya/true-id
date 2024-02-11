@@ -60,32 +60,17 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/escrow');
+                  router.push('/admin');
                   setOpenLeftDrawer(false);
                 }}
               >
                 <ListItemIcon>
                   <ArrowCircleUpIcon />
                 </ListItemIcon>
-                <ListItemText primary={'取引要求'} />
+                <ListItemText primary={'管理'} />
               </ListItemButton>
             </ListItem>
           </List>
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  router.push('/history');
-                  setOpenLeftDrawer(false);
-                }}
-              >
-                <ListItemIcon>
-                  <HistoryIcon />
-                </ListItemIcon>
-                <ListItemText primary={'取引履歴'} />
-              </ListItemButton>
-            </ListItem>
-          </List>{' '}
         </Box>
       </Drawer>
     </>

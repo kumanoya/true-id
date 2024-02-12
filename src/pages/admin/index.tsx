@@ -8,45 +8,29 @@ import {
   Address,
   Deadline,
   UInt64,
-  Listener,
-  Mosaic,
-  MosaicId,
-  PlainMessage,
   Transaction,
   TransactionType,
   NamespaceRegistrationTransaction,
   TransactionGroup,
-  RepositoryFactoryHttp,
   SignedTransaction,
 
   AliasTransaction,
   AliasAction,
   NamespaceId,
-  Account,
   Order,
 } from 'symbol-sdk';
 
 import {
-  currencyMosaicID,
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty';
-
-//import { connectNode } from '@/utils/connectNode';
-//import { nodeList } from '@/consts/nodeList';
 
 import useSssInit from '@/hooks/useSssInit';
 import { useRouter } from 'next/router';
 import { useForm, SubmitHandler } from "react-hook-form";
 
-const NODE = "https://sym-test-03.opening-line.jp:3001";
-//const NODE = await connectNode(nodeList);
-//if (NODE === '') return undefined;
-
-const repo = new RepositoryFactoryHttp(NODE, {
-  websocketUrl: NODE.replace('http', 'ws') + '/ws',
-  websocketInjected: WebSocket,
-});
+import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
+const repo = createRepositoryFactory();
 
 function createNamespaceRegistrationTransaction(rootNameSpace: string): Transaction
 {

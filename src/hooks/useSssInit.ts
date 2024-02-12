@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sssState } from '@/types/sssState';
 
 //SSS用設定
 interface SSSWindow extends Window {
@@ -8,7 +9,7 @@ interface SSSWindow extends Window {
 declare const window: SSSWindow;
 
 const useSssInit = () => {
-  const [sssState, setSssState] = useState<'ACTIVE' | 'INACTIVE' | 'NONE' | 'LOADING'>('LOADING');
+  const [sssState, setSssState] = useState<sssState>('LOADING');
   const [clientPublicKey, setClientPublicKey] = useState<string>('');
 
   useEffect(() => {

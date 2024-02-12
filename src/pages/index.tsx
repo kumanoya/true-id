@@ -14,7 +14,6 @@ import {
   Transaction,
   TransferTransaction,
   TransactionGroup,
-  RepositoryFactoryHttp,
   SignedTransaction,
   Order,
 } from 'symbol-sdk';
@@ -26,7 +25,8 @@ import {
 } from '@/consts/blockchainProperty';
 
 import useSssInit from '@/hooks/useSssInit';
-import { useRouter } from 'next/router';
+import useAddressInit from '@/hooks/useAddressInit';
+
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
@@ -64,16 +64,9 @@ function Home(): JSX.Element {
 
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
-  const router = useRouter();
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
-  const [clientAddress, setClientAddress] = useState<string>('');
-  // CUSTOM REACTIVE VARIABLES
-  const [address, setAddress] = useState<Address>();
-
-  // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([]);
 
   //SSS用設定
   interface SSSWindow extends Window {
@@ -82,43 +75,22 @@ function Home(): JSX.Element {
   }
   declare const window: SSSWindow;
 
-  useEffect(() => {
-    if (sssState === 'ACTIVE') {
-      const clientPublicAccount = PublicAccount.createFromPublicKey(clientPublicKey, networkType);
-      setClientAddress(clientPublicAccount.address.plain());
-    } else if (sssState === 'INACTIVE' || sssState === 'NONE') {
-      router.push('/sss');
-    }
-  }, [clientPublicKey, sssState, router]);
+  // アドレス取得
+  const { address } = useAddressInit(clientPublicKey, sssState);
 
-
-  type Inputs = {
-    recipientRawAddress: string;
-    message: string;
-    xym: number;
-  };
+  // メッセージ一覧表示用
+  const [dataList, setDataList] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
-      setAddress(Address.createFromRawAddress(clientAddress));
-    }
-  }, [clientAddress, sssState]);
-
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
+    if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
         const txRepo = repo.createTransactionRepository();
-        const accountRepo = repo.createAccountRepository();
 
-        //clientAddressからAccountInfoを導出
-        const clientAccountInfo = await firstValueFrom(
-          accountRepo.getAccountInfo(Address.createFromRawAddress(clientAddress))
-        );
         const resultSearch = await firstValueFrom(
           txRepo.search({
             // type: [TransactionType.AGGREGATE_BONDED],
             group: TransactionGroup.Confirmed,
-            address: clientAccountInfo.address,
+            address: address,
             order: Order.Desc,
             pageSize: 100,
           })
@@ -127,7 +99,6 @@ function Home(): JSX.Element {
         setDataList(resultSearch.data);
 
         // Start monitoring of transaction status with websocket
-        const address = Address.createFromRawAddress(clientAddress);
         const listener = repo.createListener();
         await listener.open();
         listener
@@ -139,7 +110,13 @@ function Home(): JSX.Element {
           });
       })();
     }
-  },  [clientAddress, sssState]);
+  },  [address, sssState]);
+
+  type Inputs = {
+    recipientRawAddress: string;
+    message: string;
+    xym: number;
+  };
 
   const {
     register,

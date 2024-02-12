@@ -4,7 +4,6 @@ import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
-  PublicAccount,
   Address,
   Deadline,
   UInt64,
@@ -26,7 +25,8 @@ import {
 } from '@/consts/blockchainProperty';
 
 import useSssInit from '@/hooks/useSssInit';
-import { useRouter } from 'next/router';
+import useAddressInit from '@/hooks/useAddressInit';
+
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
@@ -75,19 +75,9 @@ function Home(): JSX.Element {
 
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
-  const router = useRouter();
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
-  const [clientAddress, setClientAddress] = useState<string>('');
-  // CUSTOM REACTIVE VARIABLES
-  const [address, setAddress] = useState<Address>();
-
-  // ルートネームスペース一覧表示用
-  const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
-
-  // ルートネームスペース一覧表示用
-  const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>([]);
 
   //SSS用設定
   interface SSSWindow extends Window {
@@ -96,26 +86,14 @@ function Home(): JSX.Element {
   }
   declare const window: SSSWindow;
 
-  useEffect(() => {
-    if (sssState === 'ACTIVE') {
-      const clientPublicAccount = PublicAccount.createFromPublicKey(clientPublicKey, networkType);
-      setClientAddress(clientPublicAccount.address.plain());
-    } else if (sssState === 'INACTIVE' || sssState === 'NONE') {
-      router.push('/sss');
-    }
-  }, [clientPublicKey, sssState, router]);
+  // アドレス取得
+  const { clientAddress, address } = useAddressInit(clientPublicKey, sssState);
 
+  // ルートネームスペース一覧表示用
+  const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
 
-  type Inputs = {
-    rootNameSpace: string;
-  };
-
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
-      setAddress(Address.createFromRawAddress(clientAddress));
-    }
-  }, [clientAddress, sssState]);
-
+  // ルートネームスペース一覧表示用
+  const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>({});
 
   async function getNamespaceRegistrationTransactions() {
         const txRepo = repo.createTransactionRepository();
@@ -123,15 +101,14 @@ function Home(): JSX.Element {
           txRepo.search({
             type: [TransactionType.NAMESPACE_REGISTRATION],
             group: TransactionGroup.Confirmed,
-            address: Address.createFromRawAddress(clientAddress),
+            address: address,
             order: Order.Desc,
             pageSize: 100,
           })
         );
         console.log('NS_RAGISTRATION TXS:', resultSearch);
-        // resultSearch.dataにはNamespaceRegistrationTransaction[]が入っている
+        // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
         // dataのタイプを変換する
-        // setNsTxList(resultSearch.data.map((tx) => tx as NamespaceRegistrationTransaction));
         setNsTxList(resultSearch.data as NamespaceRegistrationTransaction[]);
   }
 
@@ -141,7 +118,7 @@ function Home(): JSX.Element {
           txRepo.search({
             type: [TransactionType.ADDRESS_ALIAS],
             group: TransactionGroup.Confirmed,
-            address: Address.createFromRawAddress(clientAddress),
+            address: address,
             order: Order.Desc,
             pageSize: 100,
           })
@@ -156,9 +133,11 @@ function Home(): JSX.Element {
         setAliasTxDict(aliasTxDict);
   }
 
-  async function initListener() {
-        // Start monitoring of transaction status with websocket
-        const address = Address.createFromRawAddress(clientAddress);
+  useEffect(() => {
+    if (sssState === 'ACTIVE' && address !== undefined) {
+      (async() => {
+        getNamespaceRegistrationTransactions();
+
         const listener = repo.createListener();
         await listener.open();
         listener
@@ -168,17 +147,14 @@ function Home(): JSX.Element {
             //console.dir({ confirmedTx }, { depth: null });
             setNsTxList(current => [confirmedTx as NamespaceRegistrationTransaction, ...current]);
           });
-  }
-
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && clientAddress !== '') {
-      (async() => {
-        getNamespaceRegistrationTransactions();
-        // initListener();
         getAliasTransactions();
       })();
     }
-  },  [clientAddress, sssState]);
+  },  [address, sssState]);
+
+  type Inputs = {
+    rootNameSpace: string;
+  };
 
   const {
     register,

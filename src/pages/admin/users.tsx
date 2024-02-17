@@ -1,13 +1,13 @@
+"use client";
+
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
 import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
-import { useRouter } from 'next/router';
 import {
   Address,
   Deadline,
-  UInt64,
   Transaction,
   TransactionType,
   NamespaceRegistrationTransaction,
@@ -33,27 +33,29 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-function createNamespaceRegistrationTransaction(rootNameSpace: string): Transaction
+import { useSearchParams } from 'next/navigation';
+
+function createNamespaceRegistrationTransaction(parentNamespace: string, namespaceName: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const day = 60;
-  const duration = UInt64.fromUint((24 * 60 * 60) / 30 * day);
-
   const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
 
+  console.log('parentNamespace:', parentNamespace);
+  console.log('namespaceName:', namespaceName);
+
   // Create transaction
-  const namespaceRegistrationTransaction = NamespaceRegistrationTransaction.createRootNamespace(
+  const namespaceRegistrationTransaction = NamespaceRegistrationTransaction.createSubNamespace(
     deadline,
-    rootNameSpace,
-    duration,
+    namespaceName,
+    parentNamespace,
     networkType
   ).setMaxFee(feeMultiplier);
 
   return namespaceRegistrationTransaction;
 }
 
-function createAliasTransaction(rootNameSpace: string, address: Address): AliasTransaction
+function createAliasTransaction(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -64,7 +66,7 @@ function createAliasTransaction(rootNameSpace: string, address: Address): AliasT
   const aliasTransaction = AliasTransaction.createForAddress(
     deadline,
     AliasAction.Link,
-    new NamespaceId(rootNameSpace),
+    new NamespaceId(parentNamespace),
     address,
     networkType,
   ).setMaxFee(feeMultiplier);
@@ -81,6 +83,15 @@ declare const window: SSSWindow;
 
 function Home(): JSX.Element {
 
+  //const { parentNamespace, setParentNamespace } = useState<string>(useSearchParams().get('parentNamespace'));
+
+  const searchParams = useSearchParams();
+  const parentNamespace = searchParams.get('parentNamespace');
+  if (!parentNamespace) {
+    console.log(parentNamespace);
+    //throw new Error('parentNamespace is not defined');
+  }
+
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
 
@@ -90,10 +101,10 @@ function Home(): JSX.Element {
   // アドレス取得
   const { clientAddress, address } = useAddressInit(clientPublicKey, sssState);
 
-  // ルートネームスペース一覧表示用
+  // ユーザーID（サブネームスペース）一覧表示用
   const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
 
-  // ルートネームスペース一覧表示用
+  // ユーザーID（サブネームスペース）一覧表示用
   const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>({});
 
   async function getNamespaceRegistrationTransactions() {
@@ -154,7 +165,7 @@ function Home(): JSX.Element {
   },  [address, sssState]);
 
   type Inputs = {
-    rootNameSpace: string;
+    namespaceName: string;
   };
 
   const {
@@ -168,12 +179,14 @@ function Home(): JSX.Element {
         const txRepo = repo.createTransactionRepository();
 
         // Namespace登録
-        const registrationTx = createNamespaceRegistrationTransaction(data.rootNameSpace);
+        const registrationTx = createNamespaceRegistrationTransaction(parentNamespace as string, data.namespaceName);
         window.SSS.setTransaction(registrationTx);
+        console.log(registrationTx);
 
         const signedTx: SignedTransaction = await new Promise((resolve) => {
           resolve(window.SSS.requestSign());
         });
+        console.log(signedTx);
         await firstValueFrom(txRepo.announce(signedTx));
 
       })();
@@ -184,7 +197,7 @@ function Home(): JSX.Element {
       const txRepo = repo.createTransactionRepository();
 
       // Namespaceと自分のAddressを紐づける
-      const aliasTx = createAliasTransaction(data.namespaceName, Address.createFromRawAddress(clientAddress));
+      const aliasTx = createAliasTransaction(parentNamespace, data.namespaceName, Address.createFromRawAddress(clientAddress));
       window.SSS.setTransaction(aliasTx);
       const signedAliasTx: SignedTransaction = await new Promise((resolve) => {
         resolve(window.SSS.requestSign());
@@ -193,7 +206,6 @@ function Home(): JSX.Element {
     })();
   }
 
-  const router = useRouter();
   return (
     <>
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
@@ -212,7 +224,7 @@ function Home(): JSX.Element {
           flexDirection='column'
         >
           <Typography component='div' variant='h6' mt={5} mb={1}>
-            ルートネームスペース管理
+            { parentNamespace } ユーザーID管理
           </Typography>
           { address.plain() }
           <form onSubmit={handleSubmit(submit)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
@@ -221,10 +233,10 @@ function Home(): JSX.Element {
                 名前
               </label>
               <input
-                {...register("rootNameSpace", { required: "ネームスペースを入力してください。" })}
+                {...register("namespaceName", { required: "ID(サブネームスペース）を入力してください。" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="rootNameSpace"
+                name="namespaceName"
               />
             </div>
 
@@ -235,23 +247,14 @@ function Home(): JSX.Element {
       <table>
         <thead>
           <tr>
-            <th>ルートネームスペース名</th>
+            <th>ユーザーID</th>
             <th>割当先</th>
           </tr>
         </thead>
         <tbody>
           {nsTxList.map((data, index) => (
             <tr key={index}>
-              <td
-                onClick={() => {
-                  router.push({
-                    pathname: '/admin/users',
-                    query: { parentNamespace: data.namespaceName
-                  }});
-                }}
-              >
-                { data.namespaceName }
-              </td>
+              <td>{ data.namespaceName }</td>
               <td>
                 { aliasTxDict[data.namespaceId.toHex()] ? (
                   aliasTxDict[data.namespaceId.toHex()].address.pretty()

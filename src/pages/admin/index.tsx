@@ -31,6 +31,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
+const txRepo = repo.createTransactionRepository();
 
 import { signTx } from '@/utils/signTx';
 
@@ -68,7 +69,6 @@ function createAliasTx(rootNameSpace: string, address: Address): AliasTransactio
 }
 
 async function getNamespaceRegistrationTxs(address: Address): Promise<NamespaceRegistrationTransaction[]> {
-  const txRepo = repo.createTransactionRepository();
   const resultSearch = await firstValueFrom(
     txRepo.search({
       type: [TransactionType.NAMESPACE_REGISTRATION],
@@ -85,7 +85,6 @@ async function getNamespaceRegistrationTxs(address: Address): Promise<NamespaceR
 }
 
 async function getAliasTxs(address: Address): Promise<{ [id: string]: AliasTransaction }> {
-  const txRepo = repo.createTransactionRepository();
   const resultSearch = await firstValueFrom(
     txRepo.search({
       type: [TransactionType.ADDRESS_ALIAS],
@@ -111,7 +110,7 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
 
   // アドレス取得
-  const { clientAddress, address } = useAddressInit(clientPublicKey, sssState);
+  const { address } = useAddressInit(clientPublicKey, sssState);
 
   // ルートネームスペース一覧表示用
   const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
@@ -154,8 +153,11 @@ function Home(): JSX.Element {
 
   // NamespaceとAddressを紐づける
   const createAlias = (data: NamespaceRegistrationTransaction) => {
+    if (!address) {
+      return;
+    }
     signTx(
-      createAliasTx(data.namespaceName, Address.createFromRawAddress(clientAddress))
+      createAliasTx(data.namespaceName, address)
     )
   }
 

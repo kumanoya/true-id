@@ -15,13 +15,13 @@ interface SSSWindow extends Window {
 }
 declare const window: SSSWindow;
 
-export const signTx = async (tx: Transaction) => {
+export const signTx = async (tx: Transaction): Promise<void> => {
   window.SSS.setTransaction(tx);
   //console.log(tx);
   const signedTx: SignedTransaction = await new Promise((resolve) => {
     resolve(window.SSS.requestSign());
   });
   //console.log(signedTx);
-  return await firstValueFrom(txRepo.announce(signedTx));
+  await firstValueFrom(txRepo.announce(signedTx));
 }
 

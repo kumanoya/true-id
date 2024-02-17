@@ -121,7 +121,7 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
 
   // アドレス取得
-  const { clientAddress, address } = useAddressInit(clientPublicKey, sssState);
+  const { address } = useAddressInit(clientPublicKey, sssState);
 
   // ユーザーID（サブネームスペース）一覧表示用
   const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
@@ -164,8 +164,11 @@ function Home(): JSX.Element {
 
   // NamespaceとAddressを紐づける
   const createAlias = (data: NamespaceRegistrationTransaction) => {
+    if (!address) {
+      return;
+    }
     signTx(
-      createSubNamespaceAliasTx(parentNamespace, data.namespaceName, Address.createFromRawAddress(clientAddress))
+      createSubNamespaceAliasTx(parentNamespace, data.namespaceName, address)
     )
   }
 

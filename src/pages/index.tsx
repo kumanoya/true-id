@@ -4,7 +4,6 @@ import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
-  PublicAccount,
   Address,
   Deadline,
   UInt64,
@@ -14,7 +13,7 @@ import {
   Transaction,
   TransferTransaction,
   TransactionGroup,
-  SignedTransaction,
+  TransactionType,
   Order,
 } from 'symbol-sdk';
 
@@ -31,8 +30,11 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
+const txRepo = repo.createTransactionRepository();
 
-function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
+import { signTx } from '@/utils/signTx';
+
+function createMessageTx(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
 {
   // XXX: ハードコード
   const networkCurrencyDivisibility = 6; // XYMの分割単位
@@ -60,17 +62,21 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
   return transferTransaction;
 }
 
-//SSS用設定
-interface SSSWindow extends Window {
-  SSS: any;
-  isAllowedSSS: () => boolean;
+async function getMessageTxs(address: Address): Promise<Transaction[]> {
+  const resultSearch = await firstValueFrom(
+    txRepo.search({
+      type: [TransactionType.TRANSFER],
+      group: TransactionGroup.Confirmed,
+      address: address,
+      order: Order.Desc,
+      pageSize: 100,
+    })
+  );
+  console.log('resultSearch :', resultSearch);
+  return resultSearch.data as Transaction[];
 }
-declare const window: SSSWindow;
 
 function Home(): JSX.Element {
-
-  //共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
@@ -84,19 +90,7 @@ function Home(): JSX.Element {
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
-        const txRepo = repo.createTransactionRepository();
-
-        const resultSearch = await firstValueFrom(
-          txRepo.search({
-            // type: [TransactionType.AGGREGATE_BONDED],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        );
-        console.log('resultSearch :', resultSearch);
-        setDataList(resultSearch.data);
+        setDataList(await getMessageTxs(address));
 
         // Start monitoring of transaction status with websocket
         const listener = repo.createListener();
@@ -124,23 +118,14 @@ function Home(): JSX.Element {
   } = useForm<Inputs>();
 
   // SUBMIT LOGIC
-  const submit: SubmitHandler<Inputs> = (data) => {
-      const transferTx = createMessageTransaction(data.recipientRawAddress, data.message, data.xym);
-
-      console.log("SUBMIT:");
-      console.log(transferTx);
-      window.SSS.setTransaction(transferTx);
-
-      (async () => {
-        const signedTx: SignedTransaction = await new Promise((resolve) => {
-          resolve(window.SSS.requestSign());
-        });
-
-        const txRepo = repo.createTransactionRepository();
-        txRepo.announce(signedTx);
-      })();
+  const sendMessage: SubmitHandler<Inputs> = (data) => {
+    signTx(
+      createMessageTx(data.recipientRawAddress, data.message, data.xym)
+    )
   }
 
+  //View共通設定
+  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   return (
     <>
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
@@ -162,7 +147,7 @@ function Home(): JSX.Element {
             あなたのアドレス
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(submit)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
                 宛先アドレス

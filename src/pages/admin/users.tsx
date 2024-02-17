@@ -12,7 +12,6 @@ import {
   TransactionType,
   NamespaceRegistrationTransaction,
   TransactionGroup,
-  SignedTransaction,
 
   AliasTransaction,
   AliasAction,
@@ -32,18 +31,19 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
+const txRepo = repo.createTransactionRepository();
+
+import { signTx } from '@/utils/signTx';
 
 import { useSearchParams } from 'next/navigation';
 
-function createNamespaceRegistrationTransaction(parentNamespace: string, namespaceName: string): Transaction
+function createSubNamespaceRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
-
+  const feeMultiplier = 100;
   console.log('parentNamespace:', parentNamespace);
   console.log('namespaceName:', namespaceName);
-
   // Create transaction
   const namespaceRegistrationTransaction = NamespaceRegistrationTransaction.createSubNamespace(
     deadline,
@@ -55,18 +55,16 @@ function createNamespaceRegistrationTransaction(parentNamespace: string, namespa
   return namespaceRegistrationTransaction;
 }
 
-function createAliasTransaction(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
+function createSubNamespaceAliasTx(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
-
+  const feeMultiplier = 100;
   // Create transaction
-  //(deadline, aliasAction, namespaceId, address, networkType)
   const aliasTransaction = AliasTransaction.createForAddress(
     deadline,
     AliasAction.Link,
-    new NamespaceId(parentNamespace),
+    new NamespaceId(parentNamespace + '.' + namespaceName),
     address,
     networkType,
   ).setMaxFee(feeMultiplier);
@@ -74,26 +72,50 @@ function createAliasTransaction(parentNamespace: string, namespaceName: string, 
   return aliasTransaction;
 }
 
-//SSS用設定
-interface SSSWindow extends Window {
-  SSS: any;
-  isAllowedSSS: () => boolean;
+async function getSubNamespaceRegistrationTxs(address: Address): Promise<NamespaceRegistrationTransaction[]> {
+  const resultSearch = await firstValueFrom(
+    txRepo.search({
+      type: [TransactionType.NAMESPACE_REGISTRATION],
+      group: TransactionGroup.Confirmed,
+      address: address,
+      order: Order.Desc,
+      pageSize: 100,
+    })
+  );
+  console.log('NS_RAGISTRATION TXS:', resultSearch);
+  // SubNamespaceのみを抽出
+  const txs = resultSearch.data.filter((tx) => {
+    return (tx as NamespaceRegistrationTransaction).registrationType === 1;
+  });
+  // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
+  return txs as NamespaceRegistrationTransaction[];
 }
-declare const window: SSSWindow;
+
+// TODO: TxではなくNamespaceInfoでの取得に切り替える
+async function getAliasTxs(address: Address): Promise<{ [id: string]: AliasTransaction }> {
+  const resultSearch = await firstValueFrom(
+    txRepo.search({
+      type: [TransactionType.ADDRESS_ALIAS],
+      group: TransactionGroup.Confirmed,
+      address: address,
+      order: Order.Desc,
+      pageSize: 100,
+    })
+  );
+  console.log('ADDRESS_ALIAS TXS:', resultSearch);
+  // resultSearch.dataにはAliasTransaction[]が入っている
+  // これを、NamespaceIdをキーとした連想配列に変換する
+  const aliasTxDict: { [id: string]: AliasTransaction } = {};
+  for (const tx of resultSearch.data as AliasTransaction[]) {
+    aliasTxDict[tx.namespaceId.toHex()] = tx;
+  }
+  return aliasTxDict;
+}
 
 function Home(): JSX.Element {
 
-  //const { parentNamespace, setParentNamespace } = useState<string>(useSearchParams().get('parentNamespace'));
-
   const searchParams = useSearchParams();
-  const parentNamespace = searchParams.get('parentNamespace');
-  if (!parentNamespace) {
-    console.log(parentNamespace);
-    //throw new Error('parentNamespace is not defined');
-  }
-
-  //共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
+  const parentNamespace = searchParams.get('parentNamespace') as string;
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
@@ -103,52 +125,13 @@ function Home(): JSX.Element {
 
   // ユーザーID（サブネームスペース）一覧表示用
   const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
-
-  // ユーザーID（サブネームスペース）一覧表示用
   const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>({});
 
-  async function getNamespaceRegistrationTransactions() {
-        const txRepo = repo.createTransactionRepository();
-        const resultSearch = await firstValueFrom(
-          txRepo.search({
-            type: [TransactionType.NAMESPACE_REGISTRATION],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        );
-        console.log('NS_RAGISTRATION TXS:', resultSearch);
-        // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
-        // dataのタイプを変換する
-        setNsTxList(resultSearch.data as NamespaceRegistrationTransaction[]);
-  }
-
-  async function getAliasTransactions() {
-        const txRepo = repo.createTransactionRepository();
-        const resultSearch = await firstValueFrom(
-          txRepo.search({
-            type: [TransactionType.ADDRESS_ALIAS],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        );
-        console.log('ADDRESS_ALIAS TXS:', resultSearch);
-        // resultSearch.dataにはAliasTransaction[]が入っている
-        // これを、NamespaceIdをキーとした連想配列に変換する
-        const aliasTxDict: { [id: string]: AliasTransaction } = {};
-        for (const tx of resultSearch.data as AliasTransaction[]) {
-          aliasTxDict[tx.namespaceId.toHex()] = tx;
-        }
-        setAliasTxDict(aliasTxDict);
-  }
-
+  // トランザクションのCONFIRMEDを監視
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
-        getNamespaceRegistrationTransactions();
+        setNsTxList(await getSubNamespaceRegistrationTxs(address));
 
         const listener = repo.createListener();
         await listener.open();
@@ -156,10 +139,9 @@ function Home(): JSX.Element {
           .confirmed(address)
           .subscribe((confirmedTx: Transaction) => {
             console.log("EVENT: TRANSACTION CONFIRMED");
-            //console.dir({ confirmedTx }, { depth: null });
             setNsTxList(current => [confirmedTx as NamespaceRegistrationTransaction, ...current]);
           });
-        getAliasTransactions();
+        setAliasTxDict(await getAliasTxs(address));
       })();
     }
   },  [address, sssState]);
@@ -173,39 +155,22 @@ function Home(): JSX.Element {
     handleSubmit,
   } = useForm<Inputs>();
 
-  // SUBMIT LOGIC
-  const submit: SubmitHandler<Inputs> = (data) => {
-      (async () => {
-        const txRepo = repo.createTransactionRepository();
-
-        // Namespace登録
-        const registrationTx = createNamespaceRegistrationTransaction(parentNamespace as string, data.namespaceName);
-        window.SSS.setTransaction(registrationTx);
-        console.log(registrationTx);
-
-        const signedTx: SignedTransaction = await new Promise((resolve) => {
-          resolve(window.SSS.requestSign());
-        });
-        console.log(signedTx);
-        await firstValueFrom(txRepo.announce(signedTx));
-
-      })();
+  // Namespace登録
+  const registerNamespace: SubmitHandler<Inputs> = (data) => {
+    signTx(
+      createSubNamespaceRegistrationTx(parentNamespace, data.namespaceName)
+    )
   }
 
+  // NamespaceとAddressを紐づける
   const createAlias = (data: NamespaceRegistrationTransaction) => {
-    (async () => {
-      const txRepo = repo.createTransactionRepository();
-
-      // Namespaceと自分のAddressを紐づける
-      const aliasTx = createAliasTransaction(parentNamespace, data.namespaceName, Address.createFromRawAddress(clientAddress));
-      window.SSS.setTransaction(aliasTx);
-      const signedAliasTx: SignedTransaction = await new Promise((resolve) => {
-        resolve(window.SSS.requestSign());
-      });
-      txRepo.announce(signedAliasTx);
-    })();
+    signTx(
+      createSubNamespaceAliasTx(parentNamespace, data.namespaceName, Address.createFromRawAddress(clientAddress))
+    )
   }
 
+  // View共通設定
+  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   return (
     <>
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
@@ -227,7 +192,7 @@ function Home(): JSX.Element {
             { parentNamespace } ユーザーID管理
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(submit)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
                 名前

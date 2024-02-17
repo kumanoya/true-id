@@ -12,7 +12,6 @@ import {
   TransactionType,
   NamespaceRegistrationTransaction,
   TransactionGroup,
-  SignedTransaction,
 
   AliasTransaction,
   AliasAction,
@@ -33,56 +32,80 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-function createNamespaceRegistrationTransaction(rootNameSpace: string): Transaction
+import { signTx } from '@/utils/signTx';
+
+function createNamespaceRegistrationTx(rootNameSpace: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
   const day = 60;
   const duration = UInt64.fromUint((24 * 60 * 60) / 30 * day);
-
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
+  const feeMultiplier = 100; 
 
   // Create transaction
-  const namespaceRegistrationTransaction = NamespaceRegistrationTransaction.createRootNamespace(
+  return  NamespaceRegistrationTransaction.createRootNamespace(
     deadline,
     rootNameSpace,
     duration,
     networkType
   ).setMaxFee(feeMultiplier);
-
-  return namespaceRegistrationTransaction;
 }
 
-function createAliasTransaction(rootNameSpace: string, address: Address): AliasTransaction
+function createAliasTx(rootNameSpace: string, address: Address): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
+  const feeMultiplier = 100; 
 
   // Create transaction
-  //(deadline, aliasAction, namespaceId, address, networkType)
-  const aliasTransaction = AliasTransaction.createForAddress(
+  return AliasTransaction.createForAddress(
     deadline,
     AliasAction.Link,
     new NamespaceId(rootNameSpace),
     address,
     networkType,
   ).setMaxFee(feeMultiplier);
-
-  return aliasTransaction;
 }
 
-//SSS用設定
-interface SSSWindow extends Window {
-  SSS: any;
-  isAllowedSSS: () => boolean;
+async function getNamespaceRegistrationTxs(address: Address): Promise<NamespaceRegistrationTransaction[]> {
+  const txRepo = repo.createTransactionRepository();
+  const resultSearch = await firstValueFrom(
+    txRepo.search({
+      type: [TransactionType.NAMESPACE_REGISTRATION],
+      group: TransactionGroup.Confirmed,
+      address: address,
+      order: Order.Desc,
+      pageSize: 100,
+    })
+  );
+  console.log('NS_RAGISTRATION TXS:', resultSearch);
+  // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
+  // dataのタイプを変換する
+  return resultSearch.data as NamespaceRegistrationTransaction[];
 }
-declare const window: SSSWindow;
+
+async function getAliasTxs(address: Address): Promise<{ [id: string]: AliasTransaction }> {
+  const txRepo = repo.createTransactionRepository();
+  const resultSearch = await firstValueFrom(
+    txRepo.search({
+      type: [TransactionType.ADDRESS_ALIAS],
+      group: TransactionGroup.Confirmed,
+      address: address,
+      order: Order.Desc,
+      pageSize: 100,
+    })
+  );
+  console.log('ADDRESS_ALIAS TXS:', resultSearch);
+  // resultSearch.dataにはAliasTransaction[]が入っている
+  // これを、NamespaceIdをキーとした連想配列に変換する
+  const aliasTxDict: { [id: string]: AliasTransaction } = {};
+  for (const tx of resultSearch.data as AliasTransaction[]) {
+    aliasTxDict[tx.namespaceId.toHex()] = tx;
+  }
+  return aliasTxDict;
+}
 
 function Home(): JSX.Element {
-
-  //共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
@@ -92,52 +115,12 @@ function Home(): JSX.Element {
 
   // ルートネームスペース一覧表示用
   const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
-
-  // ルートネームスペース一覧表示用
   const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>({});
-
-  async function getNamespaceRegistrationTransactions() {
-        const txRepo = repo.createTransactionRepository();
-        const resultSearch = await firstValueFrom(
-          txRepo.search({
-            type: [TransactionType.NAMESPACE_REGISTRATION],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        );
-        console.log('NS_RAGISTRATION TXS:', resultSearch);
-        // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
-        // dataのタイプを変換する
-        setNsTxList(resultSearch.data as NamespaceRegistrationTransaction[]);
-  }
-
-  async function getAliasTransactions() {
-        const txRepo = repo.createTransactionRepository();
-        const resultSearch = await firstValueFrom(
-          txRepo.search({
-            type: [TransactionType.ADDRESS_ALIAS],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        );
-        console.log('ADDRESS_ALIAS TXS:', resultSearch);
-        // resultSearch.dataにはAliasTransaction[]が入っている
-        // これを、NamespaceIdをキーとした連想配列に変換する
-        const aliasTxDict: { [id: string]: AliasTransaction } = {};
-        for (const tx of resultSearch.data as AliasTransaction[]) {
-          aliasTxDict[tx.namespaceId.toHex()] = tx;
-        }
-        setAliasTxDict(aliasTxDict);
-  }
 
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
-        getNamespaceRegistrationTransactions();
+        setNsTxList(await getNamespaceRegistrationTxs(address));
 
         const listener = repo.createListener();
         await listener.open();
@@ -148,7 +131,7 @@ function Home(): JSX.Element {
             //console.dir({ confirmedTx }, { depth: null });
             setNsTxList(current => [confirmedTx as NamespaceRegistrationTransaction, ...current]);
           });
-        getAliasTransactions();
+        setAliasTxDict(await getAliasTxs(address));
       })();
     }
   },  [address, sssState]);
@@ -162,37 +145,22 @@ function Home(): JSX.Element {
     handleSubmit,
   } = useForm<Inputs>();
 
-  // SUBMIT LOGIC
-  const submit: SubmitHandler<Inputs> = (data) => {
-      (async () => {
-        const txRepo = repo.createTransactionRepository();
-
-        // Namespace登録
-        const registrationTx = createNamespaceRegistrationTransaction(data.rootNameSpace);
-        window.SSS.setTransaction(registrationTx);
-
-        const signedTx: SignedTransaction = await new Promise((resolve) => {
-          resolve(window.SSS.requestSign());
-        });
-        await firstValueFrom(txRepo.announce(signedTx));
-
-      })();
+  // Namespace登録
+  const registerNamespace: SubmitHandler<Inputs> = (data) => {
+    signTx(
+      createNamespaceRegistrationTx(data.rootNameSpace)
+    )
   }
 
+  // NamespaceとAddressを紐づける
   const createAlias = (data: NamespaceRegistrationTransaction) => {
-    (async () => {
-      const txRepo = repo.createTransactionRepository();
-
-      // Namespaceと自分のAddressを紐づける
-      const aliasTx = createAliasTransaction(data.namespaceName, Address.createFromRawAddress(clientAddress));
-      window.SSS.setTransaction(aliasTx);
-      const signedAliasTx: SignedTransaction = await new Promise((resolve) => {
-        resolve(window.SSS.requestSign());
-      });
-      txRepo.announce(signedAliasTx);
-    })();
+    signTx(
+      createAliasTx(data.namespaceName, Address.createFromRawAddress(clientAddress))
+    )
   }
 
+  //View共通設定
+  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   const router = useRouter();
   return (
     <>
@@ -215,7 +183,7 @@ function Home(): JSX.Element {
             ルートネームスペース管理
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(submit)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
                 名前

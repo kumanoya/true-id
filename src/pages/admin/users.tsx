@@ -1,22 +1,17 @@
 "use client";
 
-import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
 import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
   Address,
-  Deadline,
-  Transaction,
-  TransactionType,
-  NamespaceRegistrationTransaction,
-  TransactionGroup,
-
-  AliasTransaction,
   AliasAction,
+  AliasTransaction,
+  Deadline,
   NamespaceId,
-  Order,
+  NamespaceRegistrationTransaction,
+  Transaction,
 } from 'symbol-sdk';
 
 import {
@@ -31,13 +26,46 @@ import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
-const txRepo = repo.createTransactionRepository();
 
 import { signTx } from '@/utils/signTx';
 
 import { useSearchParams } from 'next/navigation';
 
-function createSubNamespaceRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
+async function getNameAddressList(parentNamespace: string): Promise<{ name: string, address: string }[]> {
+
+  const resultSearch = await repo.createNamespaceRepository().search({
+    registrationType: 1, // SUB NAMESPACE
+    level0: new NamespaceId(parentNamespace), // parentNamespace
+  }).toPromise();
+  if (!resultSearch) {
+    return [];
+  }
+  const namespaceInfos = resultSearch.data;
+  console.log('NAMESPACE[]:', namespaceInfos);
+
+  const namespaceIds = resultSearch.data.map((ns) => ns.id);
+  const names = await repo.createNamespaceRepository().getNamespacesNames(namespaceIds).toPromise();
+  if (!names) {
+    return [];
+  }
+  console.log('NAMESPACE_NAMES[]:', names);
+
+  // id => name の連想配列を作成
+  const dict: { [id: string]: string } = {};
+  for (const namespaceName of names) {
+    dict[namespaceName.namespaceId.toHex()] = namespaceName.name;
+  }
+
+  // { name, address } の配列を作成
+  const ret: { name: string, address: string }[] = [];
+  for (const info of namespaceInfos) {
+    ret.push({ name: dict[info.id?.toHex()], address: info.alias.address?.pretty() as string});
+  }
+
+  return ret;
+}
+
+function createRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -55,7 +83,7 @@ function createSubNamespaceRegistrationTx(parentNamespace: string, namespaceName
   return namespaceRegistrationTransaction;
 }
 
-function createSubNamespaceAliasTx(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
+function createAliasTx(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -72,45 +100,6 @@ function createSubNamespaceAliasTx(parentNamespace: string, namespaceName: strin
   return aliasTransaction;
 }
 
-async function getSubNamespaceRegistrationTxs(address: Address): Promise<NamespaceRegistrationTransaction[]> {
-  const resultSearch = await firstValueFrom(
-    txRepo.search({
-      type: [TransactionType.NAMESPACE_REGISTRATION],
-      group: TransactionGroup.Confirmed,
-      address: address,
-      order: Order.Desc,
-      pageSize: 100,
-    })
-  );
-  console.log('NS_RAGISTRATION TXS:', resultSearch);
-  // SubNamespaceのみを抽出
-  const txs = resultSearch.data.filter((tx) => {
-    return (tx as NamespaceRegistrationTransaction).registrationType === 1;
-  });
-  // resultSearch.dataには実際にはNamespaceRegistrationTransaction[]が入っている
-  return txs as NamespaceRegistrationTransaction[];
-}
-
-// TODO: TxではなくNamespaceInfoでの取得に切り替える
-async function getAliasTxs(address: Address): Promise<{ [id: string]: AliasTransaction }> {
-  const resultSearch = await firstValueFrom(
-    txRepo.search({
-      type: [TransactionType.ADDRESS_ALIAS],
-      group: TransactionGroup.Confirmed,
-      address: address,
-      order: Order.Desc,
-      pageSize: 100,
-    })
-  );
-  console.log('ADDRESS_ALIAS TXS:', resultSearch);
-  // resultSearch.dataにはAliasTransaction[]が入っている
-  // これを、NamespaceIdをキーとした連想配列に変換する
-  const aliasTxDict: { [id: string]: AliasTransaction } = {};
-  for (const tx of resultSearch.data as AliasTransaction[]) {
-    aliasTxDict[tx.namespaceId.toHex()] = tx;
-  }
-  return aliasTxDict;
-}
 
 function Home(): JSX.Element {
 
@@ -124,27 +113,25 @@ function Home(): JSX.Element {
   const { address } = useAddressInit(clientPublicKey, sssState);
 
   // ユーザーID（サブネームスペース）一覧表示用
-  const [nsTxList, setNsTxList] = useState<NamespaceRegistrationTransaction[]>([]);
-  const [aliasTxDict, setAliasTxDict] = useState<{ [id: string]: AliasTransaction }>({});
+  const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
 
   // トランザクションのCONFIRMEDを監視
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (sssState === 'ACTIVE' && address !== undefined && parentNamespace) {
       (async() => {
-        setNsTxList(await getSubNamespaceRegistrationTxs(address));
+        setNameAddressList(await getNameAddressList(parentNamespace));
 
         const listener = repo.createListener();
         await listener.open();
         listener
           .confirmed(address)
-          .subscribe((confirmedTx: Transaction) => {
+          .subscribe(async () => {
             console.log("EVENT: TRANSACTION CONFIRMED");
-            setNsTxList(current => [confirmedTx as NamespaceRegistrationTransaction, ...current]);
+            setNameAddressList(await getNameAddressList(parentNamespace));
           });
-        setAliasTxDict(await getAliasTxs(address));
       })();
     }
-  },  [address, sssState]);
+  },  [address, sssState, parentNamespace]);
 
   type Inputs = {
     namespaceName: string;
@@ -158,17 +145,17 @@ function Home(): JSX.Element {
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
     signTx(
-      createSubNamespaceRegistrationTx(parentNamespace, data.namespaceName)
+      createRegistrationTx(parentNamespace, data.namespaceName)
     )
   }
 
   // NamespaceとAddressを紐づける
-  const createAlias = (data: NamespaceRegistrationTransaction) => {
+  const createAlias = (name: string) => {
     if (!address) {
       return;
     }
     signTx(
-      createSubNamespaceAliasTx(parentNamespace, data.namespaceName, address)
+      createAliasTx(parentNamespace, name, address)
     )
   }
 
@@ -220,15 +207,13 @@ function Home(): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {nsTxList.map((data, index) => (
-            <tr key={index}>
-              <td>{ data.namespaceName }</td>
+          {nameAddressList.map((data) => (
+            <tr key={data.name}>
               <td>
-                { aliasTxDict[data.namespaceId.toHex()] ? (
-                  aliasTxDict[data.namespaceId.toHex()].address.pretty()
-                ) : (
-                  <button onClick={() => createAlias(data)} className="px-4">割当</button>
-                )}
+                { data.name }
+              </td>
+              <td>
+                { data.address? data.address : (<button onClick={() => createAlias(data.name)} className="px-4">アドレス割当</button>) }
               </td>
             </tr>
           ))}

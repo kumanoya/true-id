@@ -29,7 +29,7 @@ function LeftDrawer(props: {
           <List>
             <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'center' }}>
               <Image
-                src='/logo.jpeg'
+                src='/true-id.png'
                 width={2048}
                 height={472}
                 style={{

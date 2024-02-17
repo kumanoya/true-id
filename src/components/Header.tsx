@@ -18,7 +18,7 @@ function Header(props: {
           onClick={() => setOpenLeftDrawer(true)}
         />
         <Image
-          src='/logo.jpeg'
+          src='/true-id.png'
           width={2048}
           height={472}
           style={{

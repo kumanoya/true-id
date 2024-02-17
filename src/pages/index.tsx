@@ -60,6 +60,13 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
   return transferTransaction;
 }
 
+//SSS用設定
+interface SSSWindow extends Window {
+  SSS: any;
+  isAllowedSSS: () => boolean;
+}
+declare const window: SSSWindow;
+
 function Home(): JSX.Element {
 
   //共通設定
@@ -67,13 +74,6 @@ function Home(): JSX.Element {
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
-
-  //SSS用設定
-  interface SSSWindow extends Window {
-    SSS: any;
-    isAllowedSSS: () => boolean;
-  }
-  declare const window: SSSWindow;
 
   // アドレス取得
   const { address } = useAddressInit(clientPublicKey, sssState);

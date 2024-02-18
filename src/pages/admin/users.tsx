@@ -59,7 +59,7 @@ async function getNameAddressList(parentNamespace: string): Promise<{ name: stri
   // { name, address } の配列を作成
   const ret: { name: string, address: string }[] = [];
   for (const info of namespaceInfos) {
-    ret.push({ name: dict[info.id?.toHex()], address: info.alias.address?.pretty() as string});
+    ret.push({ name: dict[info.id?.toHex()], address: info.alias.address?.plain() as string});
   }
 
   return ret;
@@ -73,17 +73,17 @@ function createRegistrationTx(parentNamespace: string, namespaceName: string): T
   console.log('parentNamespace:', parentNamespace);
   console.log('namespaceName:', namespaceName);
   // Create transaction
-  const namespaceRegistrationTransaction = NamespaceRegistrationTransaction.createSubNamespace(
+  const tx = NamespaceRegistrationTransaction.createSubNamespace(
     deadline,
     namespaceName,
     parentNamespace,
     networkType
   ).setMaxFee(feeMultiplier);
 
-  return namespaceRegistrationTransaction;
+  return tx;
 }
 
-function createAliasTx(parentNamespace: string, namespaceName: string, address: Address): AliasTransaction
+function createAliasTx(parentNamespace: string, namespaceName: string, address: string): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -93,7 +93,7 @@ function createAliasTx(parentNamespace: string, namespaceName: string, address: 
     deadline,
     AliasAction.Link,
     new NamespaceId(parentNamespace + '.' + namespaceName),
-    address,
+    Address.createFromRawAddress(address),
     networkType,
   ).setMaxFee(feeMultiplier);
 
@@ -115,11 +115,23 @@ function Home(): JSX.Element {
   // ユーザーID（サブネームスペース）一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
 
+  async function updateNameAddressList() {
+    const list = await getNameAddressList(parentNamespace)
+    setNameAddressList(list);
+
+    // {name, address}[]から{ name: address }の連想配列を作成
+    const addresses: {[name: string]: string} = {}
+    for (const data of list) {
+      addresses[data.name] = data.address;
+    }
+    setValue('addresses', addresses);
+  }
+
   // トランザクションのCONFIRMEDを監視
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined && parentNamespace) {
       (async() => {
-        setNameAddressList(await getNameAddressList(parentNamespace));
+        updateNameAddressList();
 
         const listener = repo.createListener();
         await listener.open();
@@ -127,7 +139,7 @@ function Home(): JSX.Element {
           .confirmed(address)
           .subscribe(async () => {
             console.log("EVENT: TRANSACTION CONFIRMED");
-            setNameAddressList(await getNameAddressList(parentNamespace));
+            updateNameAddressList();
           });
       })();
     }
@@ -135,25 +147,36 @@ function Home(): JSX.Element {
 
   type Inputs = {
     namespaceName: string;
+    addresses: { [name: string]: string };
   };
 
   const {
     register,
     handleSubmit,
+    setValue,
+    getValues,
   } = useForm<Inputs>();
+
+  /*
+  const {
+    fields,
+  } = useFieldForm({ name: 'addresses', defaultValue: {} });
+  */
+
 
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
-    signTx(
-      createRegistrationTx(parentNamespace, data.namespaceName)
-    )
+    (async () => {
+      await signTx(
+        createRegistrationTx(parentNamespace, data.namespaceName)
+      )
+    })()
   }
 
   // NamespaceとAddressを紐づける
   const createAlias = (name: string) => {
-    if (!address) {
-      return;
-    }
+    const values = getValues();
+    const address = values['addresses'][name];
     signTx(
       createAliasTx(parentNamespace, name, address)
     )
@@ -179,14 +202,12 @@ function Home(): JSX.Element {
           flexDirection='column'
         >
           <Typography component='div' variant='h6' mt={5} mb={1}>
-            { parentNamespace } ユーザーID管理
+            ユーザーID管理@{ parentNamespace }
           </Typography>
           { address.plain() }
           <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
             <div className="flex flex-col">
-              <label>
-                名前
-              </label>
+              <label> ID </label>
               <input
                 {...register("namespaceName", { required: "ID(サブネームスペース）を入力してください。" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
@@ -199,7 +220,8 @@ function Home(): JSX.Element {
           </form>
         </Box>
       )}
-      <table>
+
+      <table className="mx-8" >
         <thead>
           <tr>
             <th>ユーザーID</th>
@@ -213,7 +235,21 @@ function Home(): JSX.Element {
                 { data.name }
               </td>
               <td>
-                { data.address? data.address : (<button onClick={() => createAlias(data.name)} className="px-4">アドレス割当</button>) }
+                {
+                  data.address? data.address :(
+                    <>
+                      <input
+                        key={'address-' + data.name}
+                        {...register(`addresses.${data.name}`)}
+                        className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                      />
+                      <button
+                        onClick={() => createAlias(data.name)}
+                        className="border px-3 py-2 mx-2"
+                      >アドレス割当</button>
+                    </>
+                  )
+                }
               </td>
             </tr>
           ))}

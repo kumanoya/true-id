@@ -1,11 +1,14 @@
 import {
   Address,
+  AggregateTransaction,
   AliasAction,
   AliasTransaction,
   Deadline,
+  PublicAccount,
   NamespaceId,
   NamespaceRegistrationTransaction,
   Transaction,
+  UInt64,
 } from 'symbol-sdk';
 
 import {
@@ -48,7 +51,27 @@ function createAliasTx(parentNamespace: string, namespaceName: string, address: 
   return aliasTransaction;
 }
 
+function createRegistrationAndAliasTx(publicAccount: PublicAccount, parentNamespace: string, namespaceName: string, address: string): AliasTransaction
+{
+  const registrationTx = createRegistrationTx(parentNamespace, namespaceName);
+  const aliasTx = createAliasTx(parentNamespace, namespaceName, address);
+
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const aggregateTx = AggregateTransaction.createComplete(
+    deadline,
+    [
+      registrationTx.toAggregate(publicAccount),
+      aliasTx.toAggregate(publicAccount),
+    ],
+    networkType,
+    [],
+    UInt64.fromUint(2000000),
+  );
+  return aggregateTx
+}
+
 export {
   createRegistrationTx,
   createAliasTx,
+  createRegistrationAndAliasTx,
 }

@@ -6,9 +6,13 @@ import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
   Address,
+  TransferTransaction,
   NamespaceId,
 } from 'symbol-sdk';
 
+import {
+  requestMosaicId,
+} from '@/consts/blockchainProperty'
 
 import useSssInit from '@/hooks/useSssInit';
 import useAddressInit from '@/hooks/useAddressInit';
@@ -22,7 +26,7 @@ import { signTx } from '@/utils/signTx';
 
 import { useSearchParams } from 'next/navigation';
 
-import { createRegistrationTx, createAliasTx }  from '@/utils/namespaceTxFactory';
+import { createRegistrationAndAliasTx, createRegistrationTx, createAliasTx }  from '@/utils/namespaceTxFactory';
 
 async function getNameAddressList(parentNamespace: string): Promise<{ name: string, address: string }[]> {
 
@@ -59,7 +63,7 @@ async function getNameAddressList(parentNamespace: string): Promise<{ name: stri
 }
 
 
-function Home(): JSX.Element {
+function Users(): JSX.Element {
 
   const searchParams = useSearchParams();
   const parentNamespace = searchParams.get('parentNamespace') as string;
@@ -68,7 +72,7 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
 
   // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
+  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
 
   // ユーザーID（サブネームスペース）一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -95,9 +99,17 @@ function Home(): JSX.Element {
         await listener.open();
         listener
           .confirmed(address)
-          .subscribe(async () => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            updateNameAddressList();
+          .subscribe(async (block) => {
+            console.log("EVENT: TRANSACTION CONFIRMED:", block);
+            if (block instanceof TransferTransaction) {
+              if (block.mosaics[0].id?.toHex() === requestMosaicId) {
+                const [accountName, accountAddress] = block.message.payload.split(':')
+                const aggTx = createRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountAddress);
+                signTx(aggTx);
+              }
+            } else {
+              updateNameAddressList();
+            }
           });
       })();
     }
@@ -217,4 +229,4 @@ function Home(): JSX.Element {
     </>
   );
 }
-export default Home;
+export default Users;

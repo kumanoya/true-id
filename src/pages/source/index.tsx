@@ -2,7 +2,7 @@ import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
 import LeftDrawer from '@/components/LeftDrawer';
 import Header from '@/components/Header';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import {
   PublicAccount,
   Address,
@@ -30,6 +30,7 @@ import useAddressInit from '@/hooks/useAddressInit';
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
+
 const repo = createRepositoryFactory();
 
 function createMessageTransaction(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
@@ -87,8 +88,7 @@ function Source(): JSX.Element {
         const txRepo = repo.createTransactionRepository();
 
         const resultSearch = await firstValueFrom(
-          txRepo.search({
-            // type: [TransactionType.AGGREGATE_BONDED],
+          txRepo.search({            // type: [TransactionType.AGGREGATE_BONDED],
             group: TransactionGroup.Confirmed,
             address: address,
             order: Order.Desc,
@@ -162,22 +162,34 @@ function Source(): JSX.Element {
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
       <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
 
-      <table>
-        <thead>
-          <tr>
-            <th>メッセージ</th>
-            <th>送信元</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataList.map((data, index) => (
-            <tr key={index}>
-              <td>{ data?.message?.payload }</td>
-              <td>{ data.signer.address.address }</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <List sx={{ width: '100%', maxWidth: 1200, bgcolor: 'background.paper' }}>
+        {dataList.map((data, index) => (
+          <React.Fragment key={index}>
+          <ListItem alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar alt="Dummy" src="/" />
+            </ListItemAvatar>
+            <ListItemText
+              primary={data?.signer?.address?.plain()}
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: 'inline' }}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                    {data && 'message' in data ? (data.message as any).payload : ''}
+                  </Typography>
+                </React.Fragment>
+              }
+            />
+            <ListItemText primary='aaa' style={{ textAlign: 'right' }} />
+          </ListItem>
+          {index < dataList.length - 1 && <Divider variant="inset" component="li" />}
+        </React.Fragment>
+        ))}
+      </List>
 
     </>
   );

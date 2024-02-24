@@ -9,6 +9,7 @@ import {
   UInt64,
   Mosaic,
   MosaicId,
+  NamespaceName,
   PlainMessage,
   Transaction,
   TransferTransaction,
@@ -87,9 +88,16 @@ function Home(): JSX.Element {
   // メッセージ一覧表示用
   const [dataList, setDataList] = useState<Transaction[]>([]);
 
+  const [accountNames, setAccountNames] = useState<string[]>([]);
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
+        repo.createNamespaceRepository().getAccountsNames([address]).subscribe((names) => {
+          console.log("NAMES[]: ", names)
+          const accountNames = names[0].names.map((namespaceName: NamespaceName) => namespaceName.name).sort()
+          setAccountNames(accountNames)
+        })
+
         setDataList(await getMessageTxs(address));
 
         // Start monitoring of transaction status with websocket
@@ -146,6 +154,13 @@ function Home(): JSX.Element {
           <Typography component='div' variant='h6' mt={5} mb={1}>
             あなたのアドレス
           </Typography>
+          <ul>
+            {accountNames.map((name) => (
+              <li key={name}>
+                <span>{ name }</span>
+              </li>
+            ))}
+          </ul>
           { address.plain() }
           <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
             <div className="flex flex-col">

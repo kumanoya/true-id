@@ -1,5 +1,4 @@
-import { firstValueFrom } from "rxjs"
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import LeftDrawer from '@/components/LeftDrawer'
 import Header from '@/components/Header'
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
@@ -15,7 +14,7 @@ import {
 } from 'symbol-sdk'
 
 import {
-  currencyMosaicID,
+  requestMosaicId,
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty'
@@ -33,7 +32,9 @@ function createAccountRequestTx(providerRawAddress: string, accountName: string,
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
   const providerAddress = Address.createFromRawAddress(providerRawAddress)
   const absoluteAmountUInt64 = UInt64.fromUint(0)
-  const mosaic = new Mosaic(new MosaicId(currencyMosaicID), absoluteAmountUInt64)
+
+  // リクエスト専用のMosaicを送る
+  const mosaic = new Mosaic(new MosaicId(requestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
   const plainMessage = PlainMessage.create(accountName + ':' + accountRawAddress) // 平文メッセージに希望アカウント名とアドレスをエンコード
   const feeMultiplier = 100
@@ -56,7 +57,7 @@ function Request(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit()
 
   // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState)
+  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState)
 
   type Inputs = {
     providerRawAddress: string
@@ -71,6 +72,12 @@ function Request(): JSX.Element {
 
   // SUBMIT LOGIC
   const requestAccount: SubmitHandler<Inputs> = (data) => {
+    if (address === undefined) {
+      return
+    }
+    if (publicAccount === undefined) {
+      return
+    }
     signTx(
       createAccountRequestTx(data.providerRawAddress, data.accountName, data.accountRawAddress)
     )
@@ -117,7 +124,7 @@ function Request(): JSX.Element {
                 希望するアカウント名
               </label>
               <input
-                {...register("accountName", { required: "アドレスを入力してください" })}
+                {...register("accountName", { required: "アカウント名を入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="accountName"

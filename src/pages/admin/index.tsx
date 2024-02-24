@@ -6,9 +6,11 @@ import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
   Address,
+  AggregateTransaction,
   AliasAction,
   AliasTransaction,
   Deadline,
+  PublicAccount,
   NamespaceId,
   NamespaceRegistrationTransaction,
   Transaction,
@@ -62,6 +64,26 @@ function createAliasTx(rootNameSpace: string, address: Address): AliasTransactio
     networkType,
   ).setMaxFee(feeMultiplier);
 }
+
+function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespaceName: string, address: Address): AliasTransaction
+{
+  const registrationTx = createRegistrationTx(namespaceName);
+  const aliasTx = createAliasTx(namespaceName, address);
+
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const aggregateTx = AggregateTransaction.createComplete(
+    deadline,
+    [
+      registrationTx.toAggregate(publicAccount),
+      aliasTx.toAggregate(publicAccount),
+    ],
+    networkType,
+    [],
+    UInt64.fromUint(2000000),
+  );
+  return aggregateTx
+}
+
 async function getNameAddressList(address: Address): Promise<{ name: string, address: string }[]> {
 
   const resultSearch = await repo.createNamespaceRepository().search({
@@ -102,7 +124,7 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
 
   // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
+  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
 
   // ルートネームスペース一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -136,7 +158,8 @@ function Home(): JSX.Element {
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
     signTx(
-      createRegistrationTx(data.rootNameSpace)
+      //createRegistrationTx(data.rootNameSpace)
+      createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address)
     )
   }
 

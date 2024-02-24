@@ -55,6 +55,20 @@ function LeftDrawer(props: {
                 <ListItemText primary={'ホーム'} />
               </ListItemButton>
             </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/request');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary={'アカウントID申請'} />
+              </ListItemButton>
+            </ListItem>
           </List>
           <List>
             <ListItem disablePadding>
@@ -67,7 +81,7 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <ArrowCircleUpIcon />
                 </ListItemIcon>
-                <ListItemText primary={'管理'} />
+                <ListItemText primary={'IDプロバイダ:ネームスペース管理'} />
               </ListItemButton>
             </ListItem>
           </List>

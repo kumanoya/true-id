@@ -110,7 +110,7 @@ function Request(): JSX.Element {
           <form onSubmit={handleSubmit(requestAccount)} className="m-4 px-8 py-4 border w-full max-w-80 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
-                ルードネームスペース
+                ルートネームスペース
               </label>
               <input
                 {...register("rootNamespace", { required: "アドレスを入力してください" })}

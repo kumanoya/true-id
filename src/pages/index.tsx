@@ -10,6 +10,7 @@ import {
   Mosaic,
   MosaicId,
   NamespaceName,
+  NamespaceId,
   PlainMessage,
   Transaction,
   TransferTransaction,
@@ -35,14 +36,15 @@ const txRepo = repo.createTransactionRepository();
 
 import { signTx } from '@/utils/signTx';
 
-function createMessageTx(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
+function createMessageTx(recipientName: string, rawMessage: string, xym: number): Transaction
 {
   // XXX: ハードコード
   const networkCurrencyDivisibility = 6; // XYMの分割単位
 
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const recipientAddress = Address.createFromRawAddress(recipientRawAddress);
+  //const recipientAddress = Address.createFromRawAddress(recipientName);
+  const recipientNameId = new NamespaceId(recipientName);
   const absoluteAmount =
     xym * parseInt("1" + "0".repeat(networkCurrencyDivisibility)); // networkCurrencyDivisibility = 6 => 1[XYM] = 10^6[μXYM]
   const absoluteAmountUInt64 = UInt64.fromUint(absoluteAmount);
@@ -54,7 +56,8 @@ function createMessageTx(recipientRawAddress: string, rawMessage: string, xym: n
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    recipientAddress,
+    //recipientAddress,
+    recipientNameId,
     mosaics,
     plainMessage,
     networkType
@@ -115,7 +118,7 @@ function Home(): JSX.Element {
   },  [address, sssState]);
 
   type Inputs = {
-    recipientRawAddress: string;
+    recipientName: string;
     message: string;
     xym: number;
   };
@@ -128,7 +131,7 @@ function Home(): JSX.Element {
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
     signTx(
-      createMessageTx(data.recipientRawAddress, data.message, data.xym)
+      createMessageTx(data.recipientName, data.message, data.xym)
     )
   }
 
@@ -165,13 +168,13 @@ function Home(): JSX.Element {
           <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
-                宛先アドレス
+                アカウント名
               </label>
               <input
-                {...register("recipientRawAddress", { required: "宛先アドレスを入力してください" })}
+                {...register("recipientName", { required: "宛先アドレスを入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="recipientRawAddress"
+                name="recipientName"
               />
             </div>
 

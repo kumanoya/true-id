@@ -2,7 +2,6 @@ import {
   SignedTransaction,
   Transaction,
 } from 'symbol-sdk';
-import { firstValueFrom } from "rxjs";
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 
 const repo = createRepositoryFactory();
@@ -15,13 +14,17 @@ interface SSSWindow extends Window {
 }
 declare const window: SSSWindow;
 
-export const signTx = async (tx: Transaction) => {
+export const signTx = async (tx: Transaction): Promise<any> => {
   window.SSS.setTransaction(tx);
   //console.log(tx);
   const signedTx: SignedTransaction = await new Promise((resolve) => {
     resolve(window.SSS.requestSign());
   });
   //console.log(signedTx);
-  return await firstValueFrom(txRepo.announce(signedTx));
+  const ret = txRepo.announce(signedTx)
+  if (!ret) {
+    throw new Error('Transaction not announced');
+  }
+  return await ret.toPromise();
 }
 

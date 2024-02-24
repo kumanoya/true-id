@@ -3,11 +3,11 @@ import LeftDrawer from '@/components/LeftDrawer'
 import Header from '@/components/Header'
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
 import {
-  Address,
   Deadline,
   UInt64,
   Mosaic,
   MosaicId,
+  NamespaceId,
   PlainMessage,
   Transaction,
   TransferTransaction,
@@ -26,11 +26,12 @@ import { useForm, SubmitHandler } from "react-hook-form"
 
 import { signTx } from '@/utils/signTx'
 
-function createAccountRequestTx(providerRawAddress: string, accountName: string, accountRawAddress: string): Transaction
+function createAccountRequestTx(rootNamespace: string, accountName: string, accountRawAddress: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
-  const providerAddress = Address.createFromRawAddress(providerRawAddress)
+  //const providerAddress = Address.createFromRawAddress(rootNamespace)
+  const namespaceId = new NamespaceId(rootNamespace)
   const absoluteAmountUInt64 = UInt64.fromUint(0)
 
   // リクエスト専用のMosaicを送る
@@ -42,7 +43,7 @@ function createAccountRequestTx(providerRawAddress: string, accountName: string,
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    providerAddress,
+    namespaceId,
     mosaics,
     plainMessage,
     networkType
@@ -60,7 +61,7 @@ function Request(): JSX.Element {
   const { publicAccount, address } = useAddressInit(clientPublicKey, sssState)
 
   type Inputs = {
-    providerRawAddress: string
+    rootNamespace: string
     accountName: string
     accountRawAddress: string
   }
@@ -79,7 +80,7 @@ function Request(): JSX.Element {
       return
     }
     signTx(
-      createAccountRequestTx(data.providerRawAddress, data.accountName, data.accountRawAddress)
+      createAccountRequestTx(data.rootNamespace, data.accountName, data.accountRawAddress)
     )
   }
 
@@ -109,13 +110,13 @@ function Request(): JSX.Element {
           <form onSubmit={handleSubmit(requestAccount)} className="m-4 px-8 py-4 border w-full max-w-80 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
-                アカウントプロバイダアドレス
+                ルードネームスペース
               </label>
               <input
-                {...register("providerRawAddress", { required: "アドレスを入力してください" })}
+                {...register("rootNamespace", { required: "アドレスを入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="providerRawAddress"
+                name="rootNamespace"
               />
             </div>
 

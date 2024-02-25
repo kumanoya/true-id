@@ -12,6 +12,7 @@ import {
   NamespaceName,
   NamespaceId,
   PlainMessage,
+  IListener,
   Transaction,
   TransferTransaction,
   TransactionGroup,
@@ -51,7 +52,7 @@ function createMessageTx(recipientName: string, rawMessage: string, xym: number)
   const mosaic = new Mosaic(new MosaicId(currencyMosaicID), absoluteAmountUInt64);
   const mosaics = [mosaic];
   const plainMessage = PlainMessage.create(rawMessage); // 平文メッセージ
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
+  const feeMultiplier = 100;
 
   // Create transaction
   const transferTransaction = TransferTransaction.create(
@@ -92,6 +93,10 @@ function Home(): JSX.Element {
   const [dataList, setDataList] = useState<Transaction[]>([]);
 
   const [accountNames, setAccountNames] = useState<string[]>([]);
+
+  // リスナ保持
+  let listener: IListener;
+
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
@@ -103,16 +108,22 @@ function Home(): JSX.Element {
 
         setDataList(await getMessageTxs(address));
 
-        // Start monitoring of transaction status with websocket
-        const listener = repo.createListener();
-        await listener.open();
-        listener
-          .confirmed(address)
-          .subscribe((confirmedTx: Transaction) => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            //console.dir({ confirmedTx }, { depth: null });
-            setDataList(current => [confirmedTx, ...current]);
-          });
+        // リスナの二重登録を防ぐ
+        if (listener === undefined) {
+          // Start monitoring of transaction status with websocket
+          listener = repo.createListener();
+          //setListener(listener);
+
+          await listener.open();
+          listener
+            .confirmed(address)
+            .subscribe((confirmedTx: Transaction) => {
+              console.log("LISTENER: TRANSACTION CONFIRMED");
+              //console.dir({ confirmedTx }, { depth: null });
+              setDataList(current => [confirmedTx, ...current]);
+            });
+          }
+          console.log("LISTENER: STARTED");
       })();
     }
   },  [address, sssState]);

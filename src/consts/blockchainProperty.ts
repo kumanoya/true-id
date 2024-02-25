@@ -4,3 +4,4 @@ export const epochAdjustment = 1667250467;
 export const hashLockTxDuration = 240;
 export const servieName = 'SymbolEscrowService'; //トランザクションを検索する際にキーにするキーワード
 export const servieFee = 0.1; //サービス手数料
+export const requestMosaicId = '3C725A4BB270CF58' // XXX: ハードコード…？

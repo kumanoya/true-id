@@ -147,7 +147,7 @@ function Home(): JSX.Element {
             あなたのアドレス
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
                 宛先アドレス

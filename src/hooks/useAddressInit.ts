@@ -21,12 +21,14 @@ const useAddressInit = (clientPublicKey: string, sssState: sssState) => {
 
   const router = useRouter();
   // client address string
+  const [publicAccount, setPublicAccount] = useState<PublicAccount>('');
   const [clientAddress, setClientAddress] = useState<string>('');
   useEffect(() => {
 
     if (sssState === 'ACTIVE') {
-      const clientPublicAccount = PublicAccount.createFromPublicKey(clientPublicKey, networkType);
-      setClientAddress(clientPublicAccount.address.plain());
+      const publicAccount = PublicAccount.createFromPublicKey(clientPublicKey, networkType);
+      setPublicAccount(publicAccount)
+      setClientAddress(publicAccount.address.plain());
     } else if (sssState === 'INACTIVE' || sssState === 'NONE') {
       router.push('/sss');
     }
@@ -40,7 +42,7 @@ const useAddressInit = (clientPublicKey: string, sssState: sssState) => {
     }
   }, [clientAddress, sssState]);
 
-  return { clientAddress, address };
+  return { publicAccount, clientAddress, address };
 };
 
 export default useAddressInit;

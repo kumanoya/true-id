@@ -6,18 +6,13 @@ import Header from '@/components/Header';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
   Address,
-  AliasAction,
-  AliasTransaction,
-  Deadline,
+  TransferTransaction,
   NamespaceId,
-  NamespaceRegistrationTransaction,
-  Transaction,
 } from 'symbol-sdk';
 
 import {
-  epochAdjustment,
-  networkType,
-} from '@/consts/blockchainProperty';
+  requestMosaicId,
+} from '@/consts/blockchainProperty'
 
 import useSssInit from '@/hooks/useSssInit';
 import useAddressInit from '@/hooks/useAddressInit';
@@ -30,6 +25,8 @@ const repo = createRepositoryFactory();
 import { signTx } from '@/utils/signTx';
 
 import { useSearchParams } from 'next/navigation';
+
+import { createRegistrationAndAliasTx, createRegistrationTx, createAliasTx }  from '@/utils/namespaceTxFactory';
 
 async function getNameAddressList(parentNamespace: string): Promise<{ name: string, address: string }[]> {
 
@@ -65,43 +62,8 @@ async function getNameAddressList(parentNamespace: string): Promise<{ name: stri
   return ret;
 }
 
-function createRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100;
-  console.log('parentNamespace:', parentNamespace);
-  console.log('namespaceName:', namespaceName);
-  // Create transaction
-  const tx = NamespaceRegistrationTransaction.createSubNamespace(
-    deadline,
-    namespaceName,
-    parentNamespace,
-    networkType
-  ).setMaxFee(feeMultiplier);
 
-  return tx;
-}
-
-function createAliasTx(parentNamespace: string, namespaceName: string, address: string): AliasTransaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100;
-  // Create transaction
-  const aliasTransaction = AliasTransaction.createForAddress(
-    deadline,
-    AliasAction.Link,
-    new NamespaceId(parentNamespace + '.' + namespaceName),
-    Address.createFromRawAddress(address),
-    networkType,
-  ).setMaxFee(feeMultiplier);
-
-  return aliasTransaction;
-}
-
-
-function Home(): JSX.Element {
+function Users(): JSX.Element {
 
   const searchParams = useSearchParams();
   const parentNamespace = searchParams.get('parentNamespace') as string;
@@ -110,7 +72,7 @@ function Home(): JSX.Element {
   const { clientPublicKey, sssState } = useSssInit();
 
   // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
+  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
 
   // ユーザーID（サブネームスペース）一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -137,9 +99,17 @@ function Home(): JSX.Element {
         await listener.open();
         listener
           .confirmed(address)
-          .subscribe(async () => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            updateNameAddressList();
+          .subscribe(async (block) => {
+            console.log("EVENT: TRANSACTION CONFIRMED:", block);
+            if (block instanceof TransferTransaction) {
+              if (block.mosaics[0].id?.toHex() === requestMosaicId) {
+                const [accountName, accountAddress] = block.message.payload.split(':')
+                const aggTx = createRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountAddress);
+                signTx(aggTx);
+              }
+            } else {
+              updateNameAddressList();
+            }
           });
       })();
     }
@@ -205,7 +175,7 @@ function Home(): JSX.Element {
             ユーザーID管理@{ parentNamespace }
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-96 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
             <div className="flex flex-col">
               <label> ID </label>
               <input
@@ -259,4 +229,4 @@ function Home(): JSX.Element {
     </>
   );
 }
-export default Home;
+export default Users;

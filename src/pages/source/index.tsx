@@ -30,6 +30,7 @@ import useAddressInit from '@/hooks/useAddressInit';
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
+import { format } from "date-fns";
 
 const repo = createRepositoryFactory();
 
@@ -59,6 +60,17 @@ function createMessageTransaction(recipientRawAddress: string, rawMessage: strin
   ).setMaxFee(feeMultiplier);
 
   return transferTransaction;
+}
+
+function formatTimestamp(timestamp: { lower: number; higher: number }): string {
+  // UNIXタイムスタンプをミリ秒単位で計算
+  const unixTimestamp = (timestamp.higher * 4294967296 + timestamp.lower) / 1000;
+
+  // Dateオブジェクトを生成
+  const date = new Date(unixTimestamp * 1000);
+
+  // date-fnsを使ってフォーマット
+  return format(date, "yyyy-MM-dd HH:mm");
 }
 
 function Source(): JSX.Element {
@@ -110,7 +122,10 @@ function Source(): JSX.Element {
         }, {} as { [key: string]: Transaction });
 
         const filteredDataList = Object.values(grouped);
-        setDataList(filteredDataList);
+        const sortedDataList = [...filteredDataList].sort((a, b) => {
+          return Number(b.transactionInfo?.timestamp ?? 0) - Number(a.transactionInfo?.timestamp ?? 0);
+        });
+        setDataList(sortedDataList);
 
         console.log('filteredDataList ⚡️', filteredDataList);
 
@@ -184,7 +199,7 @@ function Source(): JSX.Element {
                 </React.Fragment>
               }
             />
-            <ListItemText primary='aaa' style={{ textAlign: 'right' }} />
+            <ListItemText primary={data.transactionInfo?.timestamp ? formatTimestamp(data.transactionInfo.timestamp).toString() : ''} style={{ textAlign: 'right' }} />
           </ListItem>
           {index < dataList.length - 1 && <Divider variant="inset" component="li" />}
         </React.Fragment>

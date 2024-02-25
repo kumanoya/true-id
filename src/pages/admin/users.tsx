@@ -26,7 +26,7 @@ import { signTx } from '@/utils/signTx';
 
 import { useSearchParams } from 'next/navigation';
 
-import { createRegistrationAndAliasTx, createRegistrationTx, createAliasTx }  from '@/utils/namespaceTxFactory';
+import { createNamespaceRegistrationTx, createNamespaceRegistrationAndAliasTx, createAddressAliasTx }  from '@/utils/namespaceTxFactory';
 
 async function getNameAddressList(parentNamespace: string): Promise<{ name: string, address: string }[]> {
 
@@ -104,7 +104,7 @@ function Users(): JSX.Element {
             if (block instanceof TransferTransaction) {
               if (block.mosaics[0].id?.toHex() === requestMosaicId) {
                 const [accountName, accountAddress] = block.message.payload.split(':')
-                const aggTx = createRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountAddress);
+                const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountAddress);
                 signTx(aggTx);
               }
             } else {

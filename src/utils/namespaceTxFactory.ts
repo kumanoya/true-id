@@ -5,18 +5,21 @@ import {
   AliasTransaction,
   Deadline,
   PublicAccount,
+  MosaicId,
   NamespaceId,
   NamespaceRegistrationTransaction,
   Transaction,
   UInt64,
 } from 'symbol-sdk';
 
+import { aggregateTx } from '@/utils/aggregateTx';
+
 import {
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty';
 
-function createRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
+function createNamespaceRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -34,7 +37,7 @@ function createRegistrationTx(parentNamespace: string, namespaceName: string): T
   return tx;
 }
 
-function createAliasTx(parentNamespace: string, namespaceName: string, address: string): AliasTransaction
+function createAddressAliasTx(parentNamespace: string, namespaceName: string, address: string): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -51,27 +54,33 @@ function createAliasTx(parentNamespace: string, namespaceName: string, address: 
   return aliasTransaction;
 }
 
-function createRegistrationAndAliasTx(publicAccount: PublicAccount, parentNamespace: string, namespaceName: string, address: string): AliasTransaction
+function createMosaicAliasTx(mosaicName: string, mosaicId: MosaicId): AliasTransaction
 {
-  const registrationTx = createRegistrationTx(parentNamespace, namespaceName);
-  const aliasTx = createAliasTx(parentNamespace, namespaceName, address);
-
+  // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const aggregateTx = AggregateTransaction.createComplete(
+  const feeMultiplier = 100;
+  // Create transaction
+  const aliasTransaction = AliasTransaction.createForMosaic(
     deadline,
-    [
-      registrationTx.toAggregate(publicAccount),
-      aliasTx.toAggregate(publicAccount),
-    ],
+    AliasAction.Link,
+    new NamespaceId(mosaicName),
+    mosaicId,
     networkType,
-    [],
-    UInt64.fromUint(2000000),
-  );
-  return aggregateTx
+  ).setMaxFee(feeMultiplier);
+
+  return aliasTransaction;
+}
+
+function createNamespaceRegistrationAndAliasTx(publicAccount: PublicAccount, parentNamespace: string, namespaceName: string, address: string): AggregateTransaction
+{
+  const registrationTx = createNamespaceRegistrationTx(parentNamespace, namespaceName);
+  const aliasTx = createAddressAliasTx(parentNamespace, namespaceName, address);
+  return aggregateTx([registrationTx, aliasTx], publicAccount);
 }
 
 export {
-  createRegistrationTx,
-  createAliasTx,
-  createRegistrationAndAliasTx,
+  createNamespaceRegistrationTx,
+  createAddressAliasTx,
+  createMosaicAliasTx,
+  createNamespaceRegistrationAndAliasTx,
 }

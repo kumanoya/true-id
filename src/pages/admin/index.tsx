@@ -14,6 +14,7 @@ import {
   NamespaceRegistrationTransaction,
   Transaction,
 	UInt64,
+  IListener,
 } from 'symbol-sdk';
 
 import { aggregateTx } from '@/utils/aggregateTx';
@@ -118,19 +119,23 @@ function Home(): JSX.Element {
   // ルートネームスペース一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
 
+  let listener: IListener;
+
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
         setNameAddressList(await getNameAddressList(address));
 
-        const listener = repo.createListener();
-        await listener.open();
-        listener
-          .confirmed(address)
-          .subscribe(async () => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            setNameAddressList(await getNameAddressList(address));
-          });
+        if (listener === undefined) {
+          listener = repo.createListener();
+          await listener.open();
+          listener
+            .confirmed(address)
+            .subscribe(async () => {
+              console.log("EVENT: TRANSACTION CONFIRMED");
+              setNameAddressList(await getNameAddressList(address));
+            });
+        }
       })();
     }
   },  [address, sssState]);

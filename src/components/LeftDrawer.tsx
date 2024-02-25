@@ -96,6 +96,19 @@ function LeftDrawer(props: {
                 <ListItemText primary={'IDプロバイダ:ネームスペース管理'} />
               </ListItemButton>
             </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/admin/mosaic/create');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <ArrowCircleUpIcon />
+                </ListItemIcon>
+                <ListItemText primary={'IDプロバイダ:カスタムモザイク作成（仮）'} />
+              </ListItemButton>
+            </ListItem>
           </List>
         </Box>
       </Drawer>

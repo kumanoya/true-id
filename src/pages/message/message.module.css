@@ -1,0 +1,75 @@
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 94vh; /* ビューポートの高さに合わせる */
+}
+
+.chatInput {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #101010;
+}
+
+.messageInput {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.sendButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sendButton:hover {
+  background-color: #0056b3;
+}
+
+.chatMessages {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 60%;
+}
+
+.message.own {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.messageSender {
+  font-weight: bold;
+}
+
+.messageTime {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.messageContent {
+  word-wrap: break-word;
+}

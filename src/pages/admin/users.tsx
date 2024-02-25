@@ -8,6 +8,7 @@ import {
   Address,
   TransferTransaction,
   NamespaceId,
+  IListener,
 } from 'symbol-sdk';
 
 import {
@@ -89,28 +90,31 @@ function Users(): JSX.Element {
     setValue('addresses', addresses);
   }
 
+  let listener: IListener;
+
   // トランザクションのCONFIRMEDを監視
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined && parentNamespace) {
       (async() => {
         updateNameAddressList();
 
-        const listener = repo.createListener();
-        await listener.open();
-        listener
-          .confirmed(address)
-          .subscribe(async (block) => {
-            console.log("EVENT: TRANSACTION CONFIRMED:", block);
-            if (block instanceof TransferTransaction) {
-              if (block.mosaics[0].id?.toHex() === requestMosaicId) {
-                const [accountName, accountAddress] = block.message.payload.split(':')
-                const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountAddress);
-                signTx(aggTx);
+        if (listener === undefined) {
+          listener = repo.createListener();
+          await listener.open();
+          listener
+            .confirmed(address)
+            .subscribe(async (block) => {
+              console.log("EVENT: TRANSACTION CONFIRMED:", block);
+              if (block instanceof TransferTransaction) {
+                if (block.mosaics[0].id?.toHex() === requestMosaicId) {
+                  const [accountName, accountRawAddress] = block.message.payload.split(':')
+                  const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountRawAddress);
+                  signTx(aggTx);
+                }
               }
-            } else {
               updateNameAddressList();
-            }
-          });
+            });
+          }
       })();
     }
   },  [address, sssState, parentNamespace]);

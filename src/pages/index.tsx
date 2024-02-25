@@ -9,7 +9,10 @@ import {
   UInt64,
   Mosaic,
   MosaicId,
+  NamespaceName,
+  NamespaceId,
   PlainMessage,
+  IListener,
   Transaction,
   TransferTransaction,
   TransactionGroup,
@@ -34,26 +37,28 @@ const txRepo = repo.createTransactionRepository();
 
 import { signTx } from '@/utils/signTx';
 
-function createMessageTx(recipientRawAddress: string, rawMessage: string, xym: number): Transaction
+function createMessageTx(recipientName: string, rawMessage: string, xym: number): Transaction
 {
   // XXX: ハードコード
   const networkCurrencyDivisibility = 6; // XYMの分割単位
 
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const recipientAddress = Address.createFromRawAddress(recipientRawAddress);
+  //const recipientAddress = Address.createFromRawAddress(recipientName);
+  const recipientNameId = new NamespaceId(recipientName);
   const absoluteAmount =
     xym * parseInt("1" + "0".repeat(networkCurrencyDivisibility)); // networkCurrencyDivisibility = 6 => 1[XYM] = 10^6[μXYM]
   const absoluteAmountUInt64 = UInt64.fromUint(absoluteAmount);
   const mosaic = new Mosaic(new MosaicId(currencyMosaicID), absoluteAmountUInt64);
   const mosaics = [mosaic];
   const plainMessage = PlainMessage.create(rawMessage); // 平文メッセージ
-  const feeMultiplier = 100; // トランザクション手数料に影響する。現時点ではデフォルトのノードは手数料倍率が100で、多くのノードがこれ以下の数値を指定しており、100を指定しておけば素早く承認される傾向。
+  const feeMultiplier = 100;
 
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    recipientAddress,
+    //recipientAddress,
+    recipientNameId,
     mosaics,
     plainMessage,
     networkType
@@ -87,27 +92,44 @@ function Home(): JSX.Element {
   // メッセージ一覧表示用
   const [dataList, setDataList] = useState<Transaction[]>([]);
 
+  const [accountNames, setAccountNames] = useState<string[]>([]);
+
+  // リスナ保持
+  let listener: IListener;
+
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
+        repo.createNamespaceRepository().getAccountsNames([address]).subscribe((names) => {
+          console.log("NAMES[]: ", names)
+          const accountNames = names[0].names.map((namespaceName: NamespaceName) => namespaceName.name).sort()
+          setAccountNames(accountNames)
+        })
+
         setDataList(await getMessageTxs(address));
 
-        // Start monitoring of transaction status with websocket
-        const listener = repo.createListener();
-        await listener.open();
-        listener
-          .confirmed(address)
-          .subscribe((confirmedTx: Transaction) => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            //console.dir({ confirmedTx }, { depth: null });
-            setDataList(current => [confirmedTx, ...current]);
-          });
+        // リスナの二重登録を防ぐ
+        if (listener === undefined) {
+          // Start monitoring of transaction status with websocket
+          listener = repo.createListener();
+          //setListener(listener);
+
+          await listener.open();
+          listener
+            .confirmed(address)
+            .subscribe((confirmedTx: Transaction) => {
+              console.log("LISTENER: TRANSACTION CONFIRMED");
+              //console.dir({ confirmedTx }, { depth: null });
+              setDataList(current => [confirmedTx, ...current]);
+            });
+          }
+          console.log("LISTENER: STARTED");
       })();
     }
   },  [address, sssState]);
 
   type Inputs = {
-    recipientRawAddress: string;
+    recipientName: string;
     message: string;
     xym: number;
   };
@@ -120,7 +142,7 @@ function Home(): JSX.Element {
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
     signTx(
-      createMessageTx(data.recipientRawAddress, data.message, data.xym)
+      createMessageTx(data.recipientName, data.message, data.xym)
     )
   }
 
@@ -146,17 +168,24 @@ function Home(): JSX.Element {
           <Typography component='div' variant='h6' mt={5} mb={1}>
             あなたのアドレス
           </Typography>
+          <ul>
+            {accountNames.map((name) => (
+              <li key={name}>
+                <span>{ name }</span>
+              </li>
+            ))}
+          </ul>
           { address.plain() }
           <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
             <div className="flex flex-col">
               <label>
-                宛先アドレス
+                アカウント名
               </label>
               <input
-                {...register("recipientRawAddress", { required: "宛先アドレスを入力してください" })}
+                {...register("recipientName", { required: "宛先アドレスを入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="recipientRawAddress"
+                name="recipientName"
               />
             </div>
 

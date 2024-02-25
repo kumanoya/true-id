@@ -5,7 +5,6 @@ import {
   AliasTransaction,
   Deadline,
   PublicAccount,
-  MosaicId,
   NamespaceId,
   NamespaceRegistrationTransaction,
   Transaction,
@@ -18,6 +17,39 @@ import {
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty';
+
+function createRootNamespaceRegistrationTx(rootNameSpace: string): Transaction
+{
+  // Transaction info
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const day = 60;
+  const duration = UInt64.fromUint((24 * 60 * 60) / 30 * day);
+  const feeMultiplier = 100; 
+
+  // Create transaction
+  return  NamespaceRegistrationTransaction.createRootNamespace(
+    deadline,
+    rootNameSpace,
+    duration,
+    networkType
+  ).setMaxFee(feeMultiplier);
+}
+
+function createRootAddressAliasTx(rootNameSpace: string, address: Address): AliasTransaction
+{
+  // Transaction info
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const feeMultiplier = 100; 
+
+  // Create transaction
+  return AliasTransaction.createForAddress(
+    deadline,
+    AliasAction.Link,
+    new NamespaceId(rootNameSpace),
+    address,
+    networkType,
+  ).setMaxFee(feeMultiplier);
+}
 
 function createNamespaceRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
 {
@@ -54,23 +86,6 @@ function createAddressAliasTx(parentNamespace: string, namespaceName: string, ad
   return aliasTransaction;
 }
 
-function createMosaicAliasTx(mosaicName: string, mosaicId: MosaicId): AliasTransaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100;
-  // Create transaction
-  const aliasTransaction = AliasTransaction.createForMosaic(
-    deadline,
-    AliasAction.Link,
-    new NamespaceId(mosaicName),
-    mosaicId,
-    networkType,
-  ).setMaxFee(feeMultiplier);
-
-  return aliasTransaction;
-}
-
 function createNamespaceRegistrationAndAliasTx(publicAccount: PublicAccount, parentNamespace: string, namespaceName: string, address: string): AggregateTransaction
 {
   const registrationTx = createNamespaceRegistrationTx(parentNamespace, namespaceName);
@@ -79,8 +94,9 @@ function createNamespaceRegistrationAndAliasTx(publicAccount: PublicAccount, par
 }
 
 export {
+  createRootNamespaceRegistrationTx,
+  createRootAddressAliasTx,
   createNamespaceRegistrationTx,
   createAddressAliasTx,
-  createMosaicAliasTx,
   createNamespaceRegistrationAndAliasTx,
 }

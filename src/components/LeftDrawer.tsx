@@ -9,9 +9,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import Home from '@mui/icons-material/Home';
-import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
-import HistoryIcon from '@mui/icons-material/History';
+import {Home, ArrowCircleUp, Chat} from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 
@@ -59,6 +57,20 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
+                  router.push('/source');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Chat />
+                </ListItemIcon>
+                <ListItemText primary={'メッセージ'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
                   router.push('/request');
                   setOpenLeftDrawer(false);
                 }}
@@ -79,7 +91,7 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <ArrowCircleUpIcon />
+                  <ArrowCircleUp />
                 </ListItemIcon>
                 <ListItemText primary={'IDプロバイダ:ネームスペース管理'} />
               </ListItemButton>

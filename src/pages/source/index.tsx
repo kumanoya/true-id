@@ -14,6 +14,7 @@ import useAddressInit from '@/hooks/useAddressInit';
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 import { format } from "date-fns";
+import { useRouter } from 'next/router';
 
 const repo = createRepositoryFactory();
 
@@ -29,6 +30,7 @@ function formatTimestamp(timestamp: { lower: number; higher: number }): string {
 }
 
 function Source(): JSX.Element {
+  const router = useRouter();
 
   //共通設定
   const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
@@ -91,6 +93,11 @@ function Source(): JSX.Element {
     }
   },  [address, sssState]);
 
+  // TODO: 現在は仮。適切なルーティング設定を行う
+  const handleNavigate = () => {
+    router.push('/');
+  };
+
   return (
     <>
       <Header setOpenLeftDrawer={setOpenLeftDrawer} />
@@ -99,7 +106,13 @@ function Source(): JSX.Element {
       <List sx={{ width: '100%', maxWidth: 1200, bgcolor: 'background.paper' }}>
         {dataList.map((data, index) => (
           <React.Fragment key={index}>
-          <ListItem alignItems="flex-start">
+          <ListItem alignItems="flex-start" onClick={() => handleNavigate()}
+            sx={{
+              '&:hover': {
+                cursor: 'pointer', // マウスホバー時にカーソルを指に変更
+              }
+            }}
+          >
             <ListItemAvatar>
               <Avatar alt="Dummy" src="/" />
             </ListItemAvatar>

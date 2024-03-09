@@ -138,7 +138,7 @@ function Request(): JSX.Element {
               />
             </div>
 
-            <button>送信</button>
+            <button className="btn">送信</button>
           </form>
         </Box>
       )}

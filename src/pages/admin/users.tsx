@@ -184,7 +184,7 @@ function Users(): JSX.Element {
               />
             </div>
 
-            <button>追加</button>
+            <button className="btn">追加</button>
           </form>
         </Box>
       )}

@@ -35,7 +35,7 @@ function createLoginRequestTx(accountName: string): Transaction
   const absoluteAmountUInt64 = UInt64.fromUint(0)
   const mosaic = new Mosaic(new MosaicId(requestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(accountName)
+  const plainMessage = PlainMessage.create(accountName + 'でのログインを許可しますか？')
   const feeMultiplier = 100
 
   // Create transaction

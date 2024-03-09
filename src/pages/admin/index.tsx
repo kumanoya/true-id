@@ -1,7 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import LeftDrawer from '@/components/LeftDrawer';
-import Header from '@/components/Header';
+import Layout from '@/components/Layout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
@@ -124,13 +122,9 @@ function Home(): JSX.Element {
     )
   }
 
-  //View共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   const router = useRouter();
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
+    <Layout>
 
       {address === undefined ? (
         <Backdrop open={address === undefined}>
@@ -200,7 +194,7 @@ function Home(): JSX.Element {
         </tbody>
       </table>
 
-    </>
+    </Layout>
   );
 }
 export default Home;

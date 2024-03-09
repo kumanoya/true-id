@@ -46,3 +46,8 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
+.left-drawer {
+  height: 100vh;
+  width: 80vw;
+  max-width: 400px;
+}

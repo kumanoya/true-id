@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import {Home, ArrowCircleUp, Chat} from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 import MyAccountList from '@/components/MyAccountList';
 
 function LeftDrawer(props: {
@@ -24,22 +23,7 @@ function LeftDrawer(props: {
   return (
     <>
       <Drawer anchor={'left'} open={openLeftDrawer} onClose={() => setOpenLeftDrawer(false)}>
-        <Box sx={{ width: '65vw', height: '100vh' }}>
-          <List>
-            <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Image
-                src='/true-id.png'
-                width={2048}
-                height={472}
-                style={{
-                  width: 'auto',
-                  height: '50px',
-                }}
-                alt='logo'
-              />
-            </ListItem>
-          </List>
-          <Divider />
+        <div className="left-drawer">
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -140,8 +124,11 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+
           <MyAccountList />
-        </Box>
+        </div>
       </Drawer>
     </>
   );

@@ -1,4 +1,4 @@
-import Layout from '@/components/Layout';
+import FrontLayout from '@/components/FrontLayout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
 import {
   Deadline,
@@ -83,7 +83,7 @@ function Request(): JSX.Element {
   }
 
   return (
-    <Layout>
+    <FrontLayout>
 
       {address === undefined ? (
         <Backdrop open={address === undefined}>
@@ -136,7 +136,7 @@ function Request(): JSX.Element {
           </form>
         </div>
       )}
-    </Layout>
+    </FrontLayout>
   )
 }
 export default Request

@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import Layout from '@/components/Layout';
+import FrontLayout from '@/components/FrontLayout';
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import {
   Transaction,
@@ -95,7 +95,7 @@ function Source(): JSX.Element {
   };
 
   return (
-    <Layout>
+    <FrontLayout>
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {dataList.map((data, index) => (
           <React.Fragment key={index}>
@@ -131,7 +131,7 @@ function Source(): JSX.Element {
         ))}
       </List>
 
-    </Layout>
+    </FrontLayout>
   );
 }
 export default Source;

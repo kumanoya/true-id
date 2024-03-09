@@ -1,4 +1,4 @@
-import Layout from '@/components/Layout';
+import AdminLayout from '@/components/AdminLayout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
 import {
   Deadline,
@@ -92,7 +92,7 @@ function Request(): JSX.Element {
   }
 
   return (
-    <Layout>
+    <AdminLayout>
       {address === undefined ? (
         <Backdrop open={address === undefined}>
           <CircularProgress color='inherit' />
@@ -120,7 +120,7 @@ function Request(): JSX.Element {
           </form>
         </div>
       )}
-    </Layout>
+    </AdminLayout>
   )
 }
 export default Request

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '@/components/Layout';
+import AdminLayout from '@/components/AdminLayout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
@@ -124,7 +124,7 @@ function Home(): JSX.Element {
 
   const router = useRouter();
   return (
-    <Layout>
+    <AdminLayout>
 
       {address === undefined ? (
         <Backdrop open={address === undefined}>
@@ -188,7 +188,7 @@ function Home(): JSX.Element {
         </tbody>
       </table>
 
-    </Layout>
+    </AdminLayout>
   );
 }
 export default Home;

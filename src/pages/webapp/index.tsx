@@ -1,7 +1,5 @@
-import React, { useState } from 'react'
-import LeftDrawer from '@/components/LeftDrawer'
-import Header from '@/components/Header'
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
+import { Backdrop, CircularProgress } from '@mui/material'
+import WebappLayout from '@/components/WebappLayout';
 import {
   Deadline,
   UInt64,
@@ -81,13 +79,8 @@ function Request(): JSX.Element {
     )
   }
 
-  //View共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false) //LeftDrawerの設定
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
-
+    <WebappLayout>
       {address === undefined ? (
         <Backdrop open={address === undefined}>
           <CircularProgress color='inherit' />
@@ -112,7 +105,7 @@ function Request(): JSX.Element {
           </form>
         </div>
       )}
-    </>
+    </WebappLayout>
   )
 }
 export default Request

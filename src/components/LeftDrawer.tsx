@@ -96,6 +96,7 @@ function LeftDrawer(props: {
                 <ListItemText primary={'IDプロバイダ:ネームスペース管理'} />
               </ListItemButton>
             </ListItem>
+
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
@@ -107,6 +108,20 @@ function LeftDrawer(props: {
                   <ArrowCircleUpIcon />
                 </ListItemIcon>
                 <ListItemText primary={'IDプロバイダ:カスタムモザイク作成（仮）'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/webapp/');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <ArrowCircleUpIcon />
+                </ListItemIcon>
+                <ListItemText primary={'ウェブログインテスト'} />
               </ListItemButton>
             </ListItem>
           </List>

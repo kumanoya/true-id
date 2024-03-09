@@ -1,7 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import LeftDrawer from '@/components/LeftDrawer';
-import Header from '@/components/Header';
+import Layout from '@/components/Layout';
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import {
   Transaction,
@@ -31,9 +30,6 @@ function formatTimestamp(timestamp: { lower: number; higher: number }): string {
 
 function Source(): JSX.Element {
   const router = useRouter();
-
-  //共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
@@ -99,11 +95,8 @@ function Source(): JSX.Element {
   };
 
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
-
-      <List sx={{ width: '100%', maxWidth: 1200, bgcolor: 'background.paper' }}>
+    <Layout>
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {dataList.map((data, index) => (
           <React.Fragment key={index}>
           <ListItem alignItems="flex-start" onClick={() => handleNavigate()}
@@ -138,7 +131,7 @@ function Source(): JSX.Element {
         ))}
       </List>
 
-    </>
+    </Layout>
   );
 }
 export default Source;

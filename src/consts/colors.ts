@@ -1,5 +1,5 @@
 const colors = {
-  base: '#FDFFD0', // Light shades
+  base: '#ffffe6', // Light shades
   primary: '#DE4423', // Punch
   info: '#281C23', // Thunder
   success: '#788f43', // Sycamore

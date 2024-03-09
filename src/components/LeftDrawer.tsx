@@ -79,7 +79,7 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
-                <ListItemText primary={'許諾受信'} />
+                <ListItemText primary={'許諾リクエスト一覧'} />
               </ListItemButton>
             </ListItem>
 

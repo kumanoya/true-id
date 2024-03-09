@@ -11,7 +11,7 @@ function Header(props: {
 
   return (
     <>
-      <Box display='flex' alignItems='start' justifyContent='center' sx={{ position: 'relative' }}>
+      <div className="header">
         <MenuIcon
           fontSize='large'
           sx={{ position: 'absolute', left: '20px', top: '15px' }}
@@ -27,7 +27,7 @@ function Header(props: {
           }}
           alt='logo'
         />
-      </Box>
+      </div>
     </>
   );
 }

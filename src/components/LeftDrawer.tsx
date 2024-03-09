@@ -78,6 +78,20 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
+                <ListItemText primary={'許諾受信'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/account/register');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
                 <ListItemText primary={'アカウントID申請'} />
               </ListItemButton>
             </ListItem>

@@ -30,13 +30,7 @@ function Sss(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          sx={{ p: 3 }}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           {sssState === 'NONE' ? (
             <>
               <Typography component='div' variant='h6' sx={{ mt: 5, mb: 5 }}>
@@ -64,7 +58,7 @@ function Sss(): JSX.Element {
               </Typography>
             </>
           )}
-        </Box>
+        </div>
       )}
     </>
   );

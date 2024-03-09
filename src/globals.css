@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn {
+  @apply bg-gray-800 text-white font-bold px-6;
+  display: inline;
+  width: fit-content;
+  border-radius: 20px;
+  height: 40px;
+}
+
+.box {
+  @apply p-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.table {
+  @apply mx-4;
+  background-color: var(--color-offwhite);
+  border: 2px solid #f0f0f0;
+  thead {
+    @apply bg-gray-800 text-white;
+  }
+  th, td {
+    @apply px-6 py-2;
+  }
+}
+
+.form {
+  @apply m-4 px-8 py-4 border flex w-full flex-col gap-4;
+  max-width: 600px;
+  background-color: var(--color-offwhite);
+}
+
+.header {
+  @apply p-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--color-offwhite);
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.left-drawer {
+  height: 100vh;
+  width: 80vw;
+  max-width: 400px;
+}

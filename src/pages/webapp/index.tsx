@@ -93,14 +93,8 @@ function Request(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
-          <form onSubmit={handleSubmit(requestAccount)} className="m-4 px-8 py-4 border w-full max-w-80 flex flex-col gap-4">
+        <div className="box">
+          <form onSubmit={handleSubmit(requestAccount)} className="form">
 
             <div className="flex flex-col">
               <label>
@@ -114,9 +108,9 @@ function Request(): JSX.Element {
               />
             </div>
 
-            <button>送信</button>
+            <button className="btn">送信</button>
           </form>
-        </Box>
+        </div>
       )}
     </>
   )

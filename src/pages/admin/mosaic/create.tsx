@@ -98,18 +98,12 @@ function Request(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             カスタムモザイク作成
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(createMosaic)} className="m-4 px-8 py-4 border w-full max-w-80 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(createMosaic)} className="form">
             <div className="flex flex-col">
               <label>
                 モザイク名
@@ -122,9 +116,9 @@ function Request(): JSX.Element {
               />
             </div>
 
-            <button>送信</button>
+            <button className="btn">送信</button>
           </form>
-        </Box>
+        </div>
       )}
     </Layout>
   )

@@ -131,18 +131,12 @@ function Home(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             ルートネームスペース管理
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(registerNamespace)} className="form">
             <div className="flex flex-col">
               <label>
                 名前
@@ -155,11 +149,11 @@ function Home(): JSX.Element {
               />
             </div>
 
-            <button>追加</button>
+            <button className="btn">追加</button>
           </form>
-        </Box>
+        </div>
       )}
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>ルートネームスペース名</th>

@@ -1,7 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import LeftDrawer from '@/components/LeftDrawer';
-import Header from '@/components/Header';
+import Layout from '@/components/Layout';
 import {
   Address,
   IListener,
@@ -77,12 +76,8 @@ function Request(): JSX.Element {
     }
   },  [address, sssState]);
 
-  //View共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
+    <Layout>
       <table>
         <thead>
           <tr>
@@ -102,7 +97,7 @@ function Request(): JSX.Element {
         </tbody>
       </table>
 
-    </>
+    </Layout>
   );
 }
 export default Request;

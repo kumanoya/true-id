@@ -1,7 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import LeftDrawer from '@/components/LeftDrawer';
-import Header from '@/components/Header';
+import Layout from '@/components/Layout';
 import MessageForm from '@/components/MessageForm';
 import { Typography } from '@mui/material';
 import {
@@ -73,12 +72,8 @@ function Home(): JSX.Element {
     }
   },  [address, sssState]);
 
-  //View共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
+    <Layout>
       <MessageForm />
       <Typography component='div' variant='h6' mt={5} mb={1}>
         メッセージ一覧
@@ -99,8 +94,7 @@ function Home(): JSX.Element {
           ))}
         </tbody>
       </table>
-
-    </>
+    </Layout>
   );
 }
 export default Home;

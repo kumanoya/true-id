@@ -1,0 +1,12 @@
+:root {
+  --color-base: #ffffe6;    /* Light shades */
+  --color-primary: #DE4423; /* Punch */
+  --color-info: #281C23;    /* Thunder */
+  --color-success: #788f43; /* Sycamore */
+  --color-warning: #F57F0B; /* Tahiti gold */
+  --color-danger: #F44336;  /* Pomegranate */
+}
+
+body {
+  background-color: var(--color-base); /* baseカラー */
+}

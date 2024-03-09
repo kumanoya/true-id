@@ -11,30 +11,63 @@ import {
   UInt64,
 } from 'symbol-sdk';
 
+import { aggregateTx } from '@/utils/aggregateTx';
+
 import {
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty';
 
-function createRegistrationTx(parentNamespace: string, namespaceName: string): Transaction
+function createRootNamespaceRegistrationTx(rootName: string): Transaction
+{
+  // Transaction info
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const day = 60;
+  const duration = UInt64.fromUint((24 * 60 * 60) / 30 * day);
+  const feeMultiplier = 100; 
+
+  // Create transaction
+  return  NamespaceRegistrationTransaction.createRootNamespace(
+    deadline,
+    rootName,
+    duration,
+    networkType
+  ).setMaxFee(feeMultiplier);
+}
+
+function createRootAddressAliasTx(rootName: string, address: Address): AliasTransaction
+{
+  // Transaction info
+  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
+  const feeMultiplier = 100; 
+
+  // Create transaction
+  return AliasTransaction.createForAddress(
+    deadline,
+    AliasAction.Link,
+    new NamespaceId(rootName),
+    address,
+    networkType,
+  ).setMaxFee(feeMultiplier);
+}
+
+function createNamespaceRegistrationTx(parentName: string, name: string): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
   const feeMultiplier = 100;
-  console.log('parentNamespace:', parentNamespace);
-  console.log('namespaceName:', namespaceName);
   // Create transaction
   const tx = NamespaceRegistrationTransaction.createSubNamespace(
     deadline,
-    namespaceName,
-    parentNamespace,
+    name,
+    parentName,
     networkType
   ).setMaxFee(feeMultiplier);
 
   return tx;
 }
 
-function createAliasTx(parentNamespace: string, namespaceName: string, address: string): AliasTransaction
+function createAddressAliasTx(parentName: string, name: string, address: Address): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -43,35 +76,25 @@ function createAliasTx(parentNamespace: string, namespaceName: string, address: 
   const aliasTransaction = AliasTransaction.createForAddress(
     deadline,
     AliasAction.Link,
-    new NamespaceId(parentNamespace + '.' + namespaceName),
-    Address.createFromRawAddress(address),
+    new NamespaceId(parentName + '.' + name),
+    address,
     networkType,
   ).setMaxFee(feeMultiplier);
 
   return aliasTransaction;
 }
 
-function createRegistrationAndAliasTx(publicAccount: PublicAccount, parentNamespace: string, namespaceName: string, address: string): AliasTransaction
+function createNamespaceRegistrationAndAliasTx(publicAccount: PublicAccount, parentName: string, name: string, rawAddress: string): AggregateTransaction
 {
-  const registrationTx = createRegistrationTx(parentNamespace, namespaceName);
-  const aliasTx = createAliasTx(parentNamespace, namespaceName, address);
-
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const aggregateTx = AggregateTransaction.createComplete(
-    deadline,
-    [
-      registrationTx.toAggregate(publicAccount),
-      aliasTx.toAggregate(publicAccount),
-    ],
-    networkType,
-    [],
-    UInt64.fromUint(2000000),
-  );
-  return aggregateTx
+  const registrationTx = createNamespaceRegistrationTx(parentName, name);
+  const aliasTx = createAddressAliasTx(parentName, name, Address.createFromRawAddress(rawAddress));
+  return aggregateTx([registrationTx, aliasTx], publicAccount);
 }
 
 export {
-  createRegistrationTx,
-  createAliasTx,
-  createRegistrationAndAliasTx,
+  createRootNamespaceRegistrationTx,
+  createRootAddressAliasTx,
+  createNamespaceRegistrationTx,
+  createAddressAliasTx,
+  createNamespaceRegistrationAndAliasTx,
 }

@@ -6,21 +6,12 @@ import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
   Address,
-  AggregateTransaction,
-  AliasAction,
   AliasTransaction,
-  Deadline,
   PublicAccount,
-  NamespaceId,
-  NamespaceRegistrationTransaction,
-  Transaction,
-	UInt64,
+  IListener,
 } from 'symbol-sdk';
 
-import {
-  epochAdjustment,
-  networkType,
-} from '@/consts/blockchainProperty';
+import { aggregateTx } from '@/utils/aggregateTx';
 
 import useSssInit from '@/hooks/useSssInit';
 import useAddressInit from '@/hooks/useAddressInit';
@@ -31,57 +22,13 @@ import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
 import { signTx } from '@/utils/signTx';
-
-function createRegistrationTx(rootNameSpace: string): Transaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const day = 60;
-  const duration = UInt64.fromUint((24 * 60 * 60) / 30 * day);
-  const feeMultiplier = 100; 
-
-  // Create transaction
-  return  NamespaceRegistrationTransaction.createRootNamespace(
-    deadline,
-    rootNameSpace,
-    duration,
-    networkType
-  ).setMaxFee(feeMultiplier);
-}
-
-function createAliasTx(rootNameSpace: string, address: Address): AliasTransaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const feeMultiplier = 100; 
-
-  // Create transaction
-  return AliasTransaction.createForAddress(
-    deadline,
-    AliasAction.Link,
-    new NamespaceId(rootNameSpace),
-    address,
-    networkType,
-  ).setMaxFee(feeMultiplier);
-}
+import { createRootNamespaceRegistrationTx, createRootAddressAliasTx } from '@/utils/namespaceTxFactory';
 
 function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespaceName: string, address: Address): AliasTransaction
 {
-  const registrationTx = createRegistrationTx(namespaceName);
-  const aliasTx = createAliasTx(namespaceName, address);
-
-  const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
-  const aggregateTx = AggregateTransaction.createComplete(
-    deadline,
-    [
-      registrationTx.toAggregate(publicAccount),
-      aliasTx.toAggregate(publicAccount),
-    ],
-    networkType,
-    [],
-    UInt64.fromUint(2000000),
-  );
-  return aggregateTx
+  const registrationTx = createRootNamespaceRegistrationTx(namespaceName);
+  const aliasTx = createRootAddressAliasTx(namespaceName, address);
+  return aggregateTx([registrationTx, aliasTx], publicAccount);
 }
 
 async function getNameAddressList(address: Address): Promise<{ name: string, address: string }[]> {
@@ -129,19 +76,23 @@ function Home(): JSX.Element {
   // ルートネームスペース一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
 
+  let listener: IListener;
+
   useEffect(() => {
     if (sssState === 'ACTIVE' && address !== undefined) {
       (async() => {
         setNameAddressList(await getNameAddressList(address));
 
-        const listener = repo.createListener();
-        await listener.open();
-        listener
-          .confirmed(address)
-          .subscribe(async () => {
-            console.log("EVENT: TRANSACTION CONFIRMED");
-            setNameAddressList(await getNameAddressList(address));
-          });
+        if (listener === undefined) {
+          listener = repo.createListener();
+          await listener.open();
+          listener
+            .confirmed(address)
+            .subscribe(async () => {
+              console.log("EVENT: TRANSACTION CONFIRMED");
+              setNameAddressList(await getNameAddressList(address));
+            });
+        }
       })();
     }
   },  [address, sssState]);
@@ -157,10 +108,10 @@ function Home(): JSX.Element {
 
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
-    signTx(
-      //createRegistrationTx(data.rootNameSpace)
-      createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address)
-    )
+    if (address === undefined) {
+      return
+    }
+    signTx(createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address))
   }
 
   // NamespaceとAddressを紐づける
@@ -169,7 +120,7 @@ function Home(): JSX.Element {
       return;
     }
     signTx(
-      createAliasTx(name, address)
+      createRootAddressAliasTx(name, address)
     )
   }
 

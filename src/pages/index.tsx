@@ -78,7 +78,7 @@ function Home(): JSX.Element {
       <Typography component='div' variant='h6' mt={5} mb={1}>
         メッセージ一覧
       </Typography>
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>メッセージ</th>

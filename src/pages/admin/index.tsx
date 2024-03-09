@@ -153,7 +153,7 @@ function Home(): JSX.Element {
           </form>
         </div>
       )}
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>ルートネームスペース名</th>

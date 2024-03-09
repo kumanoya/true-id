@@ -78,7 +78,7 @@ function Request(): JSX.Element {
 
   return (
     <Layout>
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>許諾リクエスト</th>

@@ -18,3 +18,15 @@
   flex-direction: column;
 }
 
+.table {
+  @apply mx-4;
+  background-color: var(--color-offwhite);
+  border: 2px solid #f0f0f0;
+  thead {
+    @apply bg-gray-800 text-white;
+  }
+  th, td {
+    @apply px-6 py-2;
+  }
+}
+

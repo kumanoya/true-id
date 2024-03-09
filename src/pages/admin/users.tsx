@@ -162,13 +162,7 @@ function Users(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             ユーザーID管理@{ parentNamespace }
           </Typography>
@@ -186,7 +180,7 @@ function Users(): JSX.Element {
 
             <button className="btn">追加</button>
           </form>
-        </Box>
+        </div>
       )}
 
       <table className="mx-8" >

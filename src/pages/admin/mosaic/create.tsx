@@ -98,13 +98,7 @@ function Request(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             カスタムモザイク作成
           </Typography>
@@ -124,7 +118,7 @@ function Request(): JSX.Element {
 
             <button className="btn">送信</button>
           </form>
-        </Box>
+        </div>
       )}
     </Layout>
   )

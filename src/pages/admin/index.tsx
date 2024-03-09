@@ -131,13 +131,7 @@ function Home(): JSX.Element {
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-          flexDirection='column'
-        >
+        <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             ルートネームスペース管理
           </Typography>
@@ -157,7 +151,7 @@ function Home(): JSX.Element {
 
             <button className="btn">追加</button>
           </form>
-        </Box>
+        </div>
       )}
       <table>
         <thead>

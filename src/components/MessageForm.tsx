@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import {
   Deadline,
   UInt64,
@@ -71,13 +71,7 @@ function MessageForm(): JSX.Element {
 
   return (
     <>
-      <Box
-        p={3}
-        display='flex'
-        alignItems='center'
-        justifyContent='center'
-        flexDirection='column'
-      >
+      <div className="box">
         <Typography component='div' variant='h6' mt={5} mb={1}>
           メッセージ送信
         </Typography>
@@ -118,7 +112,7 @@ function MessageForm(): JSX.Element {
           </div>
           <button className="btn">送信</button>
         </form>
-      </Box>
+      </div>
     </>
   );
 }

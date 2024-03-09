@@ -105,7 +105,7 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <ArrowCircleUpIcon />
+                  <ArrowCircleUp/>
                 </ListItemIcon>
                 <ListItemText primary={'IDプロバイダ:カスタムモザイク作成（仮）'} />
               </ListItemButton>
@@ -119,7 +119,7 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <ArrowCircleUpIcon />
+                  <ArrowCircleUp />
                 </ListItemIcon>
                 <ListItemText primary={'ウェブログインテスト'} />
               </ListItemButton>

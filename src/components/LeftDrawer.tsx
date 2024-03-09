@@ -12,6 +12,7 @@ import {
 import {Home, ArrowCircleUp, Chat} from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import MyAccountList from '@/components/MyAccountList';
 
 function LeftDrawer(props: {
   openLeftDrawer: boolean;
@@ -78,6 +79,20 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
+                <ListItemText primary={'許諾受信'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/account/register');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
                 <ListItemText primary={'アカウントID申請'} />
               </ListItemButton>
             </ListItem>
@@ -125,6 +140,7 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
           </List>
+          <MyAccountList />
         </Box>
       </Drawer>
     </>

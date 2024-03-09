@@ -12,6 +12,7 @@ import {
 import {Home, ArrowCircleUp, Chat} from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import MyAccountList from '@/components/MyAccountList';
 
 function LeftDrawer(props: {
   openLeftDrawer: boolean;
@@ -139,6 +140,7 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
           </List>
+          <MyAccountList />
         </Box>
       </Drawer>
     </>

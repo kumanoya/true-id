@@ -27,6 +27,7 @@ function Header(props: {
           }}
           alt='logo'
         />
+        <span className="admin-title">IDプロバイダーアプリ</span>
       </div>
     </>
   );

@@ -37,13 +37,42 @@
 }
 
 .header {
-  @apply p-3;
+  @apply py-2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  justify-content: space-between;
+  flex-direction: row;
   background-color: var(--color-offwhite);
   border-bottom: 2px solid #f0f0f0;
+  padding-right: 50px;
+  padding-left: 80px;
+}
+
+.front-title {
+  @apply px-3 py-1;
+  color: white;
+  position: absolute;
+  right: 20px;
+  border-radius: 4px;
+  background-color: var(--color-success);
+}
+
+.admin-title {
+  @apply px-3 py-1;
+  color: white;
+  position: absolute;
+  right: 20px;
+  border-radius: 4px;
+  background-color: var(--color-danger);
+}
+
+.webapp-title {
+  @apply px-3 py-1;
+  color: white;
+  position: absolute;
+  right: 20px;
+  border-radius: 4px;
+  background-color: var(--color-warning);
 }
 
 .left-drawer {

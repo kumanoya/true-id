@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import Layout from '@/components/Layout';
+import FrontLayout from '@/components/FrontLayout';
 import MessageForm from '@/components/MessageForm';
 import { Typography } from '@mui/material';
 import {
@@ -73,7 +73,7 @@ function Home(): JSX.Element {
   },  [address, sssState]);
 
   return (
-    <Layout>
+    <FrontLayout>
       <MessageForm />
       <Typography component='div' variant='h6' mt={5} mb={1}>
         メッセージ一覧
@@ -94,7 +94,7 @@ function Home(): JSX.Element {
           ))}
         </tbody>
       </table>
-    </Layout>
+    </FrontLayout>
   );
 }
 export default Home;

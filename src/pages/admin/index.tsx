@@ -136,7 +136,7 @@ function Home(): JSX.Element {
             ルートネームスペース管理
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(registerNamespace)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(registerNamespace)} className="form">
             <div className="flex flex-col">
               <label>
                 名前

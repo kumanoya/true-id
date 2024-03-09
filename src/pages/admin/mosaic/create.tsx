@@ -103,7 +103,7 @@ function Request(): JSX.Element {
             カスタムモザイク作成
           </Typography>
           { address.plain() }
-          <form onSubmit={handleSubmit(createMosaic)} className="m-4 px-8 py-4 border w-full max-w-80 flex flex-col gap-4">
+          <form onSubmit={handleSubmit(createMosaic)} className="form">
             <div className="flex flex-col">
               <label>
                 モザイク名

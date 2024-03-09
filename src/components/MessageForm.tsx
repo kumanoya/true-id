@@ -75,7 +75,7 @@ function MessageForm(): JSX.Element {
         <Typography component='div' variant='h6' mt={5} mb={1}>
           メッセージ送信
         </Typography>
-        <form onSubmit={handleSubmit(sendMessage)} className="m-4 px-8 py-4 border w-full max-w-120 flex flex-col gap-4">
+        <form onSubmit={handleSubmit(sendMessage)} className="form">
           <div className="flex flex-col">
             <label>
               アカウント名

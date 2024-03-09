@@ -30,3 +30,8 @@
   }
 }
 
+.form {
+  @apply m-4 px-8 py-4 border flex w-full flex-col gap-4;
+  max-width: 600px;
+  background-color: var(--color-offwhite);
+}

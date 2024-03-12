@@ -24,35 +24,7 @@ import { useForm, SubmitHandler } from "react-hook-form"
 
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
-import { createRootMosaicAliasTx, createRootMosaicRegistrationTx } from '@/utils/mosaicTxFactory'
-import { createRootNamespaceRegistrationTx } from '@/utils/namespaceTxFactory'
-import { aggregateTx } from '@/utils/aggregateTx';
-
-function createRootMosaicTx(rootNamespace: string, mosaicName: string, accountRawAddress: string): Transaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
-  //const providerAddress = Address.createFromRawAddress(rootNamespace)
-  const namespaceId = new NamespaceId(rootNamespace)
-  const absoluteAmountUInt64 = UInt64.fromUint(0)
-
-  // リクエスト専用のMosaicを送る
-  const mosaic = new Mosaic(new MosaicId(accountRegisterMosaicId), absoluteAmountUInt64)
-  const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(mosaicName + ':' + accountRawAddress) // 平文メッセージに希望アカウント名とアドレスをエンコード
-  const feeMultiplier = 100
-
-  // Create transaction
-  const transferTransaction = TransferTransaction.create(
-    deadline,
-    namespaceId,
-    mosaics,
-    plainMessage,
-    networkType
-  ).setMaxFee(feeMultiplier)
-
-  return transferTransaction
-}
+import { createMosaicRegistrationAggregateTx } from '@/utils/mosaicTxFactory'
 
 function Request(): JSX.Element {
 
@@ -80,14 +52,9 @@ function Request(): JSX.Element {
       return
     }
     (async () => {
-      const mosaicAggTx = createRootMosaicRegistrationTx(publicAccount);
-      const namespaceTx = createRootNamespaceRegistrationTx(data.mosaicName);
-      const aliasTx = createRootMosaicAliasTx(data.mosaicName, new MosaicId("25132742207E760C"))
-      mosaicAggTx.addTransactions([
-        namespaceTx.toAggregate(publicAccount),
-        aliasTx.toAggregate(publicAccount),
-      ])
-      signAndAnnounce(mosaicAggTx)
+      const aggTx = createMosaicRegistrationAggregateTx(publicAccount, data.mosaicName);
+      console.log("aggTx", aggTx)
+      await signAndAnnounce(aggTx)
     })()
   }
 
@@ -106,7 +73,7 @@ function Request(): JSX.Element {
           <form onSubmit={handleSubmit(createMosaic)} className="form">
             <div className="flex flex-col">
               <label>
-                モザイク名
+                モザイク名(Root Namespace)
               </label>
               <input
                 {...register("mosaicName", { required: "モザイク名を入力してください" })}

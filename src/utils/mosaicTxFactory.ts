@@ -20,9 +20,11 @@ import {
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty'
-import {createNamespaceRegistrationTx} from './namespaceTxFactory';
+import { createRootNamespaceRegistrationTx } from './namespaceTxFactory';
 
-function createRootMosaicRegistrationTx(publicAccount: PublicAccount): AggregateTransaction
+const deadline = Deadline.create(epochAdjustment)
+
+function createMosaicDefinitionTx(publicAccount: PublicAccount): MosaicDefinitionTransaction
 {
   const supplyMutable = false
   const transferable = true
@@ -40,7 +42,6 @@ function createRootMosaicRegistrationTx(publicAccount: PublicAccount): Aggregate
   signature?: string
   signer?: PublicAccount
   */
-  const deadline = Deadline.create(epochAdjustment)
   const nonce = MosaicNonce.createRandom()
   const defTx = MosaicDefinitionTransaction.create(
     deadline,
@@ -51,17 +52,23 @@ function createRootMosaicRegistrationTx(publicAccount: PublicAccount): Aggregate
     UInt64.fromUint(1000000),
     networkType
   )
+  return defTx
+}
+
+function createMosaicSupplyTx(publicAccount: PublicAccount, mosaicId: MosaicId): MosaicSupplyChangeTransaction
+{
   const supplyTx = MosaicSupplyChangeTransaction.create(
     deadline,
-    defTx.mosaicId,
+    mosaicId,
     MosaicSupplyChangeAction.Increase,
     UInt64.fromUint(1000000),
     networkType,
   );
-  return aggregateTx([defTx, supplyTx], publicAccount);
+  return supplyTx
+  //return aggregateTx([defTx, supplyTx], publicAccount);
 }
 
-function createRootMosaicAliasTx(mosaicName: string, mosaicId: MosaicId): AliasTransaction
+function createMosaicAliasTx(mosaicName: string, mosaicId: MosaicId): AliasTransaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
@@ -78,20 +85,30 @@ function createRootMosaicAliasTx(mosaicName: string, mosaicId: MosaicId): AliasT
   return aliasTransaction;
 }
 
-function createRootMosaicRegistrationAndAliasTx(publicAccount: PublicAccount, mosaicName: string): AggregateTransaction
+function createMosaicRegistrationAggregateTx(publicAccount: PublicAccount, mosaicName: string): AggregateTransaction
 {
-  const registerAggTx = createRootMosaicRegistrationTx(publicAccount)
-  const defTx = registerAggTx.innerTransactions[0] as MosaicDefinitionTransaction
-  const namespaceRegistrationTx = createNamespaceRegistrationTx(mosaicName, defTx.mosaicId)
-  const aliasTx = createRootMosaicAliasTx(mosaicName, defTx.mosaicId)
-  return registerAggTx.addTransactions([
-    namespaceRegistrationTx.toAggregate(publicAccount),
-    aliasTx.toAggregate(publicAccount),
-  ])
+  const defTx = createMosaicDefinitionTx(publicAccount)
+  const supplyTx = createMosaicSupplyTx(publicAccount, defTx.mosaicId)
+  const nsTx = createRootNamespaceRegistrationTx(mosaicName)
+  const aliasTx = createMosaicAliasTx(mosaicName, defTx.mosaicId)
+
+  return AggregateTransaction.createComplete(
+    deadline,
+    [
+      defTx.toAggregate(publicAccount),
+      supplyTx.toAggregate(publicAccount),
+      nsTx.toAggregate(publicAccount),
+      aliasTx.toAggregate(publicAccount),
+    ],
+    networkType,
+    [],
+    UInt64.fromUint(2000000),
+  )
 }
 
 export {
-  createRootMosaicRegistrationTx,
-  createRootMosaicAliasTx,
-  createRootMosaicRegistrationAndAliasTx,
+  createMosaicDefinitionTx,
+  createMosaicSupplyTx,
+  createMosaicAliasTx,
+  createMosaicRegistrationAggregateTx,
 }

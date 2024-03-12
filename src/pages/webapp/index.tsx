@@ -12,7 +12,7 @@ import {
 } from 'symbol-sdk'
 
 import {
-  accountRegisterMosaicId,
+  loginRequestMosaicId,
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty'
@@ -31,7 +31,7 @@ function createLoginRequestTx(accountName: string): Transaction
 
   // リクエスト専用のMosaicを送る
   const absoluteAmountUInt64 = UInt64.fromUint(0)
-  const mosaic = new Mosaic(new MosaicId(accountRegisterMosaicId), absoluteAmountUInt64)
+  const mosaic = new Mosaic(new MosaicId(loginRequestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
   const plainMessage = PlainMessage.create(accountName + 'でのログインを許可しますか？')
   const feeMultiplier = 100

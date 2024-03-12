@@ -11,7 +11,7 @@ import {
 } from 'symbol-sdk';
 
 import {
-  requestMosaicId,
+  accountRegisterMosaicId,
 } from '@/consts/blockchainProperty'
 
 import useSssInit from '@/hooks/useSssInit';
@@ -105,7 +105,7 @@ function Users(): JSX.Element {
             .subscribe(async (block) => {
               console.log("EVENT: TRANSACTION CONFIRMED:", block);
               if (block instanceof TransferTransaction) {
-                if (block.mosaics[0].id?.toHex() === requestMosaicId) {
+                if (block.mosaics[0].id?.toHex() === accountRegisterMosaicId) {
                   const [accountName, accountRawAddress] = block.message.payload.split(':')
                   const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountRawAddress);
                   signTx(aggTx);

@@ -12,7 +12,7 @@ import {
 } from 'symbol-sdk'
 
 import {
-  requestMosaicId,
+  accountRegisterMosaicId,
   epochAdjustment,
   networkType,
 } from '@/consts/blockchainProperty'
@@ -37,7 +37,7 @@ function createRootMosaicTx(rootNamespace: string, mosaicName: string, accountRa
   const absoluteAmountUInt64 = UInt64.fromUint(0)
 
   // リクエスト専用のMosaicを送る
-  const mosaic = new Mosaic(new MosaicId(requestMosaicId), absoluteAmountUInt64)
+  const mosaic = new Mosaic(new MosaicId(accountRegisterMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
   const plainMessage = PlainMessage.create(mosaicName + ':' + accountRawAddress) // 平文メッセージに希望アカウント名とアドレスをエンコード
   const feeMultiplier = 100

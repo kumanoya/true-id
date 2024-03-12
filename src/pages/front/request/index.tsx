@@ -12,7 +12,7 @@ import {
 } from 'symbol-sdk';
 
 import {
-  requestMosaicId,
+  accountRegisterMosaicId,
 } from '@/consts/blockchainProperty'
 
 import useSssInit from '@/hooks/useSssInit';
@@ -29,7 +29,7 @@ async function getRequestMessageTxs(address: Address): Promise<Transaction[]> {
       group: TransactionGroup.Confirmed,
       recipientAddress: address, // me
       order: Order.Desc,
-      transferMosaicId: new MosaicId(requestMosaicId),
+      transferMosaicId: new MosaicId(accountRegisterMosaicId),
       pageSize: 100,
     })
   );

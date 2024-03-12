@@ -19,7 +19,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-import { signTx } from '@/utils/signTx';
+import { signAndAnnounce } from '@/utils/signAndAnnounce';
 import { createRootNamespaceRegistrationTx, createRootAddressAliasTx } from '@/utils/namespaceTxFactory';
 
 function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespaceName: string, address: Address): AliasTransaction
@@ -109,7 +109,7 @@ function Home(): JSX.Element {
     if (address === undefined) {
       return
     }
-    signTx(createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address))
+    signAndAnnounce(createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address))
   }
 
   // NamespaceとAddressを紐づける
@@ -117,7 +117,7 @@ function Home(): JSX.Element {
     if (!address) {
       return;
     }
-    signTx(
+    signAndAnnounce(
       createRootAddressAliasTx(name, address)
     )
   }

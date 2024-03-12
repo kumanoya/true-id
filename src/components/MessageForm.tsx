@@ -18,7 +18,7 @@ import {
 
 import { useForm, SubmitHandler } from "react-hook-form";
 
-import { signTx } from '@/utils/signTx';
+import { signAndAnnounce } from '@/utils/signAndAnnounce';
 
 function createMessageTx(recipientName: string, rawMessage: string, xym: number): Transaction
 {
@@ -64,7 +64,7 @@ function MessageForm(): JSX.Element {
 
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
-    signTx(
+    signAndAnnounce(
       createMessageTx(data.recipientName, data.message, data.xym)
     )
   }

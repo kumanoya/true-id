@@ -22,7 +22,7 @@ import useAddressInit from '@/hooks/useAddressInit'
 
 import { useForm, SubmitHandler } from "react-hook-form"
 
-import { signTx } from '@/utils/signTx'
+import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
 function createAccountRequestTx(rootNamespace: string, accountName: string, accountRawAddress: string): Transaction
 {
@@ -77,7 +77,7 @@ function Request(): JSX.Element {
     if (publicAccount === undefined) {
       return
     }
-    signTx(
+    signAndAnnounce(
       createAccountRequestTx(data.rootNamespace, data.accountName, data.accountRawAddress)
     )
   }

@@ -22,7 +22,7 @@ import useAddressInit from '@/hooks/useAddressInit'
 
 import { useForm, SubmitHandler } from "react-hook-form"
 
-import { signTx } from '@/utils/signTx'
+import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
 import { createRootMosaicAliasTx, createRootMosaicRegistrationTx } from '@/utils/mosaicTxFactory'
 import { createRootNamespaceRegistrationTx } from '@/utils/namespaceTxFactory'
@@ -87,7 +87,7 @@ function Request(): JSX.Element {
         namespaceTx.toAggregate(publicAccount),
         aliasTx.toAggregate(publicAccount),
       ])
-      signTx(mosaicAggTx)
+      signAndAnnounce(mosaicAggTx)
     })()
   }
 

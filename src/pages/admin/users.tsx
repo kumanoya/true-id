@@ -22,7 +22,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-import { signTx } from '@/utils/signTx';
+import { signAndAnnounce } from '@/utils/signAndAnnounce';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -108,7 +108,7 @@ function Users(): JSX.Element {
                 if (block.mosaics[0].id?.toHex() === accountRegisterMosaicId) {
                   const [accountName, accountRawAddress] = block.message.payload.split(':')
                   const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountRawAddress);
-                  signTx(aggTx);
+                  signAndAnnounce(aggTx);
                 }
               }
               updateNameAddressList();
@@ -140,7 +140,7 @@ function Users(): JSX.Element {
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
     (async () => {
-      await signTx(
+      await signAndAnnounce(
         createRegistrationTx(parentNamespace, data.namespaceName)
       )
     })()
@@ -150,7 +150,7 @@ function Users(): JSX.Element {
   const createAlias = (name: string) => {
     const values = getValues();
     const address = values['addresses'][name];
-    signTx(
+    signAndAnnounce(
       createAliasTx(parentNamespace, name, address)
     )
   }

@@ -14,7 +14,7 @@ interface SSSWindow extends Window {
 }
 declare const window: SSSWindow;
 
-export const signTx = async (tx: Transaction): Promise<any> => {
+export const signAndAnnounce = async (tx: Transaction): Promise<any> => {
   window.SSS.setTransaction(tx);
   //console.log(tx);
   const signedTx: SignedTransaction = await new Promise((resolve) => {
@@ -23,7 +23,7 @@ export const signTx = async (tx: Transaction): Promise<any> => {
   //console.log(signedTx);
   const ret = txRepo.announce(signedTx)
   if (!ret) {
-    throw new Error('Transaction not announced');
+    throw new Error('Colud not announce the transaction');
   }
   return await ret.toPromise();
 }

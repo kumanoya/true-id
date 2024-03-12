@@ -42,7 +42,7 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/source');
+                  router.push('/front/source');
                   setOpenLeftDrawer(false);
                 }}
               >
@@ -56,7 +56,7 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/request');
+                  router.push('/front/request');
                   setOpenLeftDrawer(false);
                 }}
               >
@@ -70,7 +70,7 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/account/register');
+                  router.push('/front/account/register');
                   setOpenLeftDrawer(false);
                 }}
               >

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Layout from '@/components/Layout';
+import AdminLayout from '@/components/AdminLayout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
 import {
   Address,
@@ -156,7 +156,7 @@ function Users(): JSX.Element {
   }
 
   return (
-    <Layout>
+    <AdminLayout>
       {address === undefined ? (
         <Backdrop open={address === undefined}>
           <CircularProgress color='inherit' />
@@ -218,7 +218,7 @@ function Users(): JSX.Element {
         </tbody>
       </table>
 
-    </Layout>
+    </AdminLayout>
   );
 }
 export default Users;

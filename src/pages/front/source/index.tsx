@@ -1,14 +1,11 @@
 import { firstValueFrom } from "rxjs";
 import React, { useEffect, useState } from 'react';
-import LeftDrawer from '@/components/LeftDrawer';
-import Header from '@/components/Header';
-import styles from './message.module.css'
+import FrontLayout from '@/components/FrontLayout';
+import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
 import {
   Transaction,
   TransactionGroup,
   Order,
-  Address,
-  TransactionType,
 } from 'symbol-sdk';
 
 import useSssInit from '@/hooks/useSssInit';
@@ -16,14 +13,9 @@ import useAddressInit from '@/hooks/useAddressInit';
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 import { format } from "date-fns";
+import { useRouter } from 'next/router';
 
 const repo = createRepositoryFactory();
-const txRepo = repo.createTransactionRepository();
-
-const messages = [
-  { sender: "Alice", content: "こんにちは！", time: "10:00", isOwn: false },
-  { sender: "Bob", content: "こんにちは、Alice！", time: "10:01", isOwn: true },
-];
 
 function formatTimestamp(timestamp: { lower: number; higher: number }): string {
   // UNIXタイムスタンプをミリ秒単位で計算
@@ -36,10 +28,8 @@ function formatTimestamp(timestamp: { lower: number; higher: number }): string {
   return format(date, "yyyy-MM-dd HH:mm");
 }
 
-function Message(): JSX.Element {
-
-  //共通設定
-  const [openLeftDrawer, setOpenLeftDrawer] = useState<boolean>(false); //LeftDrawerの設定
+function Source(): JSX.Element {
+  const router = useRouter();
 
   //SSS共通設定
   const { clientPublicKey, sssState } = useSssInit();
@@ -56,7 +46,7 @@ function Message(): JSX.Element {
         const txRepo = repo.createTransactionRepository();
 
         const resultSearch = await firstValueFrom(
-          txRepo.search({           // type: [TransactionType.AGGREGATE_BONDED],
+          txRepo.search({            // type: [TransactionType.AGGREGATE_BONDED],
             group: TransactionGroup.Confirmed,
             address: address,
             order: Order.Desc,
@@ -99,42 +89,49 @@ function Message(): JSX.Element {
     }
   },  [address, sssState]);
 
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = () => {
-    console.log('メッセージを送信する')
+  // TODO: 現在は仮。適切なルーティング設定を行う
+  const handleNavigate = () => {
+    router.push('/');
   };
 
   return (
-    <>
-      <Header setOpenLeftDrawer={setOpenLeftDrawer} />
-      <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
+    <FrontLayout>
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        {dataList.map((data, index) => (
+          <React.Fragment key={index}>
+          <ListItem alignItems="flex-start" onClick={() => handleNavigate()}
+            sx={{
+              '&:hover': {
+                cursor: 'pointer', // マウスホバー時にカーソルを指に変更
+              }
+            }}
+          >
+            <ListItemAvatar>
+              <Avatar alt="Dummy" src="/" />
+            </ListItemAvatar>
+            <ListItemText
+              primary={data?.signer?.address?.plain()}
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: 'inline' }}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                    {data && 'message' in data ? (data.message as any).payload : ''}
+                  </Typography>
+                </React.Fragment>
+              }
+            />
+            <ListItemText primary={data.transactionInfo?.timestamp ? formatTimestamp(data.transactionInfo.timestamp).toString() : ''} style={{ textAlign: 'right' }} />
+          </ListItem>
+          {index < dataList.length - 1 && <Divider variant="inset" component="li" />}
+        </React.Fragment>
+        ))}
+      </List>
 
-      <div className={styles.chatContainer}>
-        <div className={styles.chatMessages}>
-          {messages.map((message, index) => (
-            <div key={index} className={`${styles.message} ${message.isOwn ? styles.own : ''}`}>
-              <div className={styles.messageHeader}>
-                <span className={styles.messageSender}>{message.sender}</span>
-                <span className={styles.messageTime}>{message.time}</span>
-              </div>
-              <div className={styles.messageContent}>{message.content}</div>
-            </div>
-          ))}
-        </div>
-        <form onSubmit={handleSubmit} className={styles.chatInput}>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="メッセージを入力"
-            className={styles.messageInput}
-          />
-          <button type="submit" className={styles.sendButton}>送信</button>
-        </form>
-      </div>
-
-    </>
+    </FrontLayout>
   );
 }
-export default Message;
+export default Source;

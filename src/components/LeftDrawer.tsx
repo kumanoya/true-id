@@ -183,6 +183,7 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
 
+            {/*
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
@@ -196,6 +197,8 @@ function LeftDrawer(props: {
                 <ListItemText primary={'カスタムモザイク作成'} />
               </ListItemButton>
             </ListItem>
+            */}
+
           </List>
         </div>
       </Drawer>

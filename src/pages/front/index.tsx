@@ -13,8 +13,7 @@ import {
   TransferTransaction,
 } from 'symbol-sdk';
 
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
+import useUserAccount from '@/hooks/useUserAccount';
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
@@ -36,11 +35,8 @@ async function getMessageTxs(address: Address): Promise<TransferTransaction[]> {
 
 function Home(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
-
-  // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
+  // アカウント取得
+  const userAccount = useUserAccount();
 
   // メッセージ一覧表示用
   const [dataList, setDataList] = useState<TransferTransaction[]>([]);
@@ -49,9 +45,9 @@ function Home(): JSX.Element {
   let listener: IListener;
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (userAccount !== undefined) {
       (async() => {
-        setDataList(await getMessageTxs(address));
+        setDataList(await getMessageTxs(userAccount.address));
 
         // リスナの二重登録を防ぐ
         if (listener === undefined) {
@@ -61,7 +57,7 @@ function Home(): JSX.Element {
 
           await listener.open();
           listener
-            .confirmed(address)
+            .confirmed(userAccount.address)
             .subscribe((confirmedTx: Transaction) => {
               console.log("LISTENER: TRANSACTION CONFIRMED");
               //console.dir({ confirmedTx }, { depth: null });
@@ -71,7 +67,7 @@ function Home(): JSX.Element {
           console.log("LISTENER: STARTED");
       })();
     }
-  },  [address, sssState]);
+  },  [userAccount]);
 
   return (
     <FrontLayout>

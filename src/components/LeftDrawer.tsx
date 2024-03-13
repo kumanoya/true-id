@@ -19,6 +19,7 @@ import { Home,
   AddCircle,
   FaceRetouchingNatural,
   Notifications,
+  Help,
 } from '@mui/icons-material';
 
 import { useRouter } from 'next/router';
@@ -58,7 +59,7 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <Home />
+                  <Help />
                 </ListItemIcon>
                 <ListItemText primary={'使い方'} />
               </ListItemButton>

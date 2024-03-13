@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import FrontLayout from '@/components/FrontLayout'
+import CommonLayout from '@/components/CommonLayout'
 
 import { useForm, SubmitHandler } from "react-hook-form"
 
@@ -30,7 +30,7 @@ function Home(): JSX.Element {
   }
 
   return (
-    <FrontLayout>
+    <CommonLayout>
       <h1 className="m-4 text-xl">
         秘密鍵設定
       </h1>
@@ -67,7 +67,7 @@ function Home(): JSX.Element {
           <button className="btn-clear" onClick={clear}>クリア</button>
         </div>
       </form>
-    </FrontLayout>
+    </CommonLayout>
   )
 }
 export default Home

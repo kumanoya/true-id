@@ -16,17 +16,17 @@ const useAdminAccount = (): Account|undefined => {
   useEffect(() => {
     const pk = localStorage.getItem('adminPrivateKey')
     if (!pk || pk.length !== 64) {
-      alert('管理者秘密鍵が設定されていません')
+      //alert('管理者秘密鍵が設定されていません')
       router.push('/settings')
-      throw new Error('管理者秘密鍵が設定されていません')
+      //throw new Error('管理者秘密鍵が設定されていません')
     }
 
     const account = Account.createFromPrivateKey(pk as string, networkType)
     setAdminAccount(account)
     if (account === undefined) {
-      alert('管理者秘密鍵が不正です')
+      //alert('管理者秘密鍵が不正です')
       router.push('/settings')
-      throw new Error('管理者秘密鍵が設定されていません')
+      //throw new Error('管理者秘密鍵が設定されていません')
     }
   }, [])
 

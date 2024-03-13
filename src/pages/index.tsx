@@ -1,8 +1,8 @@
-import FrontLayout from '@/components/FrontLayout';
+import CommonLayout from '@/components/CommonLayout';
 
 function Home(): JSX.Element {
   return (
-    <FrontLayout>
+    <CommonLayout>
       <h2>目的</h2>
       <div className="message">
         {`
@@ -40,7 +40,7 @@ function Home(): JSX.Element {
 　など
 `}
       </div>
-    </FrontLayout>
+    </CommonLayout>
   );
 }
 export default Home;

@@ -96,9 +96,7 @@ function Request(): JSX.Element {
     <FrontLayout>
 
       {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+        <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>

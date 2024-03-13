@@ -82,9 +82,7 @@ function Request(): JSX.Element {
   return (
     <WebappLayout>
       {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+        <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           <form onSubmit={handleSubmit(requestAccount)} className="form">

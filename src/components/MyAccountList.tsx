@@ -36,9 +36,7 @@ function MyAccountList(): JSX.Element {
   return (
     <>
       {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+        <div>アカウントが設定されていません</div>
       ) : (
         <Box
           p={3}

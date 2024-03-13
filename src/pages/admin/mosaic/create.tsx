@@ -38,9 +38,7 @@ function Request(): JSX.Element {
   return (
     <AdminLayout>
       {adminAccount === undefined ? (
-        <Backdrop open={adminAccount === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+        <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>

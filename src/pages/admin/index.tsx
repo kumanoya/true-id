@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
   Address,

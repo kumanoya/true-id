@@ -10,6 +10,13 @@
   height: 40px;
 }
 
+.btn-clear {
+  @apply btn;
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+}
+
 .box {
   @apply p-3;
   display: flex;

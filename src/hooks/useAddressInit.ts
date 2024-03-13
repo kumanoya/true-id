@@ -21,7 +21,7 @@ const useAddressInit = (clientPublicKey: string, sssState: sssState) => {
 
   const router = useRouter();
   // client address string
-  const [publicAccount, setPublicAccount] = useState<PublicAccount>('');
+  const [publicAccount, setPublicAccount] = useState<PublicAccount>();
   const [clientAddress, setClientAddress] = useState<string>('');
   useEffect(() => {
 

@@ -93,3 +93,9 @@
   border-radius: 5px;
   padding: 10px;
 }
+
+.message {
+  max-width: 600px;
+  width: 100%;
+  white-space: pre-wrap;
+}

@@ -11,8 +11,6 @@ import {
 
 import { aggregateTx } from '@/utils/aggregateTx';
 
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
 
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -21,6 +19,8 @@ const repo = createRepositoryFactory();
 
 import { signAndAnnounce } from '@/utils/signAndAnnounce';
 import { createRootNamespaceRegistrationTx, createRootAddressAliasTx } from '@/utils/namespaceTxFactory';
+
+import useAdminAccount from '@/hooks/useAdminAccount';
 
 function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespaceName: string, address: Address): AliasTransaction
 {
@@ -31,7 +31,9 @@ function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespac
 
 async function getNameAddressList(address: Address): Promise<{ name: string, address: string }[]> {
 
+  // 一覧取得実行
   const resultSearch = await repo.createNamespaceRepository().search({
+    pageSize: 100,
     registrationType: 0, // ROOT NAMESPACE
     ownerAddress: address
   }).toPromise();
@@ -65,11 +67,10 @@ async function getNameAddressList(address: Address): Promise<{ name: string, add
 
 function Home(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
+  const adminAccount = useAdminAccount();
 
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
+  useEffect(() => {
+  }, [adminAccount]);
 
   // ルートネームスペース一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -77,23 +78,23 @@ function Home(): JSX.Element {
   let listener: IListener;
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (adminAccount !== undefined) {
       (async() => {
-        setNameAddressList(await getNameAddressList(address));
+        setNameAddressList(await getNameAddressList(adminAccount.address));
 
         if (listener === undefined) {
           listener = repo.createListener();
           await listener.open();
           listener
-            .confirmed(address)
+            .confirmed(adminAccount.address)
             .subscribe(async () => {
               console.log("EVENT: TRANSACTION CONFIRMED");
-              setNameAddressList(await getNameAddressList(address));
+              setNameAddressList(await getNameAddressList(adminAccount.address));
             });
         }
       })();
     }
-  },  [address, sssState]);
+  },  [adminAccount]);
 
   type Inputs = {
     rootNameSpace: string;
@@ -106,19 +107,19 @@ function Home(): JSX.Element {
 
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
-    if (address === undefined) {
+    if (adminAccount === undefined) {
       return
     }
-    signAndAnnounce(createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address))
+    signAndAnnounce(createRootRegistrationAndAliasTx(adminAccount.publicAccount, data.rootNameSpace, adminAccount.address))
   }
 
   // NamespaceとAddressを紐づける
   const createAlias = (name: string) => {
-    if (!address) {
+    if (!adminAccount) {
       return;
     }
     signAndAnnounce(
-      createRootAddressAliasTx(name, address)
+      createRootAddressAliasTx(name, adminAccount.address)
     )
   }
 
@@ -126,8 +127,8 @@ function Home(): JSX.Element {
   return (
     <AdminLayout>
 
-      {address === undefined ? (
-        <Backdrop open={address === undefined}>
+      {adminAccount === undefined ? (
+        <Backdrop open={adminAccount === undefined}>
           <CircularProgress color='inherit' />
         </Backdrop>
       ) : (
@@ -135,11 +136,11 @@ function Home(): JSX.Element {
           <Typography component='div' variant='h6' mt={5} mb={1}>
             ルートネームスペース管理
           </Typography>
-          { address.plain() }
+          { adminAccount.address.plain() }
           <form onSubmit={handleSubmit(registerNamespace)} className="form">
             <div className="flex flex-col">
               <label>
-                名前
+                ルートネームスペース名
               </label>
               <input
                 {...register("rootNameSpace", { required: "ネームスペースを入力してください。" })}
@@ -149,7 +150,7 @@ function Home(): JSX.Element {
               />
             </div>
 
-            <button className="btn">追加</button>
+            <button className="btn">登録</button>
           </form>
         </div>
       )}

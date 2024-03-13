@@ -35,7 +35,7 @@ function LeftDrawer(props: {
     <>
       <Drawer anchor={'left'} open={openLeftDrawer} onClose={() => setOpenLeftDrawer(false)}>
         <div className="left-drawer mt-4">
-          <h1 className="mt-4 mx-4 text-lg">一般ユーザー</h1>
+          <h1 className="mt-4 mx-4 text-lg">説明</h1>
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -47,21 +47,26 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
-                <ListItemText primary={'ホーム'} />
+                <ListItemText primary={'全体説明'} />
               </ListItemButton>
             </ListItem>
+          </List>
 
+          <Divider />
+
+          <h1 className="mt-4 mx-4 text-lg">一般ユーザー</h1>
+          <List>
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/front/source');
+                  router.push('/front/');
                   setOpenLeftDrawer(false);
                 }}
               >
                 <ListItemIcon>
                   <Chat />
                 </ListItemIcon>
-                <ListItemText primary={'メッセージ'} />
+                <ListItemText primary={'メッセージ一覧'} />
               </ListItemButton>
             </ListItem>
 

@@ -82,12 +82,12 @@ function AdminRegister(): JSX.Element {
         <tbody>
           {dataList.map((data: TransferTransaction, index: number) => {
             if (!data.message) {
-              return (<tr><td colSpan={3}>エラー</td></tr>)
+              return (<tr key={index}><td colSpan={3}>エラー</td></tr>)
             }
             const [rootName, accountName] = data.message.payload.split(':')
             const rawAddress = data.signer?.address?.plain()
             if (!rawAddress) {
-              return (<tr><td colSpan={3}>エラー</td></tr>)
+              return (<tr key={index}><td colSpan={3}>エラー</td></tr>)
             }
             return (
               <tr key={index}>

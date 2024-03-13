@@ -17,8 +17,7 @@ import {
   networkType,
 } from '@/consts/blockchainProperty'
 
-import useSssInit from '@/hooks/useSssInit'
-import useAddressInit from '@/hooks/useAddressInit'
+import useAppAccount from '@/hooks/useAppAccount';
 
 import { useForm, SubmitHandler } from "react-hook-form"
 
@@ -33,7 +32,7 @@ function createLoginRequestTx(accountName: string): Transaction
   const absoluteAmountUInt64 = UInt64.fromUint(0)
   const mosaic = new Mosaic(new MosaicId(loginRequestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(accountName + 'でのログインを許可しますか？')
+  const plainMessage = PlainMessage.create(accountName)
   const feeMultiplier = 100
 
   // Create transaction
@@ -51,11 +50,8 @@ function createLoginRequestTx(accountName: string): Transaction
 
 function Request(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit()
-
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState)
+  // アカウント取得
+  const appAccount = useAppAccount()
 
   type Inputs = {
     accountName: string
@@ -68,20 +64,15 @@ function Request(): JSX.Element {
 
   // SUBMIT LOGIC
   const requestAccount: SubmitHandler<Inputs> = (data) => {
-    if (address === undefined) {
+    if (appAccount === undefined) {
       return
     }
-    if (publicAccount === undefined) {
-      return
-    }
-    signAndAnnounce(
-      createLoginRequestTx(data.accountName)
-    )
+    signAndAnnounce(createLoginRequestTx(data.accountName), appAccount)
   }
 
   return (
     <WebappLayout>
-      {address === undefined ? (
+      {appAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">

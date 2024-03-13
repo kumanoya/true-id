@@ -47,7 +47,20 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
-                <ListItemText primary={'全体説明'} />
+                <ListItemText primary={'プロジェクトの目的と概要'} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/usage');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary={'使い方'} />
               </ListItemButton>
             </ListItem>
           </List>
@@ -165,7 +178,7 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Settings />
                 </ListItemIcon>
-                <ListItemText primary={'設定：秘密鍵登録'} />
+                <ListItemText primary={'秘密鍵登録'} />
               </ListItemButton>
             </ListItem>
 

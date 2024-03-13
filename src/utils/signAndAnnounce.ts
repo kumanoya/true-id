@@ -24,7 +24,6 @@ export const signTx = async (tx: Transaction): Promise<any> => {
 }
 
 export const signAndAnnounce = async (tx: Transaction): Promise<any> => {
-  window.SSS.setTransaction(tx)
   const signedTx = await signTx(tx)
   const ret = txRepo.announce(signedTx)
   if (!ret) {

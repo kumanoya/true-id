@@ -110,7 +110,7 @@ function Home(): JSX.Element {
     if (adminAccount === undefined) {
       return
     }
-    signAndAnnounce(createRootRegistrationAndAliasTx(adminAccount.publicAccount, data.rootNameSpace, adminAccount.address))
+    signAndAnnounce(createRootRegistrationAndAliasTx(adminAccount.publicAccount, data.rootNameSpace, adminAccount.address), adminAccount)
   }
 
   // NamespaceとAddressを紐づける
@@ -119,7 +119,8 @@ function Home(): JSX.Element {
       return;
     }
     signAndAnnounce(
-      createRootAddressAliasTx(name, adminAccount.address)
+      createRootAddressAliasTx(name, adminAccount.address),
+      adminAccount
     )
   }
 

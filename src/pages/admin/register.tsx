@@ -53,8 +53,8 @@ function AdminRegister(): JSX.Element {
     if (!adminAccount) {
       throw new Error('adminAccount is not defined')
     }
-    const aggTx = createNamespaceRegistrationAndAliasTx(adminAccount.publicAccount, parentNamespace, accountName, accountRawAddress);
-    signAndAnnounce(aggTx);
+    const aggTx = createNamespaceRegistrationAndAliasTx(adminAccount.publicAccount, parentNamespace, accountName, accountRawAddress)
+    signAndAnnounce(aggTx, adminAccount)
   }
 
   useEffect(() => {

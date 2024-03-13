@@ -31,7 +31,7 @@ function Request(): JSX.Element {
     (async () => {
       const aggTx = createMosaicRegistrationAggregateTx(adminAccount.publicAccount, data.mosaicName);
       console.log("aggTx", aggTx)
-      await signAndAnnounce(aggTx)
+      await signAndAnnounce(aggTx, adminAccount)
     })()
   }
 

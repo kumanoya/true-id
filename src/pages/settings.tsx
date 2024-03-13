@@ -38,7 +38,7 @@ function Home(): JSX.Element {
         <div className="flex flex-col">
           <label className="w-60">ネームスペース管理者 秘密鍵</label>
           <input
-            {...register("adminPrivateKey", { required: "入力してください" })}
+            {...register("adminPrivateKey")}
             className="rounded-md border px-3 py-2"
             type="text"
             name="adminPrivateKey"
@@ -47,7 +47,7 @@ function Home(): JSX.Element {
         <div className="flex flex-col">
           <label className="w-60">一般ユーザー 秘密鍵</label>
           <input
-            {...register("userPrivateKey", { required: "入力してください" })}
+            {...register("userPrivateKey")}
             className="rounded-md border px-3 py-2"
             type="text"
             name="userPrivateKey"
@@ -56,7 +56,7 @@ function Home(): JSX.Element {
         <div className="flex flex-col">
           <label className="w-60">ウェブアプリ 秘密鍵</label>
           <input
-            {...register("appPrivateKey", { required: "入力してください" })}
+            {...register("appPrivateKey")}
             className="rounded-md border px-3 py-2"
             type="text"
             name="appPrivateKey"

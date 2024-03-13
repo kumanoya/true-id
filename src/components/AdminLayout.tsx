@@ -11,7 +11,9 @@ const Layout = ({ children }: Props) => {
   return <>
       <AdminHeader setOpenLeftDrawer={setOpenLeftDrawer} />
       <LeftDrawer openLeftDrawer={openLeftDrawer} setOpenLeftDrawer={setOpenLeftDrawer} />
-      <div>{children}</div>
+      <div className="flex justify-center p-4">
+        <div>{children}</div>
+      </div>
   </>
 
 };

@@ -17,15 +17,16 @@ const useAppAccount = (): Account|undefined => {
     const pk = localStorage.getItem('appPrivateKey')
     if (!pk || pk.length !== 64) {
       //alert('一般ユーザの秘密鍵が設定されていません')
-      router.push('/settings')
+      //router.push('/settings')
       //throw new Error('一般ユーザの秘密鍵が設定されていません')
+      return
     }
 
     const account = Account.createFromPrivateKey(pk as string, networkType)
     setAppAccount(account)
     if (account === undefined) {
       //alert('一般ユーザの秘密鍵が不正です')
-      router.push('/settings')
+      //router.push('/settings')
       //throw new Error('一般ユーザの秘密鍵が設定されていません')
     }
   }, [])

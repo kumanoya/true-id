@@ -1,6 +1,7 @@
 import FrontLayout from '@/components/FrontLayout';
 import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
 import {
+  Address,
   Deadline,
   UInt64,
   Mosaic,
@@ -24,7 +25,7 @@ import { useForm, SubmitHandler } from "react-hook-form"
 
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
-function createAccountRequestTx(rootNamespace: string, accountName: string, accountRawAddress: string): Transaction
+function createAccountRequestTx(rootNamespace: string, accountName: string, address: Address): Transaction
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
@@ -35,7 +36,7 @@ function createAccountRequestTx(rootNamespace: string, accountName: string, acco
   // リクエスト専用のMosaicを送る
   const mosaic = new Mosaic(new MosaicId(accountRegisterMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(accountName + ':' + accountRawAddress) // 平文メッセージに希望アカウント名とアドレスをエンコード
+  const plainMessage = PlainMessage.create(accountName + ':' + address.plain()) // 平文メッセージに希望アカウント名とアドレスをエンコード
   const feeMultiplier = 100
 
   // Create transaction
@@ -61,7 +62,6 @@ function Request(): JSX.Element {
   type Inputs = {
     rootNamespace: string
     accountName: string
-    accountRawAddress: string
   }
 
   const {
@@ -78,7 +78,7 @@ function Request(): JSX.Element {
       return
     }
     signAndAnnounce(
-      createAccountRequestTx(data.rootNamespace, data.accountName, data.accountRawAddress)
+      createAccountRequestTx(data.rootNamespace, data.accountName, address)
     )
   }
 
@@ -118,19 +118,6 @@ function Request(): JSX.Element {
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="accountName"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label>
-                割当先アドレス
-              </label>
-              <input
-                {...register("accountRawAddress", { required: "アドレスを入力してください" })}
-                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                type="text"
-                name="accountRawAddress"
                 required
               />
             </div>

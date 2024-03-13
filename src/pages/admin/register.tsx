@@ -15,8 +15,7 @@ import {
   accountRegisterMosaicId,
 } from '@/consts/blockchainProperty'
 
-import useSssInit from '@/hooks/useSssInit'
-import useAddressInit from '@/hooks/useAddressInit'
+import useAdminAccount from '@/hooks/useAdminAccount';
 
 import { Typography } from '@mui/material';
 
@@ -43,29 +42,28 @@ import { signAndAnnounce } from '@/utils/signAndAnnounce';
 
 function AdminRegister(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit()
+  // アカウント取得
+  const adminAccount = useAdminAccount()
 
   // メッセージ一覧表示用
   const [dataList, setDataList] = useState<Transaction[]>([])
 
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
-
   function registerAccount(parentNamespace: string, accountName: string, accountRawAddress: string)
   {
-    const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountRawAddress);
+    if (!adminAccount) {
+      throw new Error('adminAccount is not defined')
+    }
+    const aggTx = createNamespaceRegistrationAndAliasTx(adminAccount.publicAccount, parentNamespace, accountName, accountRawAddress);
     signAndAnnounce(aggTx);
   }
 
-
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (adminAccount !== undefined) {
       (async() => {
-        setDataList(await getRequestMessageTxs(address))
+        setDataList(await getRequestMessageTxs(adminAccount.address))
       })()
     }
-  },  [address, sssState])
+  },  [adminAccount])
 
   return (
     <AdminLayout>

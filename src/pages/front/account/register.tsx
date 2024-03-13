@@ -1,5 +1,5 @@
 import FrontLayout from '@/components/FrontLayout';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material'
+import { Typography } from '@mui/material'
 import {
   Address,
   Deadline,
@@ -18,8 +18,7 @@ import {
   networkType,
 } from '@/consts/blockchainProperty'
 
-import useSssInit from '@/hooks/useSssInit'
-import useAddressInit from '@/hooks/useAddressInit'
+import useUserAccount from '@/hooks/useUserAccount';
 
 import { useForm, SubmitHandler } from "react-hook-form"
 
@@ -63,11 +62,8 @@ async function createAccountRequestTx(rootNamespace: string, accountName: string
 
 function Request(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit()
-
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState)
+  // アカウント取得
+  const userAccount = useUserAccount()
 
   type Inputs = {
     rootNamespace: string
@@ -81,28 +77,24 @@ function Request(): JSX.Element {
 
   // SUBMIT LOGIC
   const requestAccount: SubmitHandler<Inputs> = (data) => {
-    if (address === undefined) {
+    if (userAccount === undefined) {
       return
     }
-    if (publicAccount === undefined) {
-      return
-    }
-
-    createAccountRequestTx(data.rootNamespace, data.accountName, address)
-      .then(tx => signAndAnnounce(tx))
+    createAccountRequestTx(data.rootNamespace, data.accountName, userAccount.address)
+      .then(tx => signAndAnnounce(tx, userAccount))
   }
 
   return (
     <FrontLayout>
 
-      {address === undefined ? (
+      {userAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
             あなたのアドレス
           </Typography>
-          { address.plain() }
+          { userAccount.address.plain() }
           <form onSubmit={handleSubmit(requestAccount)} className="form">
             <div className="flex flex-col">
               <label>

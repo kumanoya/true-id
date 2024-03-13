@@ -1,65 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Box, Typography, Drawer } from '@mui/material';
 import {
   NamespaceName,
-  IListener,
+  Account,
 } from 'symbol-sdk';
-
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-function MyAccountList(): JSX.Element {
+function MyAccountList(props: {
+  account: Account | null | undefined,
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
-
-  // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
+  const { account, isOpen, setIsOpen } = props
 
   const [accountNames, setAccountNames] = useState<string[]>([]);
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (account) {
       (async() => {
-        repo.createNamespaceRepository().getAccountsNames([address]).subscribe((names) => {
+        repo.createNamespaceRepository().getAccountsNames([account.address]).subscribe((names) => {
           console.log("NAMES[]: ", names)
           const accountNames = names[0].names.map((namespaceName: NamespaceName) => namespaceName.name).sort()
           setAccountNames(accountNames)
         })
       })();
     }
-  },  [address, sssState]);
+  },  [account]);
 
   return (
-    <>
-      {address === undefined ? (
+    <Drawer anchor={'top'} open={isOpen} onClose={() => setIsOpen(false)}>
+      {account === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='flex-start'
-          justifyContent='center'
-          flexDirection='column'
-        >
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            あなたのアドレス
-          </Typography>
-          { address.plain() }
-          <ul>
-            {accountNames.map((name) => (
-              <li key={name}>
-                <span>{ name }</span>
-              </li>
-            ))}
-          </ul>
-        </Box>
+        <div className="my-account">
+          <div className="p-4 text-right bg-gray-100">
+            Symbolアドレス: { account.address.plain() }
+          </div>
+          <div className="p-2">取得済みアカウントID一覧</div>
+          <div className="account-list-wrap">
+            <ul className="account-list mx-4">
+              {accountNames.map((name) => (
+                <li key={name}>
+                  { name }
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
 
-    </>
+    </Drawer>
   );
 }
 export default MyAccountList;

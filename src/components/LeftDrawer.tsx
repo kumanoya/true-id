@@ -11,7 +11,8 @@ import {
   ListItemText,
 } from '@mui/material';
 
-import { Home,
+import {
+  Home,
   Chat,
   Web,
   Settings,
@@ -23,18 +24,17 @@ import { Home,
 } from '@mui/icons-material';
 
 import { useRouter } from 'next/router';
-import MyAccountList from '@/components/MyAccountList';
 
 function LeftDrawer(props: {
-  openLeftDrawer: boolean;
-  setOpenLeftDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }): JSX.Element {
-  const { openLeftDrawer, setOpenLeftDrawer } = props;
+  const { isOpen, setIsOpen } = props;
   const router = useRouter();
 
   return (
     <>
-      <Drawer anchor={'left'} open={openLeftDrawer} onClose={() => setOpenLeftDrawer(false)}>
+      <Drawer anchor={'left'} open={isOpen} onClose={() => setIsOpen(false)}>
         <div className="left-drawer mt-4">
           <h1 className="mt-4 mx-4 text-lg">説明</h1>
           <List>
@@ -42,7 +42,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -55,7 +55,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/usage');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -74,7 +74,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/front/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -88,7 +88,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/front/request');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -102,7 +102,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/front/account/register');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -121,7 +121,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/admin');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -135,7 +135,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/admin/register');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -154,7 +154,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/webapp/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -173,7 +173,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/settings/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -187,7 +187,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/admin/mosaic/create');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -197,8 +197,6 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
           </List>
-
-          <MyAccountList />
         </div>
       </Drawer>
     </>

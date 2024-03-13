@@ -44,41 +44,39 @@
 }
 
 .header {
-  @apply py-2;
+  @apply px-4 py-2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
   background-color: var(--color-offwhite);
   border-bottom: 2px solid #f0f0f0;
-  padding-right: 50px;
-  padding-left: 80px;
 }
 
 .front-title {
-  @apply px-3 py-1;
+  @apply px-3;
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
   color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
   background-color: var(--color-success);
 }
 
 .admin-title {
-  @apply px-3 py-1;
+  @apply px-3;
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
   color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
   background-color: var(--color-danger);
 }
 
 .webapp-title {
-  @apply px-3 py-1;
+  @apply px-3;
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
   color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
   background-color: var(--color-warning);
 }
 
@@ -89,13 +87,42 @@
 }
 
 .logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
   background-color: black;
   border-radius: 5px;
-  padding: 10px;
+  padding: 0 10px;
 }
 
 .message {
   max-width: 600px;
   width: 100%;
   white-space: pre-wrap;
+}
+
+.my-account {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow-y: auto;
+}
+
+.account-list-wrap {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.account-list {
+  width: max-content;
+  height: max-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }

@@ -2,31 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Typography } from '@mui/material';
 import {
-  Address,
-  TransferTransaction,
   NamespaceId,
   IListener,
 } from 'symbol-sdk';
 
-import {
-  accountRegisterMosaicId,
-} from '@/consts/blockchainProperty'
-
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
-
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 
-import { signAndAnnounce } from '@/utils/signAndAnnounce';
-
 import { useSearchParams } from 'next/navigation';
-
-import { createNamespaceRegistrationAndAliasTx }  from '@/utils/namespaceTxFactory';
+import useAdminAccount from '@/hooks/useAdminAccount';
 
 async function getNameAddressList(parentNamespace: string): Promise<{ name: string, address: string }[]> {
 
@@ -68,11 +56,7 @@ function Users(): JSX.Element {
   const searchParams = useSearchParams();
   const parentNamespace = searchParams.get('parentNamespace') as string;
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
-
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
+  const adminAccount = useAdminAccount()
 
   // ユーザーID（サブネームスペース）一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -93,7 +77,7 @@ function Users(): JSX.Element {
 
   // トランザクションのCONFIRMEDを監視
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined && parentNamespace) {
+    if (adminAccount !== undefined && parentNamespace) {
       (async() => {
         updateNameAddressList();
 
@@ -101,22 +85,15 @@ function Users(): JSX.Element {
           listener = repo.createListener();
           await listener.open();
           listener
-            .confirmed(address)
+            .confirmed(adminAccount.address)
             .subscribe(async (block) => {
               console.log("EVENT: TRANSACTION CONFIRMED:", block);
-              if (block instanceof TransferTransaction) {
-                if (block.mosaics[0].id?.toHex() === accountRegisterMosaicId) {
-                  const [accountName, accountRawAddress] = block.message.payload.split(':')
-                  const aggTx = createNamespaceRegistrationAndAliasTx(publicAccount, parentNamespace, accountName, accountRawAddress);
-                  signAndAnnounce(aggTx);
-                }
-              }
               updateNameAddressList();
             });
           }
       })();
     }
-  },  [address, sssState, parentNamespace]);
+  },  [adminAccount, parentNamespace]);
 
   type Inputs = {
     namespaceName: string;
@@ -124,10 +101,7 @@ function Users(): JSX.Element {
   };
 
   const {
-    register,
-    handleSubmit,
     setValue,
-    getValues,
   } = useForm<Inputs>();
 
   /*
@@ -137,53 +111,13 @@ function Users(): JSX.Element {
   */
 
 
-  // Namespace登録
-  const registerNamespace: SubmitHandler<Inputs> = (data) => {
-    (async () => {
-      await signAndAnnounce(
-        createRegistrationTx(parentNamespace, data.namespaceName)
-      )
-    })()
-  }
-
-  // NamespaceとAddressを紐づける
-  const createAlias = (name: string) => {
-    const values = getValues();
-    const address = values['addresses'][name];
-    signAndAnnounce(
-      createAliasTx(parentNamespace, name, address)
-    )
-  }
-
   return (
     <AdminLayout>
-      {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
-      ) : (
-        <div className="box">
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            ユーザーID管理@{ parentNamespace }
-          </Typography>
-          { address.plain() }
-          <form onSubmit={handleSubmit(registerNamespace)} className="form">
-            <div className="flex flex-col">
-              <label> ID </label>
-              <input
-                {...register("namespaceName", { required: "ID(サブネームスペース）を入力してください。" })}
-                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                type="text"
-                name="namespaceName"
-              />
-            </div>
+      <Typography component='div' variant='h6' mt={5} mb={1}>
+        ユーザーID管理@{ parentNamespace }
+      </Typography>
 
-            <button className="btn">追加</button>
-          </form>
-        </div>
-      )}
-
-      <table className="mx-8" >
+      <table className="mx-8 table" >
         <thead>
           <tr>
             <th>ユーザーID</th>
@@ -197,21 +131,7 @@ function Users(): JSX.Element {
                 { data.name }
               </td>
               <td>
-                {
-                  data.address? data.address :(
-                    <>
-                      <input
-                        key={'address-' + data.name}
-                        {...register(`addresses.${data.name}`)}
-                        className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                      />
-                      <button
-                        onClick={() => createAlias(data.name)}
-                        className="border px-3 py-2 mx-2"
-                      >アドレス割当</button>
-                    </>
-                  )
-                }
+                { data.address }
               </td>
             </tr>
           ))}

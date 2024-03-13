@@ -10,6 +10,7 @@ import {
   TransactionGroup,
   TransactionType,
   Order,
+  TransferTransaction,
 } from 'symbol-sdk';
 
 import useSssInit from '@/hooks/useSssInit';
@@ -19,7 +20,7 @@ import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 const txRepo = repo.createTransactionRepository();
 
-async function getMessageTxs(address: Address): Promise<Transaction[]> {
+async function getMessageTxs(address: Address): Promise<TransferTransaction[]> {
   const resultSearch = await firstValueFrom(
     txRepo.search({
       type: [TransactionType.TRANSFER],
@@ -30,7 +31,7 @@ async function getMessageTxs(address: Address): Promise<Transaction[]> {
     })
   );
   console.log('resultSearch :', resultSearch);
-  return resultSearch.data as Transaction[];
+  return resultSearch.data as TransferTransaction[];
 }
 
 function Home(): JSX.Element {
@@ -42,7 +43,7 @@ function Home(): JSX.Element {
   const { address } = useAddressInit(clientPublicKey, sssState);
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([]);
+  const [dataList, setDataList] = useState<TransferTransaction[]>([]);
 
   // リスナ保持
   let listener: IListener;
@@ -64,7 +65,7 @@ function Home(): JSX.Element {
             .subscribe((confirmedTx: Transaction) => {
               console.log("LISTENER: TRANSACTION CONFIRMED");
               //console.dir({ confirmedTx }, { depth: null });
-              setDataList(current => [confirmedTx, ...current]);
+              setDataList(current => [confirmedTx as TransferTransaction, ...current]);
             });
           }
           console.log("LISTENER: STARTED");
@@ -89,7 +90,7 @@ function Home(): JSX.Element {
           {dataList.map((data, index) => (
             <tr key={index}>
               <td>{ data?.message?.payload }</td>
-              <td>{ data.signer.address.address }</td>
+              <td>{ data.signer?.address.plain() }</td>
             </tr>
           ))}
         </tbody>

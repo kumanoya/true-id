@@ -7,6 +7,7 @@ import {
   Transaction,
   TransactionGroup,
   TransactionType,
+  TransferTransaction,
   Order,
   MosaicId,
 } from 'symbol-sdk';
@@ -22,7 +23,7 @@ import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
 const repo = createRepositoryFactory();
 const txRepo = repo.createTransactionRepository();
 
-async function getRequestMessageTxs(address: Address): Promise<Transaction[]> {
+async function getRequestMessageTxs(address: Address): Promise<TransferTransaction[]> {
   const resultSearch = await firstValueFrom(
     txRepo.search({
       type: [TransactionType.TRANSFER],
@@ -33,7 +34,7 @@ async function getRequestMessageTxs(address: Address): Promise<Transaction[]> {
       pageSize: 100,
     })
   );
-  return resultSearch.data as Transaction[];
+  return resultSearch.data as TransferTransaction[];
 }
 
 function Request(): JSX.Element {
@@ -45,7 +46,7 @@ function Request(): JSX.Element {
   const { address } = useAddressInit(clientPublicKey, sssState);
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([]);
+  const [dataList, setDataList] = useState<TransferTransaction[]>([]);
 
   // リスナ保持
   let listener: IListener;
@@ -68,7 +69,7 @@ function Request(): JSX.Element {
             .subscribe((confirmedTx: Transaction) => {
               console.log("LISTENER: TRANSACTION CONFIRMED");
               //console.dir({ confirmedTx }, { depth: null });
-              setDataList(current => [confirmedTx, ...current]);
+              setDataList(current => [confirmedTx as TransferTransaction, ...current]);
             });
           }
           console.log("LISTENER: STARTED");
@@ -89,9 +90,9 @@ function Request(): JSX.Element {
         <tbody>
           {dataList.map((data, index) => (
             <tr key={index}>
-              <td class="px-2">{ data?.message?.payload }</td>
-              <td class="px-2">{ data.signer.address.address }</td>
-              <td class="px-2">{ data.mosaics[0].id.toHex() }</td>
+              <td className="px-2">{ data?.message?.payload }</td>
+              <td className="px-2">{ data.signer?.address?.plain() }</td>
+              <td className="px-2">{ data.mosaics[0].id.toHex() }</td>
             </tr>
           ))}
         </tbody>

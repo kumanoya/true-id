@@ -23,7 +23,7 @@ import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
 const txRepo = repo.createTransactionRepository()
 
-async function getRequestMessageTxs(address: Address): Promise<Transaction[]> {
+async function getRequestMessageTxs(address: Address): Promise<TransferTransaction[]> {
   const resultSearch = await firstValueFrom(
     txRepo.search({
       type: [TransactionType.TRANSFER],
@@ -46,7 +46,7 @@ function AdminRegister(): JSX.Element {
   const adminAccount = useAdminAccount()
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([])
+  const [dataList, setDataList] = useState<TransferTransaction[]>([])
 
   function registerAccount(parentNamespace: string, accountName: string, accountRawAddress: string)
   {

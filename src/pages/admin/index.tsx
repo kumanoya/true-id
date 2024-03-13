@@ -158,7 +158,6 @@ function Home(): JSX.Element {
           <tr>
             <th>ルートネームスペース名</th>
             <th>管理</th>
-            <th>割当先アドレス</th>
           </tr>
         </thead>
         <tbody>
@@ -168,21 +167,21 @@ function Home(): JSX.Element {
                 { data.name }
               </td>
               <td>
-                { (data.address)? (
-                  <button
-                  className="btn"
-                  onClick={() => {
-                    router.push({
-                      pathname: '/admin/users',
-                      query: { parentNamespace: data.name }
-                    })
-                  }}
-                  >管理
-                  </button>
-                ) : '' }
-              </td>
-              <td>
-                { data.address? data.address : (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>) }
+                {
+                  (data.address)? (
+                    <button
+                    className="btn"
+                    onClick={() => {
+                      router.push({
+                        pathname: '/admin/users',
+                        query: { parentNamespace: data.name }
+                      })
+                    }}
+                    >ユーザー管理
+                    </button>
+                  ) :
+                  (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>)
+                }
               </td>
             </tr>
           ))}

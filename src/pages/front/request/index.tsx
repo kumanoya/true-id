@@ -81,7 +81,7 @@ function Request(): JSX.Element {
       <table className="table">
         <thead>
           <tr>
-            <th>許諾リクエスト</th>
+            <th>ログインリクエスト</th>
             <th>送信元</th>
             <th>MosaicId</th>
           </tr>

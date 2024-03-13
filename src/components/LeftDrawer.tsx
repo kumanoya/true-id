@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Box,
   Divider,
@@ -9,7 +10,17 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import {Home, ArrowCircleUp, Chat} from '@mui/icons-material';
+
+import { Home,
+  Chat,
+  Web,
+  Settings,
+  ListAlt,
+  AddCircle,
+  FaceRetouchingNatural,
+  Notifications,
+} from '@mui/icons-material';
+
 import { useRouter } from 'next/router';
 import MyAccountList from '@/components/MyAccountList';
 
@@ -23,7 +34,8 @@ function LeftDrawer(props: {
   return (
     <>
       <Drawer anchor={'left'} open={openLeftDrawer} onClose={() => setOpenLeftDrawer(false)}>
-        <div className="left-drawer">
+        <div className="left-drawer mt-4">
+          <h1 className="mt-4 mx-4 text-lg">一般ユーザー</h1>
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -61,9 +73,9 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <Home />
+                  <Notifications />
                 </ListItemIcon>
-                <ListItemText primary={'許諾リクエスト一覧'} />
+                <ListItemText primary={'ログインリクエスト一覧'} />
               </ListItemButton>
             </ListItem>
 
@@ -75,12 +87,16 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <Home />
+                  <FaceRetouchingNatural />
                 </ListItemIcon>
                 <ListItemText primary={'アカウントID申請'} />
               </ListItemButton>
             </ListItem>
           </List>
+
+          <Divider />
+
+          <h1 className="mt-4 mx-4 text-lg">アカウントプロバイダ</h1>
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -90,9 +106,61 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <ArrowCircleUp />
+                  <ListAlt />
                 </ListItemIcon>
-                <ListItemText primary={'IDプロバイダ:ネームスペース管理'} />
+                <ListItemText primary={'ネームスペース管理'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/admin/register');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Notifications />
+                </ListItemIcon>
+                <ListItemText primary={'アカウント申請一覧'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+          <Divider />
+
+          <h1 className="mt-4 mx-4 text-lg">外部アプリテスト</h1>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/webapp/');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Web />
+                </ListItemIcon>
+                <ListItemText primary={'TrueIDでログイン'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+          <Divider />
+
+          <h1 className="mt-4 mx-4 text-lg">設定</h1>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/settings/');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Settings />
+                </ListItemIcon>
+                <ListItemText primary={'設定：秘密鍵登録'} />
               </ListItemButton>
             </ListItem>
 
@@ -104,28 +172,12 @@ function LeftDrawer(props: {
                 }}
               >
                 <ListItemIcon>
-                  <ArrowCircleUp/>
+                  <AddCircle/>
                 </ListItemIcon>
-                <ListItemText primary={'IDプロバイダ:カスタムモザイク作成（仮）'} />
-              </ListItemButton>
-            </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  router.push('/webapp/');
-                  setOpenLeftDrawer(false);
-                }}
-              >
-                <ListItemIcon>
-                  <ArrowCircleUp />
-                </ListItemIcon>
-                <ListItemText primary={'ウェブログインテスト'} />
+                <ListItemText primary={'カスタムモザイク作成'} />
               </ListItemButton>
             </ListItem>
           </List>
-
-          <Divider />
 
           <MyAccountList />
         </div>

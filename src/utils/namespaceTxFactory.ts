@@ -84,11 +84,11 @@ function createAddressAliasTx(parentName: string, name: string, address: Address
   return aliasTransaction;
 }
 
-function createNamespaceRegistrationAndAliasTx(publicAccount: PublicAccount, parentName: string, name: string, rawAddress: string): AggregateTransaction
+function createNamespaceRegistrationAndAliasTx(signer: PublicAccount, parentName: string, name: string, rawAddress: string): AggregateTransaction
 {
   const registrationTx = createNamespaceRegistrationTx(parentName, name);
   const aliasTx = createAddressAliasTx(parentName, name, Address.createFromRawAddress(rawAddress));
-  return aggregateTx([registrationTx, aliasTx], publicAccount);
+  return aggregateTx([registrationTx, aliasTx], signer);
 }
 
 export {

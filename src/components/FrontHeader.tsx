@@ -17,16 +17,18 @@ function Header(props: {
           sx={{ position: 'absolute', left: '20px', top: '15px' }}
           onClick={() => setOpenLeftDrawer(true)}
         />
-        <Image
-          src='/true-id.png'
-          width={2048}
-          height={472}
-          style={{
-            width: 'auto',
-            height: '50px',
-          }}
-          alt='logo'
-        />
+        <div className="logo-wrap">
+          <Image
+            src='/trueid-logo-wh.svg'
+            width={100}
+            height={50}
+            style={{
+              width: 'auto',
+              height: '18px',
+            }}
+            alt='logo'
+          />
+        </div>
         <span className="front-title">フロントアプリ</span>
       </div>
     </>

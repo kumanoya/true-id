@@ -11,12 +11,12 @@ import {
   networkType,
 } from '@/consts/blockchainProperty'
 
-export const aggregateTx = (transactions: Transaction[], publicAccount: PublicAccount): AggregateTransaction =>
+export const aggregateTx = (transactions: Transaction[], signer: PublicAccount): AggregateTransaction =>
 {
   const deadline = Deadline.create(epochAdjustment); // デフォルトは2時間後
   const aggregateTx = AggregateTransaction.createComplete(
     deadline,
-    transactions.map((tx) => tx.toAggregate(publicAccount)),
+    transactions.map((tx) => tx.toAggregate(signer)),
     networkType,
     [],
     UInt64.fromUint(2000000),

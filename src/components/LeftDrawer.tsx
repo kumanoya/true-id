@@ -112,6 +112,19 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
 
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/admin/register');
+                  setOpenLeftDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Notifications />
+                </ListItemIcon>
+                <ListItemText primary={'アカウント申請一覧'} />
+              </ListItemButton>
+            </ListItem>
           </List>
 
           <Divider />

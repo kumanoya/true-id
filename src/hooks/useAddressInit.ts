@@ -30,7 +30,8 @@ const useAddressInit = (clientPublicKey: string, sssState: sssState) => {
       setPublicAccount(publicAccount)
       setClientAddress(publicAccount.address.plain());
     } else if (sssState === 'INACTIVE' || sssState === 'NONE') {
-      router.push('/sss');
+      //router.push('/sss');
+      alert('SSSが有効になっていません')
     }
   }, [clientPublicKey, sssState]);
 

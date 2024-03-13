@@ -105,6 +105,7 @@ function Request(): JSX.Element {
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="rootNamespace"
+                required
               />
             </div>
 
@@ -117,6 +118,7 @@ function Request(): JSX.Element {
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="accountName"
+                required
               />
             </div>
 
@@ -129,10 +131,13 @@ function Request(): JSX.Element {
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
                 name="accountRawAddress"
+                required
               />
             </div>
 
-            <button className="btn">送信</button>
+            <div className="flex justify-center">
+              <button className="btn">IDを申請する</button>
+            </div>
           </form>
         </div>
       )}

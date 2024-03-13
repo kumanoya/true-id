@@ -169,19 +169,20 @@ function Home(): JSX.Element {
               </td>
               <td>
                 { (data.address)? (
-                  <a
+                  <button
+                  className="btn"
                   onClick={() => {
                     router.push({
                       pathname: '/admin/users',
                       query: { parentNamespace: data.name }
                     })
                   }}
-                  >ユーザー管理
-                  </a>
+                  >管理
+                  </button>
                 ) : '' }
               </td>
               <td>
-                { data.address? data.address : (<button onClick={() => createAlias(data.name)} className="px-4">アドレス割当</button>) }
+                { data.address? data.address : (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>) }
               </td>
             </tr>
           ))}

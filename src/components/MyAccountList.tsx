@@ -37,7 +37,7 @@ function MyAccountList(props: {
       ) : (
         <div className="my-account">
           <div className="p-4 text-right bg-gray-100">
-            Symbolアドレス: { account.address.plain() }
+            Symbolアドレス: { account?.address.plain() }
           </div>
           <div className="p-2">取得済みアカウントID一覧</div>
           <div className="account-list-wrap">

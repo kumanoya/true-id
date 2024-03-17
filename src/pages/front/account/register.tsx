@@ -32,13 +32,6 @@ async function createAccountRequestTx(rootNamespace: string, accountName: string
   // Transaction info
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
 
-  const namespaceId = new NamespaceId(rootNamespace)
-  const namespaceInfo = await repo.createNamespaceRepository().getNamespace(namespaceId).toPromise()
-  if (!namespaceInfo) {
-    throw new Error('Invalid root namespace')
-  }
-  const providerAddress = namespaceInfo.ownerAddress
-
   const absoluteAmountUInt64 = UInt64.fromUint(0)
 
   // リクエスト専用のMosaicを送る
@@ -47,11 +40,19 @@ async function createAccountRequestTx(rootNamespace: string, accountName: string
   const plainMessage = PlainMessage.create(rootNamespace + ':' + accountName) // 平文メッセージに希望アカウント名とアドレスをエンコード
   const feeMultiplier = 100
 
+  // 宛先アドレスを取得
+  // namespace宛に送ると管理側での受信処理が複雑になるのでaddressで送る
+  const namespaceId = new NamespaceId(rootNamespace)
+  const namespaceInfo = await repo.createNamespaceRepository().getNamespace(namespaceId).toPromise()
+  if (!namespaceInfo) {
+    throw new Error('Invalid root namespace')
+  }
+  const providerAddress = namespaceInfo.ownerAddress
+
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    providerAddress, // namespace宛に送ると管理側での受信処理が複雑になるのでaddressで送る
-    //namespaceId,
+    providerAddress, //namespaceId,
     mosaics,
     plainMessage,
     networkType

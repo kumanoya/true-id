@@ -23,7 +23,10 @@ import { useForm, SubmitHandler } from "react-hook-form"
 
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
-function createLoginRequestTx(accountName: string): Transaction
+import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
+const repo = createRepositoryFactory();
+
+async function createLoginRequestTx(accountName: string): Promise<Transaction>
 {
   // Transaction info
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
@@ -35,11 +38,19 @@ function createLoginRequestTx(accountName: string): Transaction
   const plainMessage = PlainMessage.create(accountName)
   const feeMultiplier = 100
 
-  // Create transaction
+  // 宛先アドレスを取得
+  // namespace宛に送ると受信側での受信処理が複雑になる(アドレスで絞り込みできない)のでaddressで送る
   const namespaceId = new NamespaceId(accountName)
+  const namespaceInfo = await repo.createNamespaceRepository().getNamespace(namespaceId).toPromise()
+  if (!namespaceInfo) {
+    throw new Error('Invalid root namespace')
+  }
+  const recipientAddress = namespaceInfo.ownerAddress
+
+  // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    namespaceId,
+    recipientAddress, //namespaceId,
     mosaics,
     plainMessage,
     networkType
@@ -67,7 +78,9 @@ function Request(): JSX.Element {
     if (appAccount === undefined) {
       return
     }
-    signAndAnnounce(createLoginRequestTx(data.accountName), appAccount)
+
+    createLoginRequestTx(data.accountName)
+      .then(tx => signAndAnnounce(tx, appAccount))
   }
 
   return (

@@ -73,6 +73,21 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
+                  router.push('/front/account/register');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <FaceRetouchingNatural />
+                </ListItemIcon>
+                <ListItemText primary={'アカウント作成・ID申請'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
                   router.push('/front/');
                   setIsOpen(false);
                 }}
@@ -97,21 +112,6 @@ function LeftDrawer(props: {
                 <ListItemText primary={'ログインリクエスト一覧'} />
               </ListItemButton>
             </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  router.push('/front/account/register');
-                  setIsOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <FaceRetouchingNatural />
-                </ListItemIcon>
-                <ListItemText primary={'アカウントID申請'} />
-              </ListItemButton>
-            </ListItem>
-          </List>
 
           <Divider />
 

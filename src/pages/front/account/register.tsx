@@ -1,18 +1,26 @@
 import FrontLayout from '@/components/FrontLayout';
 import { Typography } from '@mui/material'
-
 import useUserAccount from '@/hooks/useUserAccount';
-
 import { useForm, SubmitHandler } from "react-hook-form"
-
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
-
 import { createAccountRequestTx } from '@/utils/createAccountRequestTx'
+import {
+  Account,
+} from 'symbol-sdk'
+import {
+  networkType,
+} from '@/consts/blockchainProperty'
 
 function Request(): JSX.Element {
 
   // アカウント取得
   const userAccount = useUserAccount()
+
+  // 新しいアカウントを作成
+  function createAccount(): void {
+    const account = Account.generateNewAccount(networkType)
+    localStorage.setItem('userPrivateKey', account.privateKey)
+  }
 
   type Inputs = {
     rootNamespace: string
@@ -22,7 +30,11 @@ function Request(): JSX.Element {
   const {
     register,
     handleSubmit,
-  } = useForm<Inputs>()
+  } = useForm<Inputs>({
+    defaultValues: {
+      rootNamespace: 'true-id',
+    }
+  })
 
   // SUBMIT LOGIC
   const requestAccount: SubmitHandler<Inputs> = (data) => {
@@ -37,17 +49,20 @@ function Request(): JSX.Element {
     <FrontLayout>
 
       {userAccount === undefined ? (
-        <div>アカウントが設定されていません</div>
+        <form onSubmit={createAccount} className="p-4 text-center">
+          <div className="p-4">Symbolアドレスが作成されていません</div>
+          <button className="btn">Symbolアドレスを作成する</button>
+        </form>
       ) : (
         <div className="box">
           <Typography component='div' variant='h6' mt={5} mb={1}>
-            あなたのアドレス
+            あなたのSymbolアドレス
           </Typography>
           { userAccount.address.plain() }
           <form onSubmit={handleSubmit(requestAccount)} className="form">
             <div className="flex flex-col">
               <label>
-                ルートネームスペース
+                IDプロバイダー（ルートネームスペース）
               </label>
               <input
                 {...register("rootNamespace", { required: "アドレスを入力してください" })}

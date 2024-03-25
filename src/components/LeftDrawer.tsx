@@ -88,6 +88,34 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
+                  router.push('/front/source/');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Chat />
+                </ListItemIcon>
+                <ListItemText primary={'メッセージ'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/front/message/');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Chat />
+                </ListItemIcon>
+                <ListItemText primary={'メッセージスレッド'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
                   router.push('/front/');
                   setIsOpen(false);
                 }}

@@ -4,8 +4,7 @@ import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divid
 import {
   Transaction,
 } from 'symbol-sdk'
-//import { useUserInfo } from '@/store/UserInfoContext'
-import useUserAccount from '@/hooks/useUserAccount'
+import { useUserInfo } from '@/store/UserInfoContext'
 import groupedMessageTxs from '@/utils/groupedMessageTxs'
 import { formatTimestamp } from '@/utils/formatTimestamp'
 
@@ -15,22 +14,21 @@ import { formatTimestamp } from '@/utils/formatTimestamp'
 function Source(): JSX.Element {
 
   // アドレス取得
-  //const { account } = useUserInfo()
-  const userAccount = useUserAccount()
+  const { account } = useUserInfo()
 
   // メッセージ一覧表示用
   const [dataList, setDataList] = useState<Transaction[]>([])
 
   useEffect(() => {
-    console.log('Account: ', userAccount)
-    if (userAccount) {
+    console.log('Account: ', account)
+    if (account) {
       (async() => {
-        const address = userAccount.address
+        const address = account.address
         const list = await groupedMessageTxs(address)
         setDataList(list)
       })()
     }
-  },  [userAccount])
+  },  [account])
 
   // TODO: 現在は仮。適切なルーティング設定を行う
   const handleNavigate = () => {

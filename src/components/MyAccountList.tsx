@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Drawer } from '@mui/material';
+import { Drawer } from '@mui/material';
 import {
-  NamespaceName,
   Account,
 } from 'symbol-sdk';
 
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
-const repo = createRepositoryFactory();
+import { useUserInfo } from '@/store/UserInfoContext'
 
 function MyAccountList(props: {
   account: Account | null | undefined,
@@ -15,20 +13,13 @@ function MyAccountList(props: {
 }): JSX.Element {
 
   const { account, isOpen, setIsOpen } = props
+  const { currentUserId, userIds, setCurrentUserId } = useUserInfo()
 
-  const [accountNames, setAccountNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (account) {
-      (async() => {
-        repo.createNamespaceRepository().getAccountsNames([account.address]).subscribe((names) => {
-          console.log("NAMES[]: ", names)
-          const accountNames = names[0].names.map((namespaceName: NamespaceName) => namespaceName.name).sort()
-          setAccountNames(accountNames)
-        })
-      })();
-    }
-  },  [account]);
+  function changeId(id: string): void {
+    setIsOpen(false)
+    setCurrentUserId(id)
+    alert('IDを変更しました: ' + id)
+  }
 
   return (
     <Drawer anchor={'top'} open={isOpen} onClose={() => setIsOpen(false)}>
@@ -42,9 +33,11 @@ function MyAccountList(props: {
           <div className="p-2">取得済みアカウントID一覧</div>
           <div className="account-list-wrap">
             <ul className="account-list mx-4">
-              {accountNames.map((name) => (
-                <li key={name}>
-                  { name }
+              {userIds.map((id: string) => (
+                <li key={id}>
+                  <a className="" onClick={() => changeId(id)}>
+                    { id }
+                  </a>
                 </li>
               ))}
             </ul>

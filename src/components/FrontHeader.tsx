@@ -6,7 +6,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
 import MyAccountList from '@/components/MyAccountList'
-import useUserAccount from '@/hooks/useUserAccount';
+import { useUserInfo } from '@/store/UserInfoContext'
 
 type Props = { setIsMenuOpen: any }
 
@@ -15,7 +15,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
   const [isAccountOpen, setIsAccountOpen] = useState<boolean>(false) //MyAccountListの設定
 
   // アカウント取得
-  const account = useUserAccount()
+  const { currentUserId, account } = useUserInfo()
 
   return (
     <>
@@ -40,11 +40,10 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
           </div>
           <span className="front-title">一般ユーザーアプリ</span>
         </div>
-        <div>
-          <span>
-            { account?.address.pretty().split('-')[0] + '-...' }
+        <div className="flex items-center">
+          <span className="mx-2">
+            { currentUserId }
           </span>
-
           <AccountCircle 
             onClick={() => setIsAccountOpen(true)}
             fontSize="large" />

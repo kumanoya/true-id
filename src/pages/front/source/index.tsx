@@ -1,21 +1,16 @@
-import { firstValueFrom } from "rxjs"
 import React, { useEffect, useState } from 'react'
 import FrontLayout from '@/components/FrontLayout'
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material'
 import {
   Transaction,
-  TransactionGroup,
-  Order,
 } from 'symbol-sdk'
 
 //import { useUserInfo } from '@/store/UserInfoContext'
 import useUserAccount from '@/hooks/useUserAccount'
+import groupedMessageTxs from '@/utils/groupedMessageTxs'
 
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 import { format } from "date-fns"
 import { useRouter } from 'next/router'
-
-const repo = createRepositoryFactory()
 
 function formatTimestamp(timestamp: { lower: number; higher: number }): string {
   // UNIXタイムスタンプをミリ秒単位で計算
@@ -46,48 +41,8 @@ function Source(): JSX.Element {
     if (userAccount) {
       (async() => {
         const address = userAccount.address
-        const txRepo = repo.createTransactionRepository()
-
-        const resultSearch = await firstValueFrom(
-          txRepo.search({            // type: [TransactionType.AGGREGATE_BONDED],
-            group: TransactionGroup.Confirmed,
-            address: address,
-            order: Order.Desc,
-            pageSize: 100,
-          })
-        )
-        console.log('resultSearch :', resultSearch)
-        // setDataList(resultSearch.data)
-
-        // データをグループ化し、各グループで最新のトランザクションを保持する
-        const grouped: { [key: string]: Transaction } = resultSearch.data.reduce((tx, current) => {
-          const address = current.signer?.address?.plain()
-          if (address && ((!tx[address]) ||
-            (tx[address]?.transactionInfo?.height ?? 0) < (current?.transactionInfo?.timestamp ?? 0))
-          ) {
-            tx[address] = current
-          }
-          return tx
-        }, {} as { [key: string]: Transaction })
-
-        const filteredDataList = Object.values(grouped)
-        const sortedDataList = [...filteredDataList].sort((a, b) => {
-          return Number(b.transactionInfo?.timestamp ?? 0) - Number(a.transactionInfo?.timestamp ?? 0)
-        })
-        setDataList(sortedDataList)
-
-        console.log('filteredDataList ⚡️', filteredDataList)
-
-        // Start monitoring of transaction status with websocket
-        const listener = repo.createListener()
-        await listener.open()
-        listener
-          .confirmed(address)
-          .subscribe((confirmedTx: Transaction) => {
-            console.log("EVENT: TRANSACTION CONFIRMED")
-            //console.dir({ confirmedTx }, { depth: null })
-            setDataList(current => [confirmedTx, ...current])
-          })
+        const list = await groupedMessageTxs(address)
+        setDataList(list)
       })()
     }
   },  [userAccount])

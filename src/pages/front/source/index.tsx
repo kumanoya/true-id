@@ -4,30 +4,15 @@ import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divid
 import {
   Transaction,
 } from 'symbol-sdk'
-
 //import { useUserInfo } from '@/store/UserInfoContext'
 import useUserAccount from '@/hooks/useUserAccount'
 import groupedMessageTxs from '@/utils/groupedMessageTxs'
-
-import { format } from "date-fns"
-import { useRouter } from 'next/router'
-
-function formatTimestamp(timestamp: { lower: number; higher: number }): string {
-  // UNIXタイムスタンプをミリ秒単位で計算
-  const unixTimestamp = (timestamp.higher * 4294967296 + timestamp.lower) / 1000
-
-  // Dateオブジェクトを生成
-  const date = new Date(unixTimestamp * 1000)
-
-  // date-fnsを使ってフォーマット
-  return format(date, "yyyy-MM-dd HH:mm")
-}
+import { formatTimestamp } from '@/utils/formatTimestamp'
 
 //==============================================================================
 //  Source
 //==============================================================================
 function Source(): JSX.Element {
-  const router = useRouter()
 
   // アドレス取得
   //const { account } = useUserInfo()
@@ -49,7 +34,7 @@ function Source(): JSX.Element {
 
   // TODO: 現在は仮。適切なルーティング設定を行う
   const handleNavigate = () => {
-    router.push('/')
+    //router.push('/')
   }
 
   return (

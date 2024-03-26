@@ -22,7 +22,7 @@ import { signAndAnnounce } from '@/utils/signAndAnnounce'
 
 import { useUserInfo } from '@/store/UserInfoContext'
 
-function createMessageTx(recipientName: string, rawMessage: string, xym: number): Transaction
+function createMessageTx(recipientName: string, rawMessage: string, xym: number, currentUserId: string|null = null): Transaction
 {
   // XXX: ハードコード
   const networkCurrencyDivisibility = 6 // XYMの分割単位
@@ -35,7 +35,14 @@ function createMessageTx(recipientName: string, rawMessage: string, xym: number)
   const absoluteAmountUInt64 = UInt64.fromUint(absoluteAmount)
   const mosaic = new Mosaic(new MosaicId(currencyMosaicID), absoluteAmountUInt64)
   const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(rawMessage) // 平文メッセージ
+
+  const message = {
+    recipientId: recipientName,
+    content: rawMessage,
+    signerId: currentUserId,
+  }
+
+  const plainMessage = PlainMessage.create(JSON.stringify(message)) // 平文メッセージ
   const feeMultiplier = 100
 
   // Create transaction
@@ -53,7 +60,7 @@ function createMessageTx(recipientName: string, rawMessage: string, xym: number)
 
 function MessageForm(): JSX.Element {
 
-  const { account } = useUserInfo()
+  const { account, currentUserId } = useUserInfo()
 
   type Inputs = {
     recipientName: string
@@ -68,7 +75,8 @@ function MessageForm(): JSX.Element {
 
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
-    signAndAnnounce(createMessageTx(data.recipientName, data.message, data.xym), account)
+    const tx = createMessageTx(data.recipientName, data.message, data.xym, currentUserId)
+    signAndAnnounce(tx, account)
   }
 
   return (

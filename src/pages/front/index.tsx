@@ -59,7 +59,7 @@ function Home(): JSX.Element {
   let listener: IListener
 
   useEffect(() => {
-    if (account !== undefined && currentUserId !== undefined) {
+    if (account && currentUserId !== undefined) {
       (async() => {
         // トランザクション全取得
         const txs = await getMessageTxs(account.address)

@@ -1,21 +1,21 @@
 // UserInfoContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { ReactNode, createContext, useContext, useState, useEffect } from 'react'
 import useUserAccount from '@/hooks/useUserAccount'
 import { Account, NamespaceName } from 'symbol-sdk'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
+import UserInfo from '@/types/UserInfo'
 
 const repo = createRepositoryFactory()
 
-const UserInfoContext = createContext(null)
+const UserInfoContext = createContext<UserInfo>({
+  userIds: [],
+  currentUserId: null,
+  account: null,
+  setCurrentUserId: (userId: string) => {},
+})
 
-interface UserInfo {
-  userIds: string[],
-  currentUserId: string|null,
-  account: Account|null|undefined,
-  setCurrentUserId: (userId: string) => void,
-}
-
-export const UserInfoProvider = ({ children }) => {
+type Props = { children: ReactNode }
+export const UserInfoProvider = ({ children }: Props) => {
   const account = useUserAccount()
   const [userIds, setUserIds] = useState<string[]>([])
   const [currentUserId, setCurrentUserId] = useState<string|null>(null)
@@ -51,5 +51,5 @@ export const UserInfoProvider = ({ children }) => {
   return <UserInfoContext.Provider value={value}>{children}</UserInfoContext.Provider>
 }
 
-export const useUserInfo = () => useContext(UserInfoContext)
+export const useUserInfo = (): UserInfo => useContext(UserInfoContext)
 

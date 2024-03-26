@@ -1,8 +1,8 @@
-import { firstValueFrom } from "rxjs";
-import React, { useEffect, useState } from 'react';
-import FrontLayout from '@/components/FrontLayout';
-import MessageForm from '@/components/MessageForm';
-import { Typography } from '@mui/material';
+import { firstValueFrom } from "rxjs"
+import React, { useEffect, useState } from 'react'
+import FrontLayout from '@/components/FrontLayout'
+import MessageForm from '@/components/MessageForm'
+import { Typography } from '@mui/material'
 import {
   Address,
   IListener,
@@ -11,13 +11,17 @@ import {
   TransactionType,
   Order,
   TransferTransaction,
-} from 'symbol-sdk';
+} from 'symbol-sdk'
 
-import useUserAccount from '@/hooks/useUserAccount';
+//import useUserAccount from '@/hooks/useUserAccount'
+import { useUserInfo } from '@/store/UserInfoContext'
 
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
-const repo = createRepositoryFactory();
-const txRepo = repo.createTransactionRepository();
+import Message from '@/types/message'
+import createMessage from '@/utils/createMessage'
+
+import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
+const repo = createRepositoryFactory()
+const txRepo = repo.createTransactionRepository()
 
 async function getMessageTxs(address: Address): Promise<TransferTransaction[]> {
   const resultSearch = await firstValueFrom(
@@ -28,46 +32,65 @@ async function getMessageTxs(address: Address): Promise<TransferTransaction[]> {
       order: Order.Desc,
       pageSize: 100,
     })
-  );
-  console.log('resultSearch :', resultSearch);
-  return resultSearch.data as TransferTransaction[];
+  )
+  console.log('resultSearch :', resultSearch)
+  return resultSearch.data as TransferTransaction[]
+}
+
+function isJson(text: string): boolean {
+  try {
+    JSON.parse(text)
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 function Home(): JSX.Element {
 
   // アカウント取得
-  const userAccount = useUserAccount();
+  //const account = useUserAccount()
+  const { account, currentUserId } = useUserInfo()
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<TransferTransaction[]>([]);
+  const [messages, setMessages] = useState<Message[]>([])
 
   // リスナ保持
-  let listener: IListener;
+  let listener: IListener
 
   useEffect(() => {
-    if (userAccount !== undefined) {
+    if (account !== undefined && currentUserId !== undefined) {
       (async() => {
-        setDataList(await getMessageTxs(userAccount.address));
+        // トランザクション全取得
+        const txs = await getMessageTxs(account.address)
+        //console.log(txs[0])
+
+        // メッセージに変換
+        const allMessages = txs.map(tx => createMessage(tx))
+
+        // 現在のID宛のメッセージのみ抽出
+        const filtered = allMessages.filter(message => message.recipientId === currentUserId)
+        setMessages(filtered)
 
         // リスナの二重登録を防ぐ
         if (listener === undefined) {
           // Start monitoring of transaction status with websocket
-          listener = repo.createListener();
-          //setListener(listener);
+          listener = repo.createListener()
+          //setListener(listener)
 
-          await listener.open();
+          await listener.open()
           listener
-            .confirmed(userAccount.address)
+            .confirmed(account.address)
             .subscribe((confirmedTx: Transaction) => {
-              console.log("LISTENER: TRANSACTION CONFIRMED");
-              //console.dir({ confirmedTx }, { depth: null });
-              setDataList(current => [confirmedTx as TransferTransaction, ...current]);
-            });
+              console.log("LISTENER: TRANSACTION CONFIRMED")
+              //console.dir({ confirmedTx }, { depth: null })
+              setMessages(current => [createMessage(confirmedTx as TransferTransaction), ...current])
+            })
           }
-          console.log("LISTENER: STARTED");
-      })();
+          console.log("LISTENER: STARTED")
+      })()
     }
-  },  [userAccount]);
+  },  [account])
 
   return (
     <FrontLayout>
@@ -79,19 +102,23 @@ function Home(): JSX.Element {
         <thead>
           <tr>
             <th>メッセージ</th>
-            <th>送信元</th>
+            <th>宛先</th>
+            <th>送信元ID</th>
+            <th>送信元アドレス</th>
           </tr>
         </thead>
         <tbody>
-          {dataList.map((data, index) => (
+          {messages.map((message, index) => (
             <tr key={index}>
-              <td>{ data?.message?.payload }</td>
-              <td>{ data.signer?.address.plain() }</td>
+              <td>{ message.content }</td>
+              <td>{ message.recipientId }</td>
+              <td>{ message.signerId }</td>
+              <td>{ message.signerAddress }</td>
             </tr>
           ))}
         </tbody>
       </table>
     </FrontLayout>
-  );
+  )
 }
-export default Home;
+export default Home

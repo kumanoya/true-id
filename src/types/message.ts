@@ -6,7 +6,7 @@ interface Message {
   signerPublicKey: string,
   signerAddress: string,
   content: string|undefined,
-  timestamp: number|undefined,
+  timestamp: number|undefined,  // unixtime(秒)
   height: string|undefined,
   rawMessage: string,
 }

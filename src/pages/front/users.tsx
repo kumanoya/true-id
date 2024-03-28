@@ -4,7 +4,7 @@ import FrontLayout from '@/components/FrontLayout'
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material'
 import { useUserInfo } from '@/store/UserInfoContext'
 import latestMessages from '@/utils/latestMessages'
-import { formatTimestamp } from '@/utils/formatTimestamp'
+import { formatUnixTime } from '@/utils/formatUnixTime'
 import Message from '@/types/message'
 
 //==============================================================================
@@ -65,7 +65,7 @@ function Users(): JSX.Element {
                 </React.Fragment>
               }
             />
-            <ListItemText primary={formatTimestamp(message.timestamp)} style={{ textAlign: 'right' }} />
+            <ListItemText primary={formatUnixTime(message.timestamp)} style={{ textAlign: 'right' }} />
           </ListItem>
           {index < messages.length - 1 && <Divider variant="inset" component="li" />}
         </React.Fragment>

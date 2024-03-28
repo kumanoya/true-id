@@ -1,15 +1,14 @@
 import { UInt64 } from 'symbol-sdk'
-
-// SymbolのNEMesisブロックのUnixタイムスタンプ
-const nemesisTimestamp = new Date('2015-03-29T00:06:25Z').getTime() / 1000
+import {
+  epochAdjustment,
+} from '@/consts/blockchainProperty'
 
 // SymbolのタイムスタンプからUnixタイムスタンプへの変換関数
 function timestampToUnixTime(symbolTimestamp: UInt64) {
     // UInt64から数値への変換
-    const timestampNumeric = symbolTimestamp.compact()
-
+    const ts = symbolTimestamp.compact()
     // NEMesisブロックからの経過時間（秒）を加算
-    return nemesisTimestamp + timestampNumeric
+    return (epochAdjustment * 1000 + ts) / 1000
 }
 
 export default timestampToUnixTime

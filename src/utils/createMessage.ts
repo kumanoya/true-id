@@ -2,6 +2,7 @@ import {
   TransferTransaction,
 } from 'symbol-sdk'
 import Message from '@/types/message'
+import timestampToUnixTime from '@/utils/timestampToUnixTime'
 
 function isJson(text: string): boolean {
   try {
@@ -22,7 +23,7 @@ function createMessage(tx: TransferTransaction): Message
     signerPublicKey:   tx.signer?.publicKey,
     signerAddress:     tx.signer?.address.plain(),
     content:           undefined,
-    timestamp:         tx.transactionInfo?.timestamp?.toString(),
+    timestamp:         tx.transactionInfo?.timestamp? timestampToUnixTime(tx.transactionInfo?.timestamp) : undefined,
     height:            tx.transactionInfo?.height.toString(),
     rawMessage:        tx.message.payload,
   }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import FrontLayout from '@/components/FrontLayout'
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material'
 import { useUserInfo } from '@/store/UserInfoContext'
@@ -7,9 +8,9 @@ import { formatTimestamp } from '@/utils/formatTimestamp'
 import Message from '@/types/message'
 
 //==============================================================================
-//  Source
+//  Users
 //==============================================================================
-function Source(): JSX.Element {
+function Users(): JSX.Element {
 
   // アドレス取得
   const { account, currentUserId } = useUserInfo()
@@ -29,16 +30,17 @@ function Source(): JSX.Element {
   },  [account])
 
   // TODO: 現在は仮。適切なルーティング設定を行う
-  const handleNavigate = () => {
-    //router.push('/')
+  const router = useRouter()
+  const handleNavigate = (address: string) => {
+    router.push('/front/users/' + address)
   }
 
   return (
     <FrontLayout>
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {messages.map((data, index) => (
+        {messages.map((message, index) => (
           <React.Fragment key={index}>
-          <ListItem alignItems="flex-start" onClick={() => handleNavigate()}
+          <ListItem alignItems="flex-start" onClick={() => handleNavigate(message.signerAddress)}
             sx={{
               '&:hover': {
                 cursor: 'pointer', // マウスホバー時にカーソルを指に変更
@@ -49,7 +51,7 @@ function Source(): JSX.Element {
               <Avatar alt="Dummy" src="/" />
             </ListItemAvatar>
             <ListItemText
-              primary={data.signerAddress}
+              primary={message.signerAddress}
               secondary={
                 <React.Fragment>
                   <Typography
@@ -58,12 +60,12 @@ function Source(): JSX.Element {
                     variant="body2"
                     color="text.primary"
                   >
-                    { data.content }
+                    { message.content }
                   </Typography>
                 </React.Fragment>
               }
             />
-            <ListItemText primary={formatTimestamp(data.timestamp)} style={{ textAlign: 'right' }} />
+            <ListItemText primary={formatTimestamp(message.timestamp)} style={{ textAlign: 'right' }} />
           </ListItem>
           {index < messages.length - 1 && <Divider variant="inset" component="li" />}
         </React.Fragment>
@@ -73,4 +75,4 @@ function Source(): JSX.Element {
     </FrontLayout>
   )
 }
-export default Source
+export default Users

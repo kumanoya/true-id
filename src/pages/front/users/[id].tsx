@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FrontLayout from '@/components/FrontLayout';
-import styles from './message.module.css'
+import styles from './id.module.css'
 
 const messages = [
   { sender: "Alice", content: "こんにちは！", time: "10:00", isOwn: false },

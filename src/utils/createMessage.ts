@@ -15,16 +15,23 @@ function isJson(text: string): boolean {
 
 function createMessage(tx: TransferTransaction): Message
 {
+  if (tx.signer === undefined) {
+    throw new Error('TransferTransaction.signer is undefined')
+  }
+  if (tx.transactionInfo === undefined) {
+    throw new Error('TransferTransaction.transactionInfo is undefined')
+  }
+
   const message =  {
-    id:                tx.transactionInfo?.id,
+    id:                tx.transactionInfo.id,
     recipientId:       undefined,
-    recipientAddress:  tx.recipientAddress?.plain(),
+    recipientAddress:  tx.recipientAddress.plain(),
     signerId:          undefined,
-    signerPublicKey:   tx.signer?.publicKey,
-    signerAddress:     tx.signer?.address.plain(),
+    signerPublicKey:   tx.signer.publicKey,
+    signerAddress:     tx.signer.address.plain(),
     content:           undefined,
-    timestamp:         tx.transactionInfo?.timestamp? timestampToUnixTime(tx.transactionInfo?.timestamp) : undefined,
-    height:            tx.transactionInfo?.height.toString(),
+    timestamp:         tx.transactionInfo.timestamp? timestampToUnixTime(tx.transactionInfo?.timestamp) : undefined,
+    height:            tx.transactionInfo.height.toString(),
     rawMessage:        tx.message.payload,
   }
 

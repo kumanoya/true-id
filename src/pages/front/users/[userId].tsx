@@ -5,9 +5,7 @@ import { useRouter } from 'next/router'
 import { useUserInfo } from '@/store/UserInfoContext'
 import userMessages from '@/utils/userMessages'
 import Message from '@/types/message'
-import {
-  Address,
-} from 'symbol-sdk'
+import UserMessageForm from '@/components/UserMessageForm'
 import { formatUnixTime } from '@/utils/formatUnixTime'
 
 function Message(): JSX.Element {
@@ -15,14 +13,10 @@ function Message(): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([])
   const { account, currentUserId } = useUserInfo()
 
-  const handleSubmit = () => {
-    console.log('メッセージを送信する')
-  };
-
   const router = useRouter()
+  const { userId } = router.query
 
   useEffect(() => {
-    console.log('USE EFFECT')
     if (!account || !account.address || !currentUserId)
     {
       console.log('Account not found')
@@ -31,19 +25,15 @@ function Message(): JSX.Element {
       return
     }
 
-    // 差出人address取得
-    const { address } = router.query
-    if (!address || (typeof address !== 'string')) {
-      console.log('Address not found')
+    // 差出人userId取得
+    if (!userId || (typeof userId !== 'string')) {
+      console.log('userId not found')
       console.log(router.query)
       return
     }
-    const signerAddress = Address.createFromRawAddress(address)
-
-    console.log('FETCH');
 
     (async () => {
-      const msgs = await userMessages(signerAddress, account.address, currentUserId)
+      const msgs = await userMessages(userId, account.address, currentUserId)
       console.log(msgs)
       setMessages(msgs)
     })()
@@ -64,16 +54,7 @@ function Message(): JSX.Element {
             </div>
           ))}
         </div>
-        <form onSubmit={handleSubmit} className={styles.chatInput}>
-          <input
-            type="text"
-            value=""
-            onChange={(e) => {}}
-            placeholder="メッセージを入力"
-            className={styles.messageInput}
-          />
-          <button type="submit" className={styles.sendButton}>送信</button>
-        </form>
+        <UserMessageForm recipientId={userId} />
       </div>
 
     </FrontLayout>

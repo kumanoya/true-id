@@ -32,14 +32,14 @@ const latestMessages = async (address: Address, currentUserId: string|null = nul
     .filter(msg => msg.recipientId === currentUserId)
 
   // データをグループ化し、各グループで最新のトランザクションを保持する
-  const grouped: { [key: string]: Message } = messages.reduce((calc, current) => {
-    const signerAddress = current.signerAddress
-    if (signerAddress && ((!calc[signerAddress]) ||
-      (calc[signerAddress].timestamp?? 0) < (current.timestamp ?? 0)
+  const grouped: { [key: string]: Message } = messages.reduce((ret, current) => {
+    const signerId = current.signerId
+    if (signerId && ((!ret[signerId]) ||
+      (ret[signerId].timestamp?? 0) < (current.timestamp ?? 0)
     )) {
-      calc[signerAddress] = current
+      ret[signerId] = current
     }
-    return calc
+    return ret
   }, {} as { [key: string]: Message })
 
   const filteredDataList = Object.values(grouped)

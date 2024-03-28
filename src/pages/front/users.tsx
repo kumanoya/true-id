@@ -40,7 +40,7 @@ function Users(): JSX.Element {
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {messages.map((message, index) => (
           <React.Fragment key={index}>
-          <ListItem alignItems="flex-start" onClick={() => handleNavigate(message.signerAddress)}
+          <ListItem alignItems="flex-start" onClick={() => handleNavigate(message.signerId)}
             sx={{
               '&:hover': {
                 cursor: 'pointer', // マウスホバー時にカーソルを指に変更
@@ -51,7 +51,7 @@ function Users(): JSX.Element {
               <Avatar alt="Dummy" src="/" />
             </ListItemAvatar>
             <ListItemText
-              primary={message.signerAddress}
+              primary={message.signerId}
               secondary={
                 <React.Fragment>
                   <Typography

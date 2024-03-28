@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import FrontLayout from '@/components/FrontLayout'
 import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material'
-import {
-  Transaction,
-} from 'symbol-sdk'
 import { useUserInfo } from '@/store/UserInfoContext'
-import groupedMessageTxs from '@/utils/groupedMessageTxs'
+import latestMessages from '@/utils/latestMessages'
 import { formatTimestamp } from '@/utils/formatTimestamp'
+import Message from '@/types/message'
 
 //==============================================================================
 //  Source
@@ -14,18 +12,18 @@ import { formatTimestamp } from '@/utils/formatTimestamp'
 function Source(): JSX.Element {
 
   // アドレス取得
-  const { account } = useUserInfo()
+  const { account, currentUserId } = useUserInfo()
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
 
   useEffect(() => {
     console.log('Account: ', account)
     if (account) {
       (async() => {
         const address = account.address
-        const list = await groupedMessageTxs(address)
-        setDataList(list)
+        const list = await latestMessages(address, currentUserId)
+        setMessages(list)
       })()
     }
   },  [account])
@@ -38,7 +36,7 @@ function Source(): JSX.Element {
   return (
     <FrontLayout>
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {dataList.map((data, index) => (
+        {messages.map((data, index) => (
           <React.Fragment key={index}>
           <ListItem alignItems="flex-start" onClick={() => handleNavigate()}
             sx={{
@@ -51,7 +49,7 @@ function Source(): JSX.Element {
               <Avatar alt="Dummy" src="/" />
             </ListItemAvatar>
             <ListItemText
-              primary={data?.signer?.address?.plain()}
+              primary={data.signerAddress}
               secondary={
                 <React.Fragment>
                   <Typography
@@ -60,14 +58,14 @@ function Source(): JSX.Element {
                     variant="body2"
                     color="text.primary"
                   >
-                    {data && 'message' in data ? (data.message as any).payload : ''}
+                    { data.content }
                   </Typography>
                 </React.Fragment>
               }
             />
-            <ListItemText primary={data.transactionInfo?.timestamp ? formatTimestamp(data.transactionInfo.timestamp).toString() : ''} style={{ textAlign: 'right' }} />
+            <ListItemText primary={formatTimestamp(data.timestamp)} style={{ textAlign: 'right' }} />
           </ListItem>
-          {index < dataList.length - 1 && <Divider variant="inset" component="li" />}
+          {index < messages.length - 1 && <Divider variant="inset" component="li" />}
         </React.Fragment>
         ))}
       </List>

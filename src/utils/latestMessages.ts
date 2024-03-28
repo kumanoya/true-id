@@ -1,18 +1,20 @@
 import { firstValueFrom } from "rxjs"
 import {
-  Transaction,
+  TransactionType,
+  TransferTransaction,
   TransactionGroup,
   Order,
   Address,
 } from 'symbol-sdk'
-
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
+import Message from '@/types/message'
+import createMessage from '@/utils/createMessage'
 
 //==============================================================================
-// groupedMessageTxs
+// latestMessages
 //==============================================================================
-const groupedMessageTxs = async (address: Address) => {
+const latestMessages = async (address: Address, currentUserId: string|null = null) => {
   const txRepo = repo.createTransactionRepository()
 
   const resultSearch = await firstValueFrom(
@@ -20,32 +22,35 @@ const groupedMessageTxs = async (address: Address) => {
       group: TransactionGroup.Confirmed,
       address: address,
       order: Order.Desc,
+      type: [TransactionType.TRANSFER],
       pageSize: 100,
     })
   )
-  console.log('resultSearch :', resultSearch)
-  // setDataList(resultSearch.data)
+  const messages = resultSearch.data
+    .map(tx => createMessage(tx))
+    .filter(msg => msg.recipientId === currentUserId)
 
   // データをグループ化し、各グループで最新のトランザクションを保持する
-  const grouped: { [key: string]: Transaction } = resultSearch.data.reduce((tx, current) => {
-    const address = current.signer?.address?.plain()
-    if (address && ((!tx[address]) ||
-      (tx[address]?.transactionInfo?.height ?? 0) < (current?.transactionInfo?.timestamp ?? 0))
-    ) {
-      tx[address] = current
+  const grouped: { [key: string]: Message } = messages.reduce((calc, current) => {
+    const signerAddress = current.signerAddress
+    if (signerAddress && ((!calc[signerAddress]) ||
+      (calc[signerAddress].timestamp?? 0) < (current.timestamp ?? 0)
+    )) {
+      calc[signerAddress] = current
     }
-    return tx
-  }, {} as { [key: string]: Transaction })
+    return calc
+  }, {} as { [key: string]: Message })
 
   const filteredDataList = Object.values(grouped)
   console.log('filteredDataList ⚡️', filteredDataList)
 
   const sortedDataList = [...filteredDataList].sort((a, b) => {
-    return Number(b.transactionInfo?.timestamp ?? 0) - Number(a.transactionInfo?.timestamp ?? 0)
+    return Number(b.timestamp ?? 0) - Number(a.timestamp ?? 0)
   })
   return sortedDataList
 }
 
-export default groupedMessageTxs
+export default latestMessages
+
 
 

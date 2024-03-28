@@ -26,8 +26,9 @@ const latestMessages = async (address: Address, currentUserId: string|null = nul
       pageSize: 100,
     })
   )
+
   const messages = resultSearch.data
-    .map(tx => createMessage(tx))
+    .map(tx => createMessage(tx as TransferTransaction))
     .filter(msg => msg.recipientId === currentUserId)
 
   // データをグループ化し、各グループで最新のトランザクションを保持する

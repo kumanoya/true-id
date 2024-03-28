@@ -1,6 +1,10 @@
 import { format } from "date-fns"
 
-export const formatTimestamp = (unixTime: number): string|null => {
+export const formatTimestamp = (unixTime: number|null|undefined): string|null => {
+
+  if (unixTime === null || unixTime === undefined) {
+    return null
+  }
 
   console.log(unixTime)
   console.log(typeof unixTime)

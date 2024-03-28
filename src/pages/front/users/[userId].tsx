@@ -7,6 +7,7 @@ import userMessages from '@/utils/userMessages'
 import Message from '@/types/message'
 import UserMessageForm from '@/components/UserMessageForm'
 import { formatUnixTime } from '@/utils/formatUnixTime'
+import { formatId } from '@/utils/formatId'
 
 function Message(): JSX.Element {
 
@@ -42,12 +43,13 @@ function Message(): JSX.Element {
 
   return (
     <FrontLayout>
+      <div className="text-2xl font-bold mb-4 text-center bg-gray-800 text-white p-2 rounded">{ formatId(userId) }さんとの会話</div>
       <div className={styles.chatContainer}>
         <div className={styles.chatMessages}>
           {messages.map((message, index) => (
             <div key={index} className={`${styles.message} ${message.signerId === currentUserId ? styles.own : ''}`}>
               <div className={styles.messageHeader}>
-                <span className={styles.messageSender}>{message.signerId}</span>
+                <span className={styles.messageSender}>{ formatId(message.signerId) }</span>
                 <span className={styles.messageTime}>{formatUnixTime(message.timestamp)}</span>
               </div>
               <div className={styles.messageContent}>{message.content}</div>

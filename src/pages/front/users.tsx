@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import FrontLayout from '@/components/FrontLayout'
-import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material'
+import { List, Avatar } from '@mui/material'
 import { useUserInfo } from '@/store/UserInfoContext'
 import latestMessages from '@/utils/latestMessages'
 import { formatUnixTime } from '@/utils/formatUnixTime'
+import { formatId } from '@/utils/formatId'
 import Message from '@/types/message'
 
 //==============================================================================
@@ -37,38 +38,21 @@ function Users(): JSX.Element {
 
   return (
     <FrontLayout>
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+      <div className="text-2xl font-bold mb-4 text-center bg-gray-800 text-white p-2 rounded">ユーザー一覧</div>
+      <List sx={{ width: '500px', bgcolor: 'background.paper' }}>
         {messages.map((message, index) => (
-          <React.Fragment key={index}>
-          <ListItem alignItems="flex-start" onClick={() => handleNavigate(message.signerId)}
-            sx={{
-              '&:hover': {
-                cursor: 'pointer', // マウスホバー時にカーソルを指に変更
-              }
-            }}
-          >
-            <ListItemAvatar>
-              <Avatar alt="Dummy" src="/" />
-            </ListItemAvatar>
-            <ListItemText
-              primary={message.signerId}
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: 'inline' }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    { message.content }
-                  </Typography>
-                </React.Fragment>
-              }
-            />
-            <ListItemText primary={formatUnixTime(message.timestamp)} style={{ textAlign: 'right' }} />
-          </ListItem>
-          {index < messages.length - 1 && <Divider variant="inset" component="li" />}
-        </React.Fragment>
+          <a key={index} className="w-full px-4 py-4 flex cursor-pointer message-users-item" onClick={() => handleNavigate(message.signerId)} >
+            <span className="mr-4 flex items-center">
+              <Avatar alt={formatId(message.signerId)?? ''} src="/" />
+            </span>
+            <div className="w-full">
+              <div className="w-full my-1 flex items-center justify-between">
+                <span className="font-bold"> { formatId(message.signerId) } </span>
+                <span className="mx-2 text-sm">{formatUnixTime(message.timestamp)}</span>
+              </div>
+              <div className=""> { message.content } </div>
+            </div>
+          </a>
         ))}
       </List>
 

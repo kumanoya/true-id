@@ -7,6 +7,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
 import MyAccountList from '@/components/MyAccountList'
 import { useUserInfo } from '@/store/UserInfoContext'
+import { formatId } from '@/utils/formatId'
 
 type Props = { setIsMenuOpen: any }
 
@@ -22,6 +23,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
       <div className="header">
         <div className="logo-wrap">
           <MenuIcon
+            className="cursor-pointer"
             fontSize='large'
             sx={{ left: '20px', top: '15px' }}
             onClick={() => setIsMenuOpen(true)}
@@ -40,12 +42,12 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
           </div>
           <span className="front-title">一般ユーザーアプリ</span>
         </div>
-        <div className="flex items-center">
-          <span className="mx-2">
-            { currentUserId }
+
+        <div className="cursor-pointer flex items-center" onClick={() => setIsAccountOpen(true)}>
+          <span className="mx-2 font-bold">
+            { formatId(currentUserId) }
           </span>
           <AccountCircle 
-            onClick={() => setIsAccountOpen(true)}
             fontSize="large" />
         </div>
       </div>

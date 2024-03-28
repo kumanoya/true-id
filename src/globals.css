@@ -29,12 +29,12 @@
   @apply mx-4;
   background-color: var(--color-offwhite);
   border: 2px solid #f0f0f0;
-  thead {
-    @apply bg-gray-800 text-white;
-  }
-  th, td {
-    @apply px-6 py-2;
-  }
+}
+.table > thead {
+  @apply bg-gray-800 text-white;
+}
+.table th, td {
+  @apply px-6 py-2;
 }
 
 .form {
@@ -125,4 +125,11 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+}
+
+.message-users-item {
+  border-bottom: 1px solid #e8e8e8;
+}
+.message-users-item:last-child {
+  border-bottom: none;
 }

@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material'
 import {
   Deadline,
   UInt64,
@@ -17,10 +16,9 @@ import {
 } from '@/consts/blockchainProperty'
 
 import { useForm, SubmitHandler } from "react-hook-form"
-
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
-
 import { useUserInfo } from '@/store/UserInfoContext'
+import { unformatId } from '@/utils/formatId'
 
 function createMessageTx(recipientName: string, rawMessage: string, xym: number, currentUserId: string|null = null): Transaction
 {
@@ -75,20 +73,20 @@ function MessageForm(): JSX.Element {
 
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
-    const tx = createMessageTx(data.recipientName, data.message, data.xym, currentUserId)
+    const tx = createMessageTx(unformatId(data.recipientName), data.message, data.xym, currentUserId)
     signAndAnnounce(tx, account)
   }
 
   return (
     <>
       <div className="box">
-        <Typography component='div' variant='h6' mt={5} mb={1}>
-          メッセージ送信
-        </Typography>
         <form onSubmit={handleSubmit(sendMessage)} className="form">
+          <div className="text-xl text-center">
+            新しいメッセージを送信
+          </div>
           <div className="flex flex-col">
             <label>
-              アカウント名
+              宛先ID
             </label>
             <input
               {...register("recipientName", { required: "宛先アドレスを入力してください" })}
@@ -104,7 +102,7 @@ function MessageForm(): JSX.Element {
             </label>
             <textarea
               {...register("message", { required: "messageを入力してください" })}
-              className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none h-80"
+              className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none h-20"
               name="message"
             />
           </div>

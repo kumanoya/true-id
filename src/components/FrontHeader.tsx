@@ -45,7 +45,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
 
         <div className="cursor-pointer flex items-center" onClick={() => setIsAccountOpen(true)}>
           <span className="mx-2 font-bold">
-            { formatId(currentUserId) }
+            ID: { formatId(currentUserId) }
           </span>
           <AccountCircle 
             fontSize="large" />

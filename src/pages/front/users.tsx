@@ -7,6 +7,7 @@ import latestMessages from '@/utils/latestMessages'
 import { formatUnixTime } from '@/utils/formatUnixTime'
 import { formatId } from '@/utils/formatId'
 import Message from '@/types/message'
+import MessageForm from '@/components/MessageForm'
 
 //==============================================================================
 //  Users
@@ -55,6 +56,7 @@ function Users(): JSX.Element {
           </a>
         ))}
       </List>
+      <MessageForm />
 
     </FrontLayout>
   )

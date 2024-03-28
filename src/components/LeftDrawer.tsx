@@ -102,20 +102,6 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/front/');
-                  setIsOpen(false);
-                }}
-              >
-                <ListItemIcon>
-                  <Chat />
-                </ListItemIcon>
-                <ListItemText primary={'メッセージ一覧'} />
-              </ListItemButton>
-            </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
                   router.push('/front/request');
                   setIsOpen(false);
                 }}

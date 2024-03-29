@@ -105,7 +105,7 @@ function Request(): JSX.Element {
 
           await listener.open()
           // 未承認のトランザクションを監視
-          listener.unconfirmedAdded(appAccount.address)
+          listener.confirmed(appAccount.address)
             .subscribe(tx => {
 
               // LoginAcceptのトランザクションを受信

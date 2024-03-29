@@ -8,6 +8,13 @@ import Message from '@/types/message'
 import UserMessageForm from '@/components/UserMessageForm'
 import { formatUnixTime } from '@/utils/formatUnixTime'
 import { formatId } from '@/utils/formatId'
+import {
+  IListener,
+  TransferTransaction,
+} from 'symbol-sdk'
+import createMessage from '@/utils/createMessage'
+import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
+const repo = createRepositoryFactory()
 
 function Message(): JSX.Element {
 
@@ -15,21 +22,16 @@ function Message(): JSX.Element {
   const { account, currentUserId } = useUserInfo()
 
   const router = useRouter()
-  const { userId } = router.query
+  const userId = router.query.userId as string
 
   useEffect(() => {
     if (!account || !account.address || !currentUserId)
     {
-      console.log('Account not found')
-      console.log(account)
-      console.log(currentUserId)
       return
     }
 
     // 差出人userId取得
     if (!userId || (typeof userId !== 'string')) {
-      console.log('userId not found')
-      console.log(router.query)
       return
     }
 
@@ -41,7 +43,42 @@ function Message(): JSX.Element {
 
   }, [account, currentUserId, router.query])
 
+  // リスナ保持
+  let listener: IListener
+
+  useEffect(() => {
+    if (!account)
+    {
+      return
+    }
+
+    (async() => {
+      // リスナの二重登録を防ぐ
+      if (listener !== undefined) {
+        return
+      }
+      listener = repo.createListener()
+
+      await listener.open()
+      // 未承認のトランザクションを監視
+      listener.confirmed(account.address)
+        .subscribe(tx => {
+          console.log("LISTENER: CATCHED")
+          if (tx instanceof TransferTransaction) {
+            const message = createMessage(tx as TransferTransaction)
+            console.log("LISTENER: ACCEPTED", tx, message)
+            // XXX: Listenした場合、timestampは正しく取得できないようなので無理やり再設定する
+            // unixtimestampを取得
+            message.timestamp = Date.now()/1000
+            setMessages(current => [...current, message])
+          }
+        })
+      console.log("LISTENER: STARTED")
+    })()
+  },  [account])
+
   return (
+    userId?
     <FrontLayout>
       <div className="text-2xl font-bold mb-4 text-center bg-gray-800 text-white p-2 rounded">{ formatId(userId) }さんとの会話</div>
       <div className={styles.chatContainer}>
@@ -56,9 +93,12 @@ function Message(): JSX.Element {
             </div>
           ))}
         </div>
-        <UserMessageForm recipientId={userId} />
       </div>
-
+      <UserMessageForm recipientId={userId} />
+    </FrontLayout>
+    :
+    <FrontLayout>
+      <div className="info">IDが未設定です</div>
     </FrontLayout>
   );
 }

@@ -13,6 +13,7 @@ import Message from '@/types/message'
 import loginRequestMessages from '@/utils/loginRequestMessages'
 import createMessage from '@/utils/createMessage'
 import { formatUnixTime } from '@/utils/formatUnixTime'
+import { loginRequestMosaicId } from '@/consts/blockchainProperty'
 
 function Request(): JSX.Element {
 
@@ -53,10 +54,20 @@ function Request(): JSX.Element {
       //setListener(listener)
 
       await listener.open()
-      const confirmedTx = await listener.confirmed(account.address).toPromise()
-      console.log("LISTENER: TRANSACTION CONFIRMED")
-      //console.dir({ confirmedTx }, { depth: null })
-      setMessages(current => [createMessage(confirmedTx as TransferTransaction), ...current])
+      // 未承認のトランザクションを監視
+      listener.confirmed(account.address)
+        .subscribe(tx => {
+          console.log("LISTENER: CATCHED")
+          // LoginRequestのトランザクションを受信
+          if (tx instanceof TransferTransaction && tx.mosaics[0].id.toHex() === loginRequestMosaicId) {
+            const message = createMessage(tx as TransferTransaction)
+            console.log("LISTENER: ACCEPTED", tx, message)
+            // XXX: Listenした場合、timestampは正しく取得できないようなので無理やり再設定する
+            // unixtimestampを取得
+            message.timestamp = Date.now()/1000
+            setMessages(current => [message, ...current])
+          }
+        })
       console.log("LISTENER: STARTED")
     })()
   },  [account])
@@ -74,14 +85,14 @@ function Request(): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {messages.map((data, index) => (
+          {messages.map((message, index) => (
             <tr key={index}>
-              <td className="px-2">{ data.content }</td>
-              <td className="px-2">{ data.signerId }</td>
-              <td className="px-2">{ data.rawMessage }</td>
-              <td className="px-2">{ formatUnixTime(data.timestamp) }</td>
+              <td className="px-2">{ message.content }</td>
+              <td className="px-2">{ message.signerId }</td>
+              <td className="px-2">{ message.rawMessage }</td>
+              <td className="px-2">{ formatUnixTime(message.timestamp) }</td>
               <td className="px-2">
-                <button className="btn" onClick={() => { loginAccept(data.signerId) }}>承認</button>
+                <button className="btn" onClick={() => { loginAccept(message.signerId) }}>承認</button>
               </td>
             </tr>
           ))}

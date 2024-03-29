@@ -14,15 +14,23 @@ function MessageForm(): JSX.Element {
     xym: number
   }
 
+  const defaultValues = {
+    recipientName: '',
+    content: '',
+    xym: 0,
+  }
+
   const {
     register,
     handleSubmit,
-  } = useForm<Inputs>()
+    reset,
+  } = useForm<Inputs>({ defaultValues })
 
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
     const tx = createMessageTx(unformatId(data.recipientName), data.message, data.xym, currentUserId)
     signAndAnnounce(tx, account)
+    reset()
   }
 
   return (

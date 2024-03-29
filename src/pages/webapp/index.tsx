@@ -8,8 +8,7 @@ import { unformatId } from '@/utils/formatId'
 function Request(): JSX.Element {
 
   // アカウント取得
-  const appAccount = useAppAccount()
-  const appId = 'true-id-app-test'
+  const { appId, appAccount } = useAppAccount()
 
   type Inputs = {
     userId: string

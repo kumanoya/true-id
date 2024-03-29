@@ -11,14 +11,14 @@ function Home(): JSX.Element {
   useEffect(() => {
     setValue('adminPrivateKey', localStorage.getItem('adminPrivateKey') || '');
     setValue('userPrivateKey', localStorage.getItem('userPrivateKey') || '');
-    setValue('appPrivateKey', localStorage.getItem('appPrivateKey') || '');
+    //setValue('appPrivateKey', localStorage.getItem('appPrivateKey') || '');
   }, [setValue]);
 
   // Save Logic
   const save = (data: any) => {
     localStorage.setItem('adminPrivateKey', data.adminPrivateKey)
     localStorage.setItem('userPrivateKey', data.userPrivateKey)
-    localStorage.setItem('appPrivateKey', data.appPrivateKey)
+    //localStorage.setItem('appPrivateKey', data.appPrivateKey)
     alert('設定をlocalStorageに保存しました')
   }
 
@@ -26,7 +26,7 @@ function Home(): JSX.Element {
     reset()
     localStorage.removeItem('adminPrivateKey')
     localStorage.removeItem('userPrivateKey')
-    localStorage.removeItem('appPrivateKey')
+    //localStorage.removeItem('appPrivateKey')
   }
 
   return (
@@ -53,6 +53,7 @@ function Home(): JSX.Element {
             name="userPrivateKey"
           />
         </div>
+        {/*
         <div className="flex flex-col">
           <label className="w-60">ウェブアプリ 秘密鍵</label>
           <input
@@ -62,6 +63,7 @@ function Home(): JSX.Element {
             name="appPrivateKey"
           />
         </div>
+        */}
         <div className="flex justify-between">
           <button className="btn">保存</button>
           <button className="btn-clear" onClick={clear}>クリア</button>

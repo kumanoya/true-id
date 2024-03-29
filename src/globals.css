@@ -133,3 +133,9 @@
 .message-users-item:last-child {
   border-bottom: none;
 }
+
+.info {
+  @apply p-6;
+  background-color: var(--color-offwhite);
+  border: 2px solid #f0f0f0;
+}

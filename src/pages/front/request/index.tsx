@@ -18,7 +18,7 @@ import { formatUnixTime } from '@/utils/formatUnixTime'
 
 function Request(): JSX.Element {
 
-  function loginAccept(appId: Address|undefined)
+  function loginAccept(appId: string|undefined)
   {
     if (appId === undefined) {
       throw new Error('address is not defined')
@@ -70,7 +70,7 @@ function Request(): JSX.Element {
           <tr>
             <th>ログインリクエスト</th>
             <th>送信元</th>
-            <th className="w-60">RAW</th>
+            <th>RAW</th>
             <th>日時</th>
             <th>操作</th>
           </tr>

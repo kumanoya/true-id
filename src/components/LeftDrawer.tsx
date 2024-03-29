@@ -153,7 +153,7 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/webapp/');
+                  router.push('/webapp/login');
                   setIsOpen(false);
                 }}
               >

@@ -28,7 +28,7 @@ async function getRequestMessageTxs(address: Address): Promise<TransferTransacti
     txRepo.search({
       type: [TransactionType.TRANSFER],
       group: TransactionGroup.Confirmed,
-      recipientAddress: address, // me
+      address: address, // me
       order: Order.Desc,
       transferMosaicId: new MosaicId(accountRegisterMosaicId),
       pageSize: 100,

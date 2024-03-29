@@ -3,10 +3,10 @@ import {
   UInt64,
   Mosaic,
   MosaicId,
-  Address,
   PlainMessage,
   Transaction,
   TransferTransaction,
+  NamespaceId,
 } from 'symbol-sdk'
 import {
   loginRequestMosaicId,
@@ -23,17 +23,14 @@ async function createLoginRequestTx(userId: string, appId: string): Promise<Tran
   // Transaction info
   const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
 
-  // リクエスト専用のMosaicを送る
+  // 専用のMosaicを送る
   const absoluteAmountUInt64 = UInt64.fromUint(0)
   const mosaic = new Mosaic(new MosaicId(loginRequestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
   const feeMultiplier = 100
 
-  // 宛先アドレスを取得
-  const recipientRawAddress = await namespaceToRawAddress(id)
-  if (recipientRawAddress === null) {
-    throw new Error('Recipient address is invalid')
-  }
+  // 宛先NamespaceId準備
+  const userNamespaceId = new NamespaceId(userId)
 
   const message = {
     recipientId: id,
@@ -45,7 +42,7 @@ async function createLoginRequestTx(userId: string, appId: string): Promise<Tran
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    Address.createFromRawAddress(recipientRawAddress),
+    userNamespaceId,
     mosaics,
     plainMessage,
     networkType

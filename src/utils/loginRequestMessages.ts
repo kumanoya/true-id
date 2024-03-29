@@ -20,10 +20,10 @@ async function loginRequestMessageTxs(currentUserId: string, address: Address): 
   const resultSearch = await txRepo.search({
     type: [TransactionType.TRANSFER],
     group: TransactionGroup.Confirmed,
-    recipientAddress: address, // me
+    address: address, // me
     order: Order.Desc,
     transferMosaicId: new MosaicId(loginRequestMosaicId),
-    pageSize: 100,
+    pageSize: 20,
   }).toPromise()
 
   if (resultSearch === undefined) {

@@ -1,19 +1,18 @@
 import WebappLayout from '@/components/WebappLayout';
 import useAppAccount from '@/hooks/useAppAccount';
-
 import { useForm, SubmitHandler } from "react-hook-form"
-
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
-
 import { createLoginRequestTx } from '@/utils/createLoginRequestTx'
+import { unformatId } from '@/utils/formatId'
 
 function Request(): JSX.Element {
 
   // アカウント取得
   const appAccount = useAppAccount()
+  const appId = 'true-id-app-test'
 
   type Inputs = {
-    accountName: string
+    userId: string
   }
 
   const {
@@ -27,7 +26,8 @@ function Request(): JSX.Element {
       return
     }
 
-    createLoginRequestTx(data.accountName)
+    // アプリ名はハードコード
+    createLoginRequestTx(unformatId(data.userId), appId)
       .then(tx => signAndAnnounce(tx, appAccount))
   }
 
@@ -38,16 +38,16 @@ function Request(): JSX.Element {
       ) : (
         <div className="box">
           <form onSubmit={handleSubmit(requestAccount)} className="form">
-
+            アプリ名: { appId }
             <div className="flex flex-col">
               <label>
                 TrueIDでログイン
               </label>
               <input
-                {...register("accountName", { required: "アカウント名を入力してください" })}
+                {...register("userId", { required: "アカウント名を入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="accountName"
+                name="userId"
               />
             </div>
 

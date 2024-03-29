@@ -33,6 +33,7 @@ function createMessage(tx: TransferTransaction): Message
     timestamp:         tx.transactionInfo.timestamp? timestampToUnixTime(tx.transactionInfo?.timestamp) : undefined,
     height:            tx.transactionInfo.height.toString(),
     rawMessage:        tx.message.payload,
+    signer:            tx.signer,
   }
 
   // payloadにJSONでエンコードされている値を取り出す

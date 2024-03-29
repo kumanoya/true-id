@@ -16,7 +16,7 @@ import {
 import namespaceToRawAddress from '@/utils/namespaceToRawAddress'
 import { unformatId } from '@/utils/formatId'
 
-async function createLoginRequestTx(userId: string): Promise<Transaction>
+async function createLoginRequestTx(userId: string, appId: string): Promise<Transaction>
 {
   const id = unformatId(userId)
 
@@ -27,7 +27,6 @@ async function createLoginRequestTx(userId: string): Promise<Transaction>
   const absoluteAmountUInt64 = UInt64.fromUint(0)
   const mosaic = new Mosaic(new MosaicId(loginRequestMosaicId), absoluteAmountUInt64)
   const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(id)
   const feeMultiplier = 100
 
   // 宛先アドレスを取得
@@ -35,6 +34,13 @@ async function createLoginRequestTx(userId: string): Promise<Transaction>
   if (recipientRawAddress === null) {
     throw new Error('Recipient address is invalid')
   }
+
+  const message = {
+    recipientId: id,
+    content: id,
+    signerId: appId,
+  }
+  const plainMessage = PlainMessage.create(JSON.stringify(message)) // 平文メッセージ
 
   // Create transaction
   const transferTransaction = TransferTransaction.create(

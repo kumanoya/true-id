@@ -7,6 +7,7 @@ import {
   PlainMessage,
   Transaction,
   TransferTransaction,
+  NamespaceId,
 } from 'symbol-sdk'
 import {
   loginAcceptMosaicId,
@@ -15,8 +16,9 @@ import {
 } from '@/consts/blockchainProperty'
 import { unformatId } from '@/utils/formatId'
 
-function createLoginAcceptTx(recipientAddress: Address, currentUserId: string): Transaction
+function createLoginAcceptTx(appId: string, currentUserId: string): Transaction
 {
+  console.log("createLoginAcceptTx", appId)
   const id = unformatId(currentUserId)
 
   // Transaction info
@@ -29,10 +31,12 @@ function createLoginAcceptTx(recipientAddress: Address, currentUserId: string): 
   const plainMessage = PlainMessage.create(id)
   const feeMultiplier = 100
 
+  const appNamespaceId = new NamespaceId(appId)
+
   // Create transaction
   const transferTransaction = TransferTransaction.create(
     deadline,
-    recipientAddress,
+    appNamespaceId,  // appId is the application's root namespace
     mosaics,
     plainMessage,
     networkType

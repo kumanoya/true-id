@@ -4,56 +4,29 @@ import FrontLayout from '@/components/FrontLayout'
 import {
   Address,
   IListener,
-  Transaction,
-  TransactionGroup,
-  TransactionType,
   TransferTransaction,
-  Order,
-  MosaicId,
 } from 'symbol-sdk'
-import {
-  loginRequestMosaicId,
-} from '@/consts/blockchainProperty'
 import { useUserInfo } from '@/store/UserInfoContext'
 import { createLoginAcceptTx } from "@/utils/createLoginAcceptTx"
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
-const txRepo = repo.createTransactionRepository()
-
-async function getLoginRequestMessageTxs(currentUserId: string, address: Address): Promise<TransferTransaction[]>
-{
-  const resultSearch = await txRepo.search({
-    type: [TransactionType.TRANSFER],
-    group: TransactionGroup.Confirmed,
-    recipientAddress: address, // me
-    order: Order.Desc,
-    transferMosaicId: new MosaicId(loginRequestMosaicId),
-    pageSize: 100,
-  }).toPromise()
-
-  if (resultSearch === undefined) {
-    return []
-  }
-
-  const txs = resultSearch.data as TransferTransaction[]
-  //console.log("getLoginRequestMessageTxs", txs)
-  const filtered = txs.filter(tx => tx.message?.payload === currentUserId)
-  //console.log("Filtered", filtered)
-  return filtered
-}
+import Message from '@/types/message'
+import loginRequestMessages from '@/utils/loginRequestMessages'
+import createMessage from '@/utils/createMessage'
+import { formatUnixTime } from '@/utils/formatUnixTime'
 
 function Request(): JSX.Element {
 
-  function loginAccept(recipientAddress: Address|undefined)
+  function loginAccept(appId: Address|undefined)
   {
-    if (recipientAddress === undefined) {
+    if (appId === undefined) {
       throw new Error('address is not defined')
     }
     if (currentUserId === null) {
       throw new Error('currentUserId is not defined')
     }
-    const tx = createLoginAcceptTx(recipientAddress, currentUserId)
+    const tx = createLoginAcceptTx(appId, currentUserId)
     signAndAnnounce(tx, account)
   }
 
@@ -61,7 +34,7 @@ function Request(): JSX.Element {
   const { account, currentUserId } = useUserInfo()
 
   // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<TransferTransaction[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
 
   // リスナ保持
   let listener: IListener
@@ -71,7 +44,7 @@ function Request(): JSX.Element {
       if (!account || !currentUserId) {
         return
       }
-      setDataList(await getLoginRequestMessageTxs(currentUserId, account.address))
+      setMessages(await loginRequestMessages(currentUserId, account.address))
 
       // リスナの二重登録を防ぐ
       if (listener !== undefined) {
@@ -85,7 +58,7 @@ function Request(): JSX.Element {
       const confirmedTx = await listener.confirmed(account.address).toPromise()
       console.log("LISTENER: TRANSACTION CONFIRMED")
       //console.dir({ confirmedTx }, { depth: null })
-      setDataList(current => [confirmedTx as TransferTransaction, ...current])
+      setMessages(current => [createMessage(confirmedTx as TransferTransaction), ...current])
       console.log("LISTENER: STARTED")
     })()
   },  [account])
@@ -97,16 +70,20 @@ function Request(): JSX.Element {
           <tr>
             <th>ログインリクエスト</th>
             <th>送信元</th>
+            <th className="w-60">RAW</th>
+            <th>日時</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          {dataList.map((data, index) => (
+          {messages.map((data, index) => (
             <tr key={index}>
-              <td className="px-2">{ data?.message?.payload }</td>
-              <td className="px-2">{ data.signer?.address?.plain() }</td>
+              <td className="px-2">{ data.content }</td>
+              <td className="px-2">{ data.signerId }</td>
+              <td className="px-2">{ data.rawMessage }</td>
+              <td className="px-2">{ formatUnixTime(data.timestamp) }</td>
               <td className="px-2">
-                <button className="btn" onClick={() => { loginAccept(data.signer?.address) }}>承認</button>
+                <button className="btn" onClick={() => { loginAccept(data.signerId) }}>承認</button>
               </td>
             </tr>
           ))}

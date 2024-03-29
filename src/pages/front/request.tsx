@@ -1,8 +1,6 @@
-import { firstValueFrom } from "rxjs"
 import React, { useEffect, useState } from 'react'
 import FrontLayout from '@/components/FrontLayout'
 import {
-  Address,
   IListener,
   TransferTransaction,
 } from 'symbol-sdk'

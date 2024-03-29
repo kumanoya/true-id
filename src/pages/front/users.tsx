@@ -40,7 +40,7 @@ function Users(): JSX.Element {
   return (
     <FrontLayout>
       <div className="text-2xl font-bold mb-4 text-center bg-gray-800 text-white p-2 rounded">ユーザー一覧</div>
-      <List sx={{ width: '500px', bgcolor: 'background.paper' }}>
+      <List sx={{ marginBottom: '10px', width: '500px', bgcolor: 'background.paper' }}>
         {messages.map((message, index) => (
           <a key={index} className="w-full px-4 py-4 flex cursor-pointer message-users-item" onClick={() => handleNavigate(message.signerId)} >
             <span className="mr-4 flex items-center">

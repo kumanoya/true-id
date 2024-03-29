@@ -4,6 +4,7 @@
   width: 500px;
   overflow-y: scroll;
   max-height: calc(100vh - 460px);
+  margin-bottom: 10px;
 }
 
 .chatInput {

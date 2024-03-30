@@ -11,7 +11,8 @@ import {
   ListItemText,
 } from '@mui/material';
 
-import { Home,
+import {
+  Home,
   Chat,
   Web,
   Settings,
@@ -19,43 +20,76 @@ import { Home,
   AddCircle,
   FaceRetouchingNatural,
   Notifications,
+  Help,
 } from '@mui/icons-material';
 
 import { useRouter } from 'next/router';
-import MyAccountList from '@/components/MyAccountList';
 
 function LeftDrawer(props: {
-  openLeftDrawer: boolean;
-  setOpenLeftDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }): JSX.Element {
-  const { openLeftDrawer, setOpenLeftDrawer } = props;
+  const { isOpen, setIsOpen } = props;
   const router = useRouter();
 
   return (
     <>
-      <Drawer anchor={'left'} open={openLeftDrawer} onClose={() => setOpenLeftDrawer(false)}>
+      <Drawer anchor={'left'} open={isOpen} onClose={() => setIsOpen(false)}>
         <div className="left-drawer mt-4">
-          <h1 className="mt-4 mx-4 text-lg">一般ユーザー</h1>
+          <h1 className="mt-4 mx-4 text-lg">説明</h1>
           <List>
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
                   router.push('/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
                   <Home />
                 </ListItemIcon>
-                <ListItemText primary={'ホーム'} />
+                <ListItemText primary={'プロジェクトの目的と概要'} />
               </ListItemButton>
             </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/usage');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Help />
+                </ListItemIcon>
+                <ListItemText primary={'使い方'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+          <Divider />
+
+          <h1 className="mt-4 mx-4 text-lg">一般ユーザー</h1>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/front/account/register');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <FaceRetouchingNatural />
+                </ListItemIcon>
+                <ListItemText primary={'アカウント作成・ID申請'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
 
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/front/source');
-                  setOpenLeftDrawer(false);
+                  router.push('/front/users/');
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -69,7 +103,7 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/front/request');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -79,21 +113,6 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
 
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  router.push('/front/account/register');
-                  setOpenLeftDrawer(false);
-                }}
-              >
-                <ListItemIcon>
-                  <FaceRetouchingNatural />
-                </ListItemIcon>
-                <ListItemText primary={'アカウントID申請'} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-
           <Divider />
 
           <h1 className="mt-4 mx-4 text-lg">アカウントプロバイダ</h1>
@@ -102,13 +121,13 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/admin');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
                   <ListAlt />
                 </ListItemIcon>
-                <ListItemText primary={'ネームスペース管理'} />
+                <ListItemText primary={'ルートネーム管理'} />
               </ListItemButton>
             </ListItem>
 
@@ -116,13 +135,13 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/admin/register');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
                   <Notifications />
                 </ListItemIcon>
-                <ListItemText primary={'アカウント申請一覧'} />
+                <ListItemText primary={'ユーザーID申請一覧'} />
               </ListItemButton>
             </ListItem>
           </List>
@@ -134,8 +153,8 @@ function LeftDrawer(props: {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  router.push('/webapp/');
-                  setOpenLeftDrawer(false);
+                  router.push('/webapp/login');
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -154,21 +173,22 @@ function LeftDrawer(props: {
               <ListItemButton
                 onClick={() => {
                   router.push('/settings/');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
                   <Settings />
                 </ListItemIcon>
-                <ListItemText primary={'設定：秘密鍵登録'} />
+                <ListItemText primary={'秘密鍵登録'} />
               </ListItemButton>
             </ListItem>
 
+            {/*
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
                   router.push('/admin/mosaic/create');
-                  setOpenLeftDrawer(false);
+                  setIsOpen(false);
                 }}
               >
                 <ListItemIcon>
@@ -177,9 +197,9 @@ function LeftDrawer(props: {
                 <ListItemText primary={'カスタムモザイク作成'} />
               </ListItemButton>
             </ListItem>
-          </List>
+            */}
 
-          <MyAccountList />
+          </List>
         </div>
       </Drawer>
     </>

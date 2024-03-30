@@ -1,100 +1,46 @@
-import { firstValueFrom } from "rxjs";
-import React, { useEffect, useState } from 'react';
-import FrontLayout from '@/components/FrontLayout';
-import MessageForm from '@/components/MessageForm';
-import { Typography } from '@mui/material';
-import {
-  Address,
-  IListener,
-  Transaction,
-  TransactionGroup,
-  TransactionType,
-  Order,
-} from 'symbol-sdk';
-
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
-
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
-const repo = createRepositoryFactory();
-const txRepo = repo.createTransactionRepository();
-
-async function getMessageTxs(address: Address): Promise<Transaction[]> {
-  const resultSearch = await firstValueFrom(
-    txRepo.search({
-      type: [TransactionType.TRANSFER],
-      group: TransactionGroup.Confirmed,
-      address: address,
-      order: Order.Desc,
-      pageSize: 100,
-    })
-  );
-  console.log('resultSearch :', resultSearch);
-  return resultSearch.data as Transaction[];
-}
+import CommonLayout from '@/components/CommonLayout';
 
 function Home(): JSX.Element {
-
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
-
-  // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
-
-  // メッセージ一覧表示用
-  const [dataList, setDataList] = useState<Transaction[]>([]);
-
-  // リスナ保持
-  let listener: IListener;
-
-  useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
-      (async() => {
-        setDataList(await getMessageTxs(address));
-
-        // リスナの二重登録を防ぐ
-        if (listener === undefined) {
-          // Start monitoring of transaction status with websocket
-          listener = repo.createListener();
-          //setListener(listener);
-
-          await listener.open();
-          listener
-            .confirmed(address)
-            .subscribe((confirmedTx: Transaction) => {
-              console.log("LISTENER: TRANSACTION CONFIRMED");
-              //console.dir({ confirmedTx }, { depth: null });
-              setDataList(current => [confirmedTx, ...current]);
-            });
-          }
-          console.log("LISTENER: STARTED");
-      })();
-    }
-  },  [address, sssState]);
-
   return (
-    <FrontLayout>
-      <MessageForm />
-      <Typography component='div' variant='h6' mt={5} mb={1}>
-        メッセージ一覧
-      </Typography>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>メッセージ</th>
-            <th>送信元</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataList.map((data, index) => (
-            <tr key={index}>
-              <td>{ data?.message?.payload }</td>
-              <td>{ data.signer.address.address }</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </FrontLayout>
+    <CommonLayout>
+      <h2>目的</h2>
+      <div className="message">
+        {`
+
+// 現状制作未完です、すいません
+
+当プロジェクトの目的は、ブロックチェーンが普及するための阻害要因となっている問題を解決し、同時に誰にとっても使いやすいIDを提供することです。
+
+問題意識：
+・80歳のうち（nakaumin）の母親にとっては、ログインIDやパスワードの概念を理解して使いこなすのが難しい。うちの母でもあらゆるサービスに簡単かつセキュアにログインできる方法を提供したい。
+
+・ブロックチェーンのアドレス（アカウント）が普及しない原因としてのアカウント自体の作成・管理の難しさを解決したい。
+
+着眼点：
+・「何か」が個人を識別するための普遍的IDとして機能するために必要な条件は？
+  →ID間のメッセージングが可能なことが本質では
+  →典型的なメッセージとして、YES/NOで答えられる「質問」と、それへの返答機能をサポートすることで、世の中のユースケースのかなりの部分をカバーできるのでは？
+
+・IDを提供するだけでは、実用上の利点がないためブートストラップしない。ベタでもいいので日常の問題を解決する「IDアプリ」としての機能をデフォルトで提供するべき
+
+実現したい機能：
+・ウォレットやアドレスなどのブロックチェーン特有の概念を隠蔽し、できるだけ一般人のメンタルモデルに沿ったUXを提供する
+
+・アドレス作成時に、ヒューマンリーダブルなIDを簡単に取得できる
+
+・そのIDを使って、個人・サービス間で自由にメッセージがやりとりできる
+
+・メッセージの典型的な型として、「YES]「NO」の二択の質問とそれへの返信をサポートする
+
+・これによって、外部サービスへのログインであっても、ECサイトの決済であっても、自分のスマホ上のアプリに「メッセージ」として通知され「YES]か「NO」を選択するだけ、という一律のUIを実現する
+
+・その他、日常使いのIDアプリとして、レガシーな問題を解決できるベタな機能を提供する
+  ・QRコードで住所表示を行い、住所手書きを廃止できる
+　・物理会員証のバーコードをとりこんでまとめられる
+　など
+`}
+      </div>
+    </CommonLayout>
   );
 }
 export default Home;

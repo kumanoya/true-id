@@ -2,12 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--color-offwhite);
+}
+
+.main {
+  background-color: var(--color-base); /* baseカラー */
+  min-height: 100vh;
+  /*　ドロップシャドウ */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .btn {
   @apply bg-gray-800 text-white font-bold px-6;
-  display: inline;
+  display: inline-flex;
   width: fit-content;
+  align-items: center;
+  justify-content: center;
   border-radius: 20px;
   height: 40px;
+}
+
+.btn:hover {
+  background-color: #666;
 }
 
 .btn-clear {
@@ -15,6 +34,11 @@
   background-color: white;
   color: black;
   border: 2px solid black;
+}
+
+.btn-clear:hover {
+  background-color: black;
+  color: white;
 }
 
 .box {
@@ -26,60 +50,69 @@
 }
 
 .table {
-  @apply mx-4;
   background-color: var(--color-offwhite);
   border: 2px solid #f0f0f0;
-  thead {
-    @apply bg-gray-800 text-white;
-  }
-  th, td {
-    @apply px-6 py-2;
-  }
+}
+.table > thead {
+  @apply bg-gray-800 text-white;
+}
+:where(.table th, td) {
+  @apply px-4 py-2;
 }
 
 .form {
-  @apply m-4 px-8 py-4 border flex w-full flex-col gap-4;
+  @apply px-8 py-4 flex w-full flex-col gap-4;
   max-width: 600px;
   background-color: var(--color-offwhite);
+  border: 2px solid rgba(0, 0, 0, 0.8);
+}
+
+input, select, textarea {
+  @apply px-3 py-2 rounded-md;
+  border: 2px solid rgba(0, 0, 0, 0.8) !important;
+}
+
+label {
+  @apply my-2;
 }
 
 .header {
-  @apply py-2;
+  @apply px-4 py-2;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
   background-color: var(--color-offwhite);
   border-bottom: 2px solid #f0f0f0;
-  padding-right: 50px;
-  padding-left: 80px;
+}
+
+:where(.title) {
+  @apply text-2xl px-3;
+  width: 100%;
+  display: flex;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  background-color: #eee;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .front-title {
-  @apply px-3 py-1;
-  color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
-  background-color: var(--color-success);
+  @apply title;
+  color: var(--color-success);
 }
 
 .admin-title {
-  @apply px-3 py-1;
-  color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
-  background-color: var(--color-danger);
+  @apply title;
+  color: var(--color-danger);
 }
 
 .webapp-title {
-  @apply px-3 py-1;
-  color: white;
-  position: absolute;
-  right: 20px;
-  border-radius: 4px;
-  background-color: var(--color-warning);
+  @apply title;
+  color: var(--color-warning);
 }
 
 .left-drawer {
@@ -89,7 +122,61 @@
 }
 
 .logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
   background-color: black;
   border-radius: 5px;
-  padding: 10px;
+  padding: 0 10px;
+}
+
+.message {
+  max-width: 600px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+.my-account {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow-y: auto;
+}
+
+.account-list-wrap {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.account-list {
+  width: max-content;
+  height: max-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.message-users-item {
+  /* border-bottom: 1px solid #e8e8e8; */
+  background-color: var(--color-offwhite);
+  margin-bottom: 4px;
+}
+.message-users-item:last-child {
+  border-bottom: none;
+}
+
+.info {
+  @apply p-6;
+  background-color: var(--color-offwhite);
+  border: 2px solid rgba(0, 0, 0, 0.8);
+}
+
+.page-title {
+  @apply text-gray-800 text-2xl font-bold mb-4 text-center p-2 rounded;
 }

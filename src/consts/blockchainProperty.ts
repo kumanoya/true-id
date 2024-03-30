@@ -7,4 +7,5 @@ export const servieFee = 0.1; //サービス手数料
 
 export const accountRegisterMosaicId = '3CF4447D326C2570' // XXX: ハードコード…？
 export const loginRequestMosaicId = '16DD78B26E53FFDA' // XXX: ハードコード…？
+export const loginAcceptMosaicId = '11A85DDF186699B8' // XXX: ハードコード…？
 

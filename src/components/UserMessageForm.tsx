@@ -1,21 +1,19 @@
 import { useForm, SubmitHandler } from "react-hook-form"
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 import { useUserInfo } from '@/store/UserInfoContext'
-import { unformatId } from '@/utils/formatId'
 import createMessageTx from '@/utils/createMessageTx'
 
-function MessageForm(): JSX.Element {
+interface Props { recipientId: string }
+function UserMessageForm({ recipientId }: Props): JSX.Element {
 
   const { account, currentUserId } = useUserInfo()
 
   type Inputs = {
-    recipientName: string
-    message: string
+    content: string
     xym: number
   }
 
   const defaultValues = {
-    recipientName: '',
     content: '',
     xym: 0,
   }
@@ -28,7 +26,7 @@ function MessageForm(): JSX.Element {
 
   // SUBMIT LOGIC
   const sendMessage: SubmitHandler<Inputs> = (data) => {
-    const tx = createMessageTx(unformatId(data.recipientName), data.message, data.xym, currentUserId)
+    const tx = createMessageTx(recipientId, data.content, data.xym, currentUserId)
     signAndAnnounce(tx, account)
     reset()
   }
@@ -37,34 +35,22 @@ function MessageForm(): JSX.Element {
     <>
       <form onSubmit={handleSubmit(sendMessage)} className="form">
         <div className="text-xl text-center">
-          新しいメッセージを送信
+          メッセージ送信
         </div>
-        <div className="flex flex-col">
-          <label>
-            宛先ID
-          </label>
-          <input
-            {...register("recipientName", { required: "宛先アドレスを入力してください" })}
-            className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-            type="text"
-            name="recipientName"
-          />
-        </div>
-
         <div className="flex flex-col">
           <label className="w-32">
             メッセージ
           </label>
           <textarea
-            {...register("message", { required: "messageを入力してください" })}
+            {...register("content", { required: "メッセージを入力してください" })}
             className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none h-20"
-            name="message"
+            name="content"
           />
         </div>
 
         <div className="flex flex-col">
           <label className="w-32">
-            xym
+            送金(xym)
           </label>
           <input
             {...register("xym", { required: "xymを入力してください" })}
@@ -78,5 +64,5 @@ function MessageForm(): JSX.Element {
     </>
   )
 }
-export default MessageForm
+export default UserMessageForm
 

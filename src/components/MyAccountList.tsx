@@ -1,67 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Drawer } from '@mui/material';
 import {
-  NamespaceName,
-  IListener,
+  Account,
 } from 'symbol-sdk';
+import { useUserInfo } from '@/store/UserInfoContext'
+import { formatId } from '@/utils/formatId'
 
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
+function MyAccountList(props: {
+  account: Account | null | undefined,
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}): JSX.Element {
 
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory';
-const repo = createRepositoryFactory();
+  const { account, isOpen, setIsOpen } = props
+  const { currentUserId, userIds, setCurrentUserId } = useUserInfo()
 
-function MyAccountList(): JSX.Element {
-
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
-
-  // アドレス取得
-  const { address } = useAddressInit(clientPublicKey, sssState);
-
-  const [accountNames, setAccountNames] = useState<string[]>([]);
+  function changeId(id: string): void {
+    setIsOpen(false)
+    setCurrentUserId(id)
+    //alert('IDを変更しました: ' + id)
+  }
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
-      (async() => {
-        repo.createNamespaceRepository().getAccountsNames([address]).subscribe((names) => {
-          console.log("NAMES[]: ", names)
-          const accountNames = names[0].names.map((namespaceName: NamespaceName) => namespaceName.name).sort()
-          setAccountNames(accountNames)
-        })
-      })();
-    }
-  },  [address, sssState]);
+  }, [account])
 
   return (
-    <>
-      {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+    <Drawer anchor={'right'} open={isOpen} onClose={() => setIsOpen(false)}>
+      {account === undefined ? (
+        <div>アカウントが設定されていません</div>
       ) : (
-        <Box
-          p={3}
-          display='flex'
-          alignItems='flex-start'
-          justifyContent='center'
-          flexDirection='column'
-        >
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            あなたのアドレス
-          </Typography>
-          { address.plain() }
-          <ul>
-            {accountNames.map((name) => (
-              <li key={name}>
-                <span>{ name }</span>
-              </li>
+        <div className="my-account">
+          <div className="p-4 bg-gray-100 text-gray-600">
+            <div className="text-sm">Symbolアドレス:</div>
+            <div className="text-sm">{ account?.address.plain() }</div>
+          </div>
+          <div className="py-2 px-4">ID切替</div>
+          <div className="">
+            {userIds.map((id: string) => (
+              <a key={id} className="block mx-4 mb-2 cursor-pointer" onClick={() => changeId(id)}>
+                <div className="btn-clear"> { formatId(id) } </div>
+              </a>
             ))}
-          </ul>
-        </Box>
+          </div>
+        </div>
       )}
 
-    </>
+    </Drawer>
   );
 }
 export default MyAccountList;

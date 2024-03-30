@@ -1,7 +1,10 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: 94vh; /* ビューポートの高さに合わせる */
+  width: 500px;
+  overflow-y: scroll;
+  max-height: calc(100vh - 460px);
+  margin-bottom: 10px;
 }
 
 .chatInput {
@@ -37,17 +40,15 @@
 .chatMessages {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  max-height: 400px;
-  overflow-y: auto;
+  padding: 0 10px;
 }
 
 .message {
   background-color: #f0f0f0;
   margin-bottom: 10px;
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 8px;
-  max-width: 60%;
+  max-width: 80%;
 }
 
 .message.own {
@@ -68,6 +69,7 @@
 .messageTime {
   font-size: 0.8em;
   color: #666;
+  margin-left: 1rem;
 }
 
 .messageContent {

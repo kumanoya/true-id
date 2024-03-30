@@ -1,64 +1,17 @@
-import { Backdrop, CircularProgress } from '@mui/material'
 import WebappLayout from '@/components/WebappLayout';
-import {
-  Deadline,
-  UInt64,
-  Mosaic,
-  MosaicId,
-  NamespaceId,
-  PlainMessage,
-  Transaction,
-  TransferTransaction,
-} from 'symbol-sdk'
-
-import {
-  loginRequestMosaicId,
-  epochAdjustment,
-  networkType,
-} from '@/consts/blockchainProperty'
-
-import useSssInit from '@/hooks/useSssInit'
-import useAddressInit from '@/hooks/useAddressInit'
-
+import useAppAccount from '@/hooks/useAppAccount';
 import { useForm, SubmitHandler } from "react-hook-form"
-
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
-
-function createLoginRequestTx(accountName: string): Transaction
-{
-  // Transaction info
-  const deadline = Deadline.create(epochAdjustment) // デフォルトは2時間後
-
-  // リクエスト専用のMosaicを送る
-  const absoluteAmountUInt64 = UInt64.fromUint(0)
-  const mosaic = new Mosaic(new MosaicId(loginRequestMosaicId), absoluteAmountUInt64)
-  const mosaics = [mosaic]
-  const plainMessage = PlainMessage.create(accountName + 'でのログインを許可しますか？')
-  const feeMultiplier = 100
-
-  // Create transaction
-  const namespaceId = new NamespaceId(accountName)
-  const transferTransaction = TransferTransaction.create(
-    deadline,
-    namespaceId,
-    mosaics,
-    plainMessage,
-    networkType
-  ).setMaxFee(feeMultiplier)
-
-  return transferTransaction
-}
+import { createLoginRequestTx } from '@/utils/createLoginRequestTx'
+import { unformatId } from '@/utils/formatId'
 
 function Request(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit()
-
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState)
+  // アカウント取得
+  const { appId, appAccount } = useAppAccount()
 
   type Inputs = {
-    accountName: string
+    userId: string
   }
 
   const {
@@ -68,36 +21,32 @@ function Request(): JSX.Element {
 
   // SUBMIT LOGIC
   const requestAccount: SubmitHandler<Inputs> = (data) => {
-    if (address === undefined) {
+    if (appAccount === undefined) {
       return
     }
-    if (publicAccount === undefined) {
-      return
-    }
-    signAndAnnounce(
-      createLoginRequestTx(data.accountName)
-    )
+
+    // アプリ名はハードコード
+    createLoginRequestTx(unformatId(data.userId), appId)
+      .then(tx => signAndAnnounce(tx, appAccount))
   }
 
   return (
     <WebappLayout>
-      {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+      {appAccount === undefined ? (
+        <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           <form onSubmit={handleSubmit(requestAccount)} className="form">
-
+            アプリ名: { appId }
             <div className="flex flex-col">
               <label>
                 TrueIDでログイン
               </label>
               <input
-                {...register("accountName", { required: "アカウント名を入力してください" })}
+                {...register("userId", { required: "アカウント名を入力してください" })}
                 className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
                 type="text"
-                name="accountName"
+                name="userId"
               />
             </div>
 

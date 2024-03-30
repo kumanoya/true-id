@@ -1,37 +1,58 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import Image from 'next/image';
-function Header(props: {
-  setOpenLeftDrawer: React.Dispatch<React.SetStateAction<boolean>>;
-}): JSX.Element {
-  const {
-    setOpenLeftDrawer, //LeftDrawerの設定
-  } = props;
+import { useState } from 'react'
+
+import {
+  AccountCircle
+} from '@mui/icons-material'
+import MenuIcon from '@mui/icons-material/Menu'
+import Image from 'next/image'
+import MyAccountList from '@/components/MyAccountList'
+import { useUserInfo } from '@/store/UserInfoContext'
+import { formatId } from '@/utils/formatId'
+
+type Props = { setIsMenuOpen: any }
+
+function Header({ setIsMenuOpen }: Props): JSX.Element {
+
+  const [isAccountOpen, setIsAccountOpen] = useState<boolean>(false) //MyAccountListの設定
+
+  // アカウント取得
+  const { currentUserId, account } = useUserInfo()
 
   return (
     <>
+      <div className="front-title">一般ユーザー</div>
       <div className="header">
-        <MenuIcon
-          fontSize='large'
-          sx={{ position: 'absolute', left: '20px', top: '15px' }}
-          onClick={() => setOpenLeftDrawer(true)}
-        />
         <div className="logo-wrap">
-          <Image
-            src='/trueid-logo-wh.svg'
-            width={100}
-            height={50}
-            style={{
-              width: 'auto',
-              height: '18px',
-            }}
-            alt='logo'
+          <MenuIcon
+            className="cursor-pointer"
+            fontSize='large'
+            sx={{ left: '20px', top: '15px' }}
+            onClick={() => setIsMenuOpen(true)}
           />
+          <div className="logo">
+            <Image
+              src='/trueid-logo-wh.svg'
+              width={100}
+              height={50}
+              style={{
+                width: 'auto',
+                height: '18px',
+              }}
+              alt='logo'
+            />
+          </div>
         </div>
-        <span className="front-title">フロントアプリ</span>
+
+        <div className="cursor-pointer flex items-center" onClick={() => setIsAccountOpen(true)}>
+          <span className="mx-2 font-bold">
+            ユーザーID: { formatId(currentUserId) }
+          </span>
+          <AccountCircle 
+            fontSize="large" />
+        </div>
       </div>
+      <MyAccountList account={account} isOpen={isAccountOpen} setIsOpen={setIsAccountOpen} />
     </>
-  );
+  )
 }
-export default Header;
+export default Header

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { Box, Typography, Backdrop, CircularProgress } from '@mui/material';
+import { Typography, Backdrop, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import {
   Address,
@@ -11,8 +11,6 @@ import {
 
 import { aggregateTx } from '@/utils/aggregateTx';
 
-import useSssInit from '@/hooks/useSssInit';
-import useAddressInit from '@/hooks/useAddressInit';
 
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -21,6 +19,8 @@ const repo = createRepositoryFactory();
 
 import { signAndAnnounce } from '@/utils/signAndAnnounce';
 import { createRootNamespaceRegistrationTx, createRootAddressAliasTx } from '@/utils/namespaceTxFactory';
+
+import useAdminAccount from '@/hooks/useAdminAccount';
 
 function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespaceName: string, address: Address): AliasTransaction
 {
@@ -31,7 +31,9 @@ function createRootRegistrationAndAliasTx(publicAccount: PublicAccount, namespac
 
 async function getNameAddressList(address: Address): Promise<{ name: string, address: string }[]> {
 
+  // 一覧取得実行
   const resultSearch = await repo.createNamespaceRepository().search({
+    pageSize: 100,
     registrationType: 0, // ROOT NAMESPACE
     ownerAddress: address
   }).toPromise();
@@ -65,11 +67,10 @@ async function getNameAddressList(address: Address): Promise<{ name: string, add
 
 function Home(): JSX.Element {
 
-  //SSS共通設定
-  const { clientPublicKey, sssState } = useSssInit();
+  const adminAccount = useAdminAccount();
 
-  // アドレス取得
-  const { publicAccount, address } = useAddressInit(clientPublicKey, sssState);
+  useEffect(() => {
+  }, [adminAccount]);
 
   // ルートネームスペース一覧表示用
   const [nameAddressList, setNameAddressList] = useState<{name: string, address: string}[]>([]);
@@ -77,23 +78,29 @@ function Home(): JSX.Element {
   let listener: IListener;
 
   useEffect(() => {
-    if (sssState === 'ACTIVE' && address !== undefined) {
+    if (adminAccount !== undefined) {
       (async() => {
-        setNameAddressList(await getNameAddressList(address));
+        setNameAddressList(await getNameAddressList(adminAccount.address));
 
         if (listener === undefined) {
           listener = repo.createListener();
           await listener.open();
           listener
-            .confirmed(address)
+            .confirmed(adminAccount.address)
             .subscribe(async () => {
               console.log("EVENT: TRANSACTION CONFIRMED");
-              setNameAddressList(await getNameAddressList(address));
+              setNameAddressList(await getNameAddressList(adminAccount.address));
             });
         }
       })();
     }
-  },  [address, sssState]);
+
+    return () => {
+      if (listener) {
+        listener.close()
+      }
+    }
+  },  [adminAccount]);
 
   type Inputs = {
     rootNameSpace: string;
@@ -106,40 +113,70 @@ function Home(): JSX.Element {
 
   // Namespace登録
   const registerNamespace: SubmitHandler<Inputs> = (data) => {
-    if (address === undefined) {
+    if (adminAccount === undefined) {
       return
     }
-    signAndAnnounce(createRootRegistrationAndAliasTx(publicAccount, data.rootNameSpace, address))
+    signAndAnnounce(createRootRegistrationAndAliasTx(adminAccount.publicAccount, data.rootNameSpace, adminAccount.address), adminAccount)
   }
 
   // NamespaceとAddressを紐づける
   const createAlias = (name: string) => {
-    if (!address) {
+    if (!adminAccount) {
       return;
     }
     signAndAnnounce(
-      createRootAddressAliasTx(name, address)
+      createRootAddressAliasTx(name, adminAccount.address),
+      adminAccount
     )
   }
 
   const router = useRouter();
   return (
     <AdminLayout>
+      <div className="page-title">ルートネーム管理</div>
 
-      {address === undefined ? (
-        <Backdrop open={address === undefined}>
-          <CircularProgress color='inherit' />
-        </Backdrop>
+      {adminAccount === undefined ? (
+        <div>アカウントが設定されていません</div>
       ) : (
-        <div className="box">
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            ルートネームスペース管理
-          </Typography>
-          { address.plain() }
+        <div>
+          <table className="table mb-4">
+            <thead>
+              <tr>
+                <th>ルートネーム</th>
+                <th>管理</th>
+              </tr>
+            </thead>
+            <tbody>
+              {nameAddressList.map((data) => (
+                <tr key={data.name}>
+                  <td>
+                    { data.name }
+                  </td>
+                  <td>
+                    {
+                      (data.address)? (
+                        <button
+                        className="btn-clear"
+                        onClick={() => {
+                          router.push({
+                            pathname: '/admin/users',
+                            query: { parentNamespace: data.name }
+                          })
+                        }}
+                        >ユーザー一覧
+                        </button>
+                      ) :
+                      (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>)
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <form onSubmit={handleSubmit(registerNamespace)} className="form">
             <div className="flex flex-col">
-              <label>
-                名前
+              <label className="mb-2">
+                新規ルートネームを取得
               </label>
               <input
                 {...register("rootNameSpace", { required: "ネームスペースを入力してください。" })}
@@ -149,44 +186,12 @@ function Home(): JSX.Element {
               />
             </div>
 
-            <button className="btn">追加</button>
+            <div className="text-center">
+              <button className="btn">ルートネームを取得する</button>
+            </div>
           </form>
         </div>
       )}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ルートネームスペース名</th>
-            <th>管理</th>
-          </tr>
-        </thead>
-        <tbody>
-          {nameAddressList.map((data) => (
-            <tr key={data.name}>
-              <td>
-                { data.name }
-              </td>
-              <td>
-                {
-                  (data.address)? (
-                    <button
-                    className="btn"
-                    onClick={() => {
-                      router.push({
-                        pathname: '/admin/users',
-                        query: { parentNamespace: data.name }
-                      })
-                    }}
-                    >ユーザー管理
-                    </button>
-                  ) :
-                  (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>)
-                }
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
     </AdminLayout>
   );

@@ -113,6 +113,20 @@ function LeftDrawer(props: {
               </ListItemButton>
             </ListItem>
 
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/front/paymentRequest');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Notifications />
+                </ListItemIcon>
+                <ListItemText primary={'支払リクエスト一覧'} />
+              </ListItemButton>
+            </ListItem>
+
           <Divider />
 
           <h1 className="mt-4 mx-4 text-lg">アカウントプロバイダ</h1>

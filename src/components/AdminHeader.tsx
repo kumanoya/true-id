@@ -1,18 +1,10 @@
-import { useState } from 'react'
-
-import {
-  AccountCircle
-} from '@mui/icons-material'
 import MenuIcon from '@mui/icons-material/Menu'
 import Image from 'next/image'
-import MyAccountList from '@/components/MyAccountList'
 import useAdminAccount from '@/hooks/useAdminAccount';
 
 type Props = { setIsMenuOpen: any }
 
 function Header({ setIsMenuOpen }: Props): JSX.Element {
-
-  const [isAccountOpen, setIsAccountOpen] = useState<boolean>(false) //MyAccountListの設定
 
   // アカウント取得
   const account = useAdminAccount()
@@ -44,12 +36,8 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
           <span>
             { account?.address.pretty().split('-')[0] + '-...' }
           </span>
-          <AccountCircle 
-            onClick={() => setIsAccountOpen(true)}
-            fontSize="large" />
         </div>
       </div>
-      <MyAccountList account={account} isOpen={isAccountOpen} setIsOpen={setIsAccountOpen} />
     </>
   )
 }

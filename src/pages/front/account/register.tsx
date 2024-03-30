@@ -59,35 +59,32 @@ function Request(): JSX.Element {
             あなたのSymbolアドレス
           </Typography>
           { userAccount.address.plain() }
-          <form onSubmit={handleSubmit(requestAccount)} className="form">
+          <form onSubmit={handleSubmit(requestAccount)} className="mt-4 form">
             <div className="flex flex-col">
-              <label>
-                IDプロバイダー（ルートネームスペース）
+              <label className="mb-2">
+                希望するID @ プロバイダ名（ルートネーム）
               </label>
-              <input
-                {...register("rootNamespace", { required: "アドレスを入力してください" })}
-                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                type="text"
-                name="rootNamespace"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label>
-                希望するアカウント名
-              </label>
-              <input
-                {...register("accountName", { required: "アカウント名を入力してください" })}
-                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                type="text"
-                name="accountName"
-                required
-              />
+              <div>
+                <input
+                  {...register("accountName", { required: "アカウント名を入力してください" })}
+                  className="w-40 rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                  type="text"
+                  name="accountName"
+                  required
+                  placeholder="dummy-id"
+                />&nbsp;@&nbsp;
+                <input
+                  {...register("rootNamespace", { required: "プロバイダ名を入力してください" })}
+                  className="w-32 rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
+                  type="text"
+                  name="rootNamespace"
+                  required
+                />
+              </div>
             </div>
 
             <div className="flex justify-center">
-              <button className="btn">IDを申請する</button>
+              <button className="btn">ユーザーIDを取得する</button>
             </div>
           </form>
         </div>

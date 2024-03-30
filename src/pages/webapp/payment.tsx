@@ -1,22 +1,9 @@
-'use client'
-
 import WebappLayout from '@/components/WebappLayout'
 import useAppAccount from '@/hooks/useAppAccount'
 import { useForm, SubmitHandler } from "react-hook-form"
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 import { createPaymentRequestTx } from '@/utils/createPaymentRequestTx'
 import { unformatId } from '@/utils/formatId'
-import { useState, useEffect } from 'react'
-import createMessage from '@/utils/createMessage'
-import {
-  TransferTransaction,
-  Transaction,
-  IListener,
-} from 'symbol-sdk'
-import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
-import { requestPaymentAcceptMosaicId } from '@/consts/blockchainProperty'
-import { formatId } from '@/utils/formatId'
-const repo = createRepositoryFactory()
 
 function Payment(): JSX.Element {
 

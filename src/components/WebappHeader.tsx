@@ -20,9 +20,6 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
             sx={{ left: '20px', top: '15px' }}
             onClick={() => setIsMenuOpen(true)}
           />
-          <span className="mx-4 text-2xl">
-          { appId }
-          </span>
         </div>
       </div>
     </>

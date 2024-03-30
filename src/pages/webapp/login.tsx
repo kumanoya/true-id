@@ -143,7 +143,7 @@ function Request(): JSX.Element {
 
   return (
     <WebappLayout>
-      <div className="page-title">TrueIDで外部アプリにログイン</div>
+      <div className="page-title">（外部アプリのログイン画面）</div>
       { !loginState || appAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (

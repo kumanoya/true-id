@@ -33,7 +33,7 @@ function Payment(): JSX.Element {
 
   return (
     <WebappLayout>
-      <div className="page-title">TrueIDで決済</div>
+      <div className="page-title">（外部アプリの決済画面）</div>
       { appAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (

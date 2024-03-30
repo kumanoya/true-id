@@ -51,6 +51,12 @@ export const useLoginRequestHandler = () => {
         })
       console.log("LOGININ REQUEST LISTENER: STARTED")
     })()
+
+    return () => {
+      if (listener) {
+        listener.close()
+      }
+    }
   },  [account])
 }
 

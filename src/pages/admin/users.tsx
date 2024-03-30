@@ -93,6 +93,12 @@ function Users(): JSX.Element {
           }
       })();
     }
+
+    return () => {
+      if (listener) {
+        listener.close()
+      }
+    }
   },  [adminAccount, parentNamespace]);
 
   type Inputs = {

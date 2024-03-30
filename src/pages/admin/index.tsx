@@ -94,6 +94,12 @@ function Home(): JSX.Element {
         }
       })();
     }
+
+    return () => {
+      if (listener) {
+        listener.close()
+      }
+    }
   },  [adminAccount]);
 
   type Inputs = {

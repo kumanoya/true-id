@@ -70,6 +70,12 @@ function Request(): JSX.Element {
         })
       console.log("LISTENER: STARTED")
     })()
+
+    return () => {
+      if (listener) {
+        listener.close()
+      }
+    }
   },  [account])
 
   return (

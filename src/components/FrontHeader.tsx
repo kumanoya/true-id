@@ -31,13 +31,9 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
           />
           <div className="logo">
             <Image
-              src='/trueid-logo-wh.svg'
-              width={100}
-              height={50}
-              style={{
-                width: 'auto',
-                height: '18px',
-              }}
+              src='/trueid-logo.png'
+              width={140}
+              height={80}
               alt='logo'
             />
           </div>

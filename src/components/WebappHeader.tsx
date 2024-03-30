@@ -15,6 +15,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
       <div className="header">
         <div className="logo-wrap">
           <MenuIcon
+            className="cursor-pointer"
             fontSize='large'
             sx={{ left: '20px', top: '15px' }}
             onClick={() => setIsMenuOpen(true)}

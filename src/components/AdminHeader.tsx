@@ -13,7 +13,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
     <>
       <div className="admin-title">アカウントプロバイダー</div>
       <div className="header">
-        <div className="logo-wrap">
+        <div className="logo-wrap cursor-pointer">
           <MenuIcon
             fontSize='large'
             sx={{ left: '20px', top: '15px' }}
@@ -21,13 +21,9 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
           />
           <div className="logo">
             <Image
-              src='/trueid-logo-wh.svg'
-              width={100}
-              height={50}
-              style={{
-                width: 'auto',
-                height: '18px',
-              }}
+              src='/trueid-logo.png'
+              width={140}
+              height={80}
               alt='logo'
             />
           </div>

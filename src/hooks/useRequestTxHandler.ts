@@ -66,21 +66,27 @@ export const useRequestTxHandler = () => {
       //setListener(listener)
 
       await listener.open()
+
       // 未承認のトランザクションを監視
       listener.confirmed(account.address)
         .subscribe(tx => {
-          // LoginRequestのトランザクションを受信
+          console.log("REQUEST_HANDLER CONFIRMED TX", tx)
+
           if (tx instanceof TransferTransaction) {
             const mosaicId = tx.mosaics[0].id.toHex()
+
+            // LoginRequestのトランザクションを受信
             if (mosaicId === loginRequestMosaicId) {
               handleLoginRequest(tx, currentUserId)
               return
             }
+            // PaymentRequestのトランザクションを受信
             if (mosaicId === paymentRequestMosaicId) {
               handlePaymentRequest(tx, currentUserId)
               return
             }
           }
+
         })
       console.log("LOGININ REQUEST LISTENER: STARTED")
     })()

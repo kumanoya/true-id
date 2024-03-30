@@ -46,7 +46,7 @@ const latestMessages = async (address: Address, currentUserId: string|null = nul
   }, {} as { [key: string]: Message })
 
   const filteredDataList = Object.values(grouped)
-  console.log('filteredDataList ⚡️', filteredDataList)
+  //console.log('filteredDataList ⚡️', filteredDataList)
 
   const sortedDataList = [...filteredDataList].sort((a, b) => {
     return Number(b.timestamp ?? 0) - Number(a.timestamp ?? 0)

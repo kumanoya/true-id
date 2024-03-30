@@ -37,7 +37,7 @@ function Message(): JSX.Element {
 
     (async () => {
       const msgs = await userMessages(userId, account.address, currentUserId)
-      console.log(msgs)
+      //console.log(msgs)
       setMessages(msgs)
     })()
 
@@ -63,17 +63,17 @@ function Message(): JSX.Element {
       // 未承認のトランザクションを監視
       listener.confirmed(account.address)
         .subscribe(tx => {
-          console.log("LISTENER: CATCHED")
+          //console.log("LISTENER: CATCHED")
           if (tx instanceof TransferTransaction) {
             const message = createMessage(tx as TransferTransaction)
-            console.log("LISTENER: ACCEPTED", tx, message)
+            //console.log("LISTENER: ACCEPTED", tx, message)
             // XXX: Listenした場合、timestampは正しく取得できないようなので無理やり再設定する
             // unixtimestampを取得
             message.timestamp = Date.now()/1000
             setMessages(current => [...current, message])
           }
         })
-      console.log("LISTENER: STARTED")
+      //console.log("LISTENER: STARTED")
     })()
 
     return () => {

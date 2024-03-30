@@ -42,7 +42,7 @@ function Users(): JSX.Element {
       <div className="page-title">メッセージ</div>
       <List sx={{ padding: '0', marginBottom: '20px', width: '500px' }}>
         {messages.map((message, index) => (
-          <a key={index} className="w-full px-4 py-4 flex cursor-pointer message-users-item" onClick={() => handleNavigate(message.signerId)} >
+          <a key={index} className="w-full px-4 py-4 flex cursor-pointer message-users-item" onClick={() => handleNavigate(message.signerId as string)} >
             <span className="mr-4 flex items-center">
               <Avatar alt={formatId(message.signerId)?? ''} src="/" />
             </span>

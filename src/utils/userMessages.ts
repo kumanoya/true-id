@@ -41,6 +41,10 @@ const userMessages = async (
       pageSize: 100,
     }).toPromise()
 
+  if (!resultSearch) {
+    return []
+  }
+
   // この二者間の送受信メッセージを抽出
   const messages = resultSearch.data
     .map(tx => createMessage(tx as TransferTransaction))

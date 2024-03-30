@@ -1,12 +1,11 @@
 import {
-  Account,
+  PublicAccount,
 } from 'symbol-sdk'
 
 interface Message {
   id: string|undefined,
   recipientId: string|undefined,
   recipientAddress: string,
-  signer: Account,
   signerId: string|undefined,
   signerPublicKey: string,
   signerAddress: string,
@@ -14,6 +13,7 @@ interface Message {
   timestamp: number|undefined,  // unixtime(秒)
   height: string|undefined,
   rawMessage: string,
+  signer: PublicAccount,
 }
 
 export default Message

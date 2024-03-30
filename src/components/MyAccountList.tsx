@@ -21,6 +21,9 @@ function MyAccountList(props: {
     //alert('IDを変更しました: ' + id)
   }
 
+  useEffect(() => {
+  }, [account])
+
   return (
     <Drawer anchor={'right'} open={isOpen} onClose={() => setIsOpen(false)}>
       {account === undefined ? (

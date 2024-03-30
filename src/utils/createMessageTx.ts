@@ -16,7 +16,13 @@ import {
 } from '@/consts/blockchainProperty'
 
 
-function createMessageTx(recipientId: string, rawMessage: string, xym: number, currentUserId: string|null = null): Transaction
+function createMessageTx(
+  recipientId: string,
+  rawMessage: string,
+  xym: number,
+  currentUserId: string|null = null,
+  replyToId: string|null = null,
+): Transaction
 {
   // XXX: ハードコード
   const networkCurrencyDivisibility = 6 // XYMの分割単位
@@ -35,6 +41,7 @@ function createMessageTx(recipientId: string, rawMessage: string, xym: number, c
     recipientId: recipientId,
     content: rawMessage,
     signerId: currentUserId,
+    replyToId: replyToId,
   }
 
   const plainMessage = PlainMessage.create(JSON.stringify(message)) // 平文メッセージ

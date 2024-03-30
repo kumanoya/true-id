@@ -14,6 +14,7 @@ interface Message {
   height: string|undefined,
   rawMessage: string,
   signer: PublicAccount,
+  replyToId: string|null,
 }
 
 export default Message

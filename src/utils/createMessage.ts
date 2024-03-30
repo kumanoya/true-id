@@ -34,6 +34,7 @@ function createMessage(tx: TransferTransaction): Message
     height:            tx.transactionInfo.height.toString(),
     rawMessage:        tx.message.payload,
     signer:            tx.signer,
+    replyToId:         null,
   }
 
   // payloadにJSONでエンコードされている値を取り出す
@@ -42,6 +43,7 @@ function createMessage(tx: TransferTransaction): Message
     message.recipientId = data.recipientId
     message.signerId = data.signerId
     message.content = data.content
+    message.replyToId = data.replyToId?? null
   }
 
   return message

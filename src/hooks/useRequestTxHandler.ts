@@ -44,7 +44,7 @@ export const useRequestTxHandler = () => {
     const amount = parseInt(message.content)
     const jpy = amount * 4.23
     if (confirm(`${appId} への支払い\n\n ${amount} xym (約${jpy}円) \n\nをリクエストされました。支払いますか？`)) {
-      const tx = createMessageTx(appId, '', amount, userId)
+      const tx = createMessageTx(appId, '', amount, userId, message.id)
       signAndAnnounce(tx, account)
     }
   }

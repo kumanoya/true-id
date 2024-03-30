@@ -5,12 +5,12 @@ import {
   TransferTransaction,
 } from 'symbol-sdk'
 import { useUserInfo } from '@/store/UserInfoContext'
-import { createPaymentAcceptTx } from "@/utils/createPaymentAcceptTx"
 import { signAndAnnounce } from '@/utils/signAndAnnounce'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
 import Message from '@/types/message'
 import paymentRequestMessages from '@/utils/paymentRequestMessages'
+import getSentMessages from '@/utils/getSentMessages'
 import createMessage from '@/utils/createMessage'
 import { formatUnixTime } from '@/utils/formatUnixTime'
 import { paymentRequestMosaicId } from '@/consts/blockchainProperty'
@@ -29,7 +29,8 @@ function PaymentRequest(): JSX.Element {
     const amount = parseInt(message.content)
     const jpy = amount * 4.23
     if (confirm(`${appId} への支払い\n\n ${amount} xym (約${jpy}円) \n\nをリクエストされました。支払いますか？`)) {
-      const tx = createMessageTx(appId, '', amount, userId)
+      const tx = createMessageTx(appId, '', amount, userId, message.id)
+      console.log("PAYMENT: ", tx)
       signAndAnnounce(tx, account)
     }
   }
@@ -38,7 +39,10 @@ function PaymentRequest(): JSX.Element {
   const { account, currentUserId } = useUserInfo()
 
   // メッセージ一覧表示用
-  const [messages, setMessages] = useState<Message[]>([])
+  const [requestMessages, setRequestMessages] = useState<Message[]>([])
+
+  // 処理済み判定用
+  const [repliedIds, setRepliedIds] = useState<string[]>([])
 
   // リスナ保持
   let listener: IListener
@@ -48,7 +52,13 @@ function PaymentRequest(): JSX.Element {
       if (!account || !currentUserId) {
         return
       }
-      setMessages(await paymentRequestMessages(currentUserId, account.address))
+      setRequestMessages(await paymentRequestMessages(currentUserId, account.address))
+      const sentMessages = await getSentMessages(account.publicKey, currentUserId)
+      setRepliedIds(
+        sentMessages
+          .filter(message => message.replyToId !== null)
+          .map(message => message.replyToId as string)
+      )
 
       // リスナの二重登録を防ぐ
       if (listener !== undefined) {
@@ -70,7 +80,7 @@ function PaymentRequest(): JSX.Element {
             // XXX: Listenした場合、timestampは正しく取得できないようなので無理やり再設定する
             // unixtimestampを取得
             message.timestamp = Date.now()/1000
-            setMessages(current => [message, ...current])
+            setRequestMessages(current => [message, ...current])
           }
         })
       console.log("LISTENER: STARTED")
@@ -99,7 +109,7 @@ function PaymentRequest(): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {messages.map((message, index) => (
+          {requestMessages.map((message, index) => (
             <tr key={index}>
               <td>{ message.signerId }</td>
               {/*
@@ -108,7 +118,11 @@ function PaymentRequest(): JSX.Element {
               */}
               <td>{ formatUnixTime(message.timestamp) }</td>
               <td className="px-0 w-32 text-center">
+                {(repliedIds.includes(message.id as string))?
+                <span>処理済み</span>
+                :
                 <button className="btn" onClick={() => { handlePaymentRequest(message, currentUserId as string) }}>承認</button>
+                }
               </td>
             </tr>
           ))}

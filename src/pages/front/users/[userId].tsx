@@ -12,6 +12,7 @@ import {
   IListener,
   TransferTransaction,
 } from 'symbol-sdk'
+import { currencyMosaicID } from '@/consts/blockchainProperty';
 import createMessage from '@/utils/createMessage'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
@@ -65,6 +66,10 @@ function Message(): JSX.Element {
         .subscribe(tx => {
           //console.log("LISTENER: CATCHED")
           if (tx instanceof TransferTransaction) {
+            const mosaicId = tx.mosaics[0].id.toHex()
+            if (mosaicId !== currencyMosaicID) {
+              return
+            }
             const message = createMessage(tx as TransferTransaction)
             //console.log("LISTENER: ACCEPTED", tx, message)
             // XXX: Listenした場合、timestampは正しく取得できないようなので無理やり再設定する

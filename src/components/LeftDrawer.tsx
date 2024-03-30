@@ -148,7 +148,7 @@ function LeftDrawer(props: {
 
           <Divider />
 
-          <h1 className="mt-4 mx-4 text-lg">外部アプリテスト</h1>
+          <h1 className="mt-4 mx-4 text-lg">外部アプリ連携サンプル</h1>
           <List>
             <ListItem disablePadding>
               <ListItemButton
@@ -161,6 +161,20 @@ function LeftDrawer(props: {
                   <Web />
                 </ListItemIcon>
                 <ListItemText primary={'TrueIDでログイン'} />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  router.push('/webapp/payment');
+                  setIsOpen(false);
+                }}
+              >
+                <ListItemIcon>
+                  <Web />
+                </ListItemIcon>
+                <ListItemText primary={'TrueIDで決済'} />
               </ListItemButton>
             </ListItem>
           </List>

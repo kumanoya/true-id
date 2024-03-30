@@ -15,6 +15,7 @@ import {
 } from 'symbol-sdk'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 import { loginAcceptMosaicId } from '@/consts/blockchainProperty'
+import { formatId } from '@/utils/formatId'
 const repo = createRepositoryFactory()
 
 function Request(): JSX.Element {
@@ -142,13 +143,14 @@ function Request(): JSX.Element {
 
   return (
     <WebappLayout>
+      <div className="page-title">TrueIDで外部アプリにログイン</div>
       { !loginState || appAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (
         <div className="box">
           { loginState.isLoggingIn?
               <div className="info">
-                <div>{loginState.userId}でログイン試行中です。TrueIdアプリで承認して下さい。</div>
+                <div>{formatId(loginState.userId)} でログイン試行中です。<br/>TrueIdアプリで承認して下さい。</div>
                 <div className="pt-6 text-center">
                   <button className="btn-clear" onClick={logout}>キャンセル</button>
                 </div>
@@ -156,14 +158,13 @@ function Request(): JSX.Element {
             :
             loginState.isAccepted?
               <div className="info">
-                <div>{loginState.userId}でログイン中です</div>
+                <div>{formatId(loginState.userId)} でログイン中です</div>
                 <div className="pt-6 text-center">
                   <button className="btn-clear" onClick={logout}>ログアウト</button>
                 </div>
               </div>
               :
               <form onSubmit={handleSubmit(login)} className="form">
-                アプリ名: { appId }
                 <div className="flex flex-col">
                   <label>
                     TrueIDでログイン
@@ -178,7 +179,9 @@ function Request(): JSX.Element {
                   />
                 </div>
 
-                <button className="btn">送信</button>
+                <div className="text-center">
+                  <button className="btn">ログイン</button>
+                </div>
               </form>
           }
         </div>

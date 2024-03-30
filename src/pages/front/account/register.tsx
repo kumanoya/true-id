@@ -47,15 +47,16 @@ function Request(): JSX.Element {
 
   return (
     <FrontLayout>
+      <div className="page-title">ユーザーID申請</div>
 
       {userAccount === undefined ? (
-        <form onSubmit={createAccount} className="p-4 text-center">
+        <form onSubmit={createAccount} className="text-center">
           <div className="p-4">Symbolアドレスが作成されていません</div>
           <button className="btn">Symbolアドレスを作成する</button>
         </form>
       ) : (
         <div className="box">
-          <Typography component='div' variant='h6' mt={5} mb={1}>
+          <Typography component='div' variant='h6' mb={1}>
             あなたのSymbolアドレス
           </Typography>
           { userAccount.address.plain() }

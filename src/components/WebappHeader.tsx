@@ -11,6 +11,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
 
   return (
     <>
+      <div className="webapp-title">外部連携アプリ</div>
       <div className="header">
         <div className="logo-wrap">
           <MenuIcon
@@ -18,19 +19,9 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
             sx={{ left: '20px', top: '15px' }}
             onClick={() => setIsMenuOpen(true)}
           />
-          <div className="logo">
-            <Image
-              src='/trueid-logo-wh.svg'
-              width={100}
-              height={50}
-              style={{
-                width: 'auto',
-                height: '18px',
-              }}
-              alt='logo'
-            />
-          </div>
-          <span className="webapp-title">外部連携アプリ { appId }</span>
+          <span className="mx-4 text-2xl">
+          { appId }
+          </span>
         </div>
       </div>
     </>

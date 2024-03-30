@@ -119,15 +119,13 @@ function Users(): JSX.Element {
 
   return (
     <AdminLayout>
-      <Typography component='div' variant='h6' mt={5} mb={1}>
-        ユーザーID管理@{ parentNamespace }
-      </Typography>
+      <div className="page-title">ユーザー一覧@{ parentNamespace }</div>
 
-      <table className="mx-8 table" >
+      <table className="table" >
         <thead>
           <tr>
             <th>ユーザーID</th>
-            <th>割当先</th>
+            <th>割当先アドレス</th>
           </tr>
         </thead>
         <tbody>

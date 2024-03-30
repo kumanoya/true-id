@@ -80,12 +80,15 @@ function Request(): JSX.Element {
 
   return (
     <FrontLayout>
+      <div className="page-title">ログインリクエスト一覧</div>
       <table className="table">
         <thead>
           <tr>
-            <th>ログインリクエスト</th>
+            <th>アプリ</th>
+            {/*
             <th>送信元</th>
             <th>RAW</th>
+            */}
             <th>日時</th>
             <th>操作</th>
           </tr>
@@ -93,11 +96,13 @@ function Request(): JSX.Element {
         <tbody>
           {messages.map((message, index) => (
             <tr key={index}>
-              <td className="px-2">{ message.content }</td>
-              <td className="px-2">{ message.signerId }</td>
-              <td className="px-2">{ message.rawMessage }</td>
-              <td className="px-2">{ formatUnixTime(message.timestamp) }</td>
-              <td className="px-2">
+              <td>{ message.signerId }</td>
+              {/*
+              <td>{ message.content }</td>
+              <td>{ message.rawMessage }</td>
+              */}
+              <td>{ formatUnixTime(message.timestamp) }</td>
+              <td className="px-0 w-32 text-center">
                 <button className="btn" onClick={() => { loginAccept(message.signerId) }}>承認</button>
               </td>
             </tr>

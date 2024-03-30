@@ -34,8 +34,8 @@ function MyAccountList(props: {
           <div className="py-2 px-4">ID切替</div>
           <div className="">
             {userIds.map((id: string) => (
-              <a key={id} className="block mx-4 pb-2 cursor-pointer" onClick={() => changeId(id)}>
-                { formatId(id) }
+              <a key={id} className="block mx-4 mb-2 cursor-pointer" onClick={() => changeId(id)}>
+                <div className="btn-clear"> { formatId(id) } </div>
               </a>
             ))}
           </div>

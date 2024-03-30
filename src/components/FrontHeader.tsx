@@ -20,6 +20,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
 
   return (
     <>
+      <div className="front-title">一般ユーザー</div>
       <div className="header">
         <div className="logo-wrap">
           <MenuIcon
@@ -40,7 +41,6 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
               alt='logo'
             />
           </div>
-          <span className="front-title">一般ユーザーアプリ</span>
         </div>
 
         <div className="cursor-pointer flex items-center" onClick={() => setIsAccountOpen(true)}>

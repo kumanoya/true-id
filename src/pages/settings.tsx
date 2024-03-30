@@ -31,15 +31,14 @@ function Home(): JSX.Element {
 
   return (
     <CommonLayout>
-      <h1 className="m-4 text-xl">
+      <div className="page-title">
         秘密鍵設定
-      </h1>
+      </div>
       <form onSubmit={handleSubmit(save)} className="form">
         <div className="flex flex-col">
           <label className="w-60">ネームスペース管理者 秘密鍵</label>
           <input
             {...register("adminPrivateKey")}
-            className="rounded-md border px-3 py-2"
             type="text"
             name="adminPrivateKey"
           />
@@ -48,7 +47,6 @@ function Home(): JSX.Element {
           <label className="w-60">一般ユーザー 秘密鍵</label>
           <input
             {...register("userPrivateKey")}
-            className="rounded-md border px-3 py-2"
             type="text"
             name="userPrivateKey"
           />

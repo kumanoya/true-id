@@ -67,14 +67,12 @@ function AdminRegister(): JSX.Element {
 
   return (
     <AdminLayout>
-      <Typography component='div' variant='h6' mt={5} mb={1}>
-        アカウント登録リクエスト一覧
-      </Typography>
+      <div className="page-title">ユーザーID申請一覧</div>
       <table className="table">
         <thead>
           <tr>
-            <th>ルートネームスペース</th>
-            <th>希望アカウントID</th>
+            <th>ルートネーム</th>
+            <th>希望ID</th>
             <th>送信元</th>
             <th>操作</th>
           </tr>
@@ -85,16 +83,16 @@ function AdminRegister(): JSX.Element {
               return (<tr key={index}><td colSpan={3}>エラー</td></tr>)
             }
             const [rootName, accountName] = data.message.payload.split(':')
-            const rawAddress = data.signer?.address?.plain()
+            const rawAddress = data.signer?.address?.pretty()
             if (!rawAddress) {
               return (<tr key={index}><td colSpan={3}>エラー</td></tr>)
             }
             return (
               <tr key={index}>
-                <td className="px-2">{ rootName }</td>
-                <td className="px-2">{ accountName }</td>
-                <td className="px-2">{ rawAddress }</td>
-                <td className="px-2">
+                <td>{ rootName }</td>
+                <td>{ accountName }</td>
+                <td className="text-sm">{ rawAddress }</td>
+                <td className="p-0 w-32 text-center">
                   <button className="btn" onClick={() => registerAccount(rootName, accountName, rawAddress)}>承認</button>
                 </td>
               </tr>

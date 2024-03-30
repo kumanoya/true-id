@@ -11,6 +11,7 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
 
   return (
     <>
+      <div className="admin-title">アカウントプロバイダー</div>
       <div className="header">
         <div className="logo-wrap">
           <MenuIcon
@@ -30,7 +31,6 @@ function Header({ setIsMenuOpen }: Props): JSX.Element {
               alt='logo'
             />
           </div>
-          <span className="admin-title">アカウントプロバイダー</span>
         </div>
         <div>
           <span>

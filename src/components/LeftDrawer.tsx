@@ -127,7 +127,7 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <ListAlt />
                 </ListItemIcon>
-                <ListItemText primary={'ルートネームスペース管理'} />
+                <ListItemText primary={'ルートネーム管理'} />
               </ListItemButton>
             </ListItem>
 
@@ -141,7 +141,7 @@ function LeftDrawer(props: {
                 <ListItemIcon>
                   <Notifications />
                 </ListItemIcon>
-                <ListItemText primary={'ID申請一覧'} />
+                <ListItemText primary={'ユーザーID申請一覧'} />
               </ListItemButton>
             </ListItem>
           </List>

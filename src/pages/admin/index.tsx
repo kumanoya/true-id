@@ -133,19 +133,50 @@ function Home(): JSX.Element {
   const router = useRouter();
   return (
     <AdminLayout>
+      <div className="page-title">ルートネーム管理</div>
 
       {adminAccount === undefined ? (
         <div>アカウントが設定されていません</div>
       ) : (
-        <div className="box">
-          <Typography component='div' variant='h6' mt={5} mb={1}>
-            ルートネームスペース管理
-          </Typography>
-          { adminAccount.address.plain() }
+        <div>
+          <table className="table mb-4">
+            <thead>
+              <tr>
+                <th>ルートネーム</th>
+                <th>管理</th>
+              </tr>
+            </thead>
+            <tbody>
+              {nameAddressList.map((data) => (
+                <tr key={data.name}>
+                  <td>
+                    { data.name }
+                  </td>
+                  <td>
+                    {
+                      (data.address)? (
+                        <button
+                        className="btn-clear"
+                        onClick={() => {
+                          router.push({
+                            pathname: '/admin/users',
+                            query: { parentNamespace: data.name }
+                          })
+                        }}
+                        >ユーザー一覧
+                        </button>
+                      ) :
+                      (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>)
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <form onSubmit={handleSubmit(registerNamespace)} className="form">
             <div className="flex flex-col">
-              <label>
-                ルートネームスペース名
+              <label className="mb-2">
+                新規ルートネームを取得
               </label>
               <input
                 {...register("rootNameSpace", { required: "ネームスペースを入力してください。" })}
@@ -155,44 +186,12 @@ function Home(): JSX.Element {
               />
             </div>
 
-            <button className="btn">登録</button>
+            <div className="text-center">
+              <button className="btn">ルートネームを取得する</button>
+            </div>
           </form>
         </div>
       )}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ルートネームスペース名</th>
-            <th>管理</th>
-          </tr>
-        </thead>
-        <tbody>
-          {nameAddressList.map((data) => (
-            <tr key={data.name}>
-              <td>
-                { data.name }
-              </td>
-              <td>
-                {
-                  (data.address)? (
-                    <button
-                    className="btn"
-                    onClick={() => {
-                      router.push({
-                        pathname: '/admin/users',
-                        query: { parentNamespace: data.name }
-                      })
-                    }}
-                    >ユーザー管理
-                    </button>
-                  ) :
-                  (<button onClick={() => createAlias(data.name)} className="btn-clear">アドレス割当</button>)
-                }
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
     </AdminLayout>
   );

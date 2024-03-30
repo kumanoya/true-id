@@ -5,11 +5,13 @@ import {
   TransactionGroup,
   Order,
   Address,
+  MosaicId,
 } from 'symbol-sdk'
 import { createRepositoryFactory } from '@/utils/createRepositoryFactory'
 const repo = createRepositoryFactory()
 import Message from '@/types/message'
 import createMessage from '@/utils/createMessage'
+import { currencyMosaicID } from '@/consts/blockchainProperty';
 
 //==============================================================================
 // latestMessages
@@ -24,6 +26,7 @@ const latestMessages = async (address: Address, currentUserId: string|null = nul
       order: Order.Desc,
       type: [TransactionType.TRANSFER],
       pageSize: 100,
+      transferMosaicId: new MosaicId(currencyMosaicID),
     })
   )
 

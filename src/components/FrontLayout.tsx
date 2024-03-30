@@ -1,10 +1,13 @@
 import { useState, ReactNode } from 'react'
 import LeftDrawer from '@/components/LeftDrawer'
 import FrontHeader from '@/components/FrontHeader'
+import { useLoginRequestHandler } from '@/hooks/useLoginRequestHandler'
 
 type Props = { children: ReactNode }
 
 const Layout = ({ children }: Props) => {
+
+  useLoginRequestHandler()
 
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false) //LeftDrawerの設定
 

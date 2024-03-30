@@ -70,14 +70,16 @@ function Request(): JSX.Element {
       throw new Error('appAccount is not defined')
     }
 
+    const realId = unformatId(data.userId)
+
     // ログインリクエストを送信
-    createLoginRequestTx(unformatId(data.userId), appId)
+    createLoginRequestTx(realId, appId)
       .then(tx => signAndAnnounce(tx, appAccount))
 
     // ログイン中の状態に遷移
     setLoginState({
       isLoggingIn: true,
-      userId: data.userId,
+      userId: realId,
       isAccepted: false,
     })
   }
@@ -110,12 +112,12 @@ function Request(): JSX.Element {
 
               // LoginAcceptのトランザクションを受信
               if (tx instanceof TransferTransaction && tx.mosaics[0].id.toHex() === loginAcceptMosaicId) {
-
                 if (!loginState.userId) {
                   throw new Error('ログインリクエストが失効しています')
                 }
 
                 const message = createMessage(tx as TransferTransaction)
+                console.log("LISTENER: CATCH", tx, message)
                 if (message.content === loginState.userId) {
                   alert('ログインしました！')
                   setLoginState({

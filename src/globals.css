@@ -84,7 +84,7 @@ label {
   justify-content: space-between;
   flex-direction: row;
   background-color: var(--color-offwhite);
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 :where(.title) {

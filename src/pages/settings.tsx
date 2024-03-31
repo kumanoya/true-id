@@ -10,14 +10,22 @@ function Home(): JSX.Element {
     userPrivateKey: 'E04CB2BDDF4E38A530A16B6E36BB9086E7E0FAAA6185C64C1E9DC05780A5686A',
   }
 
-  const { register, handleSubmit, setValue, reset } = useForm({
+  const { register, handleSubmit, setValue } = useForm({
     defaultValues
   });
 
   // ローカルストレージから値を取得してフォームにセットする
   useEffect(() => {
-    setValue('adminPrivateKey', localStorage.getItem('adminPrivateKey') || '');
-    setValue('userPrivateKey', localStorage.getItem('userPrivateKey') || '');
+    const adminPrivateKey = localStorage.getItem('adminPrivateKey')
+    const userPrivateKey = localStorage.getItem('userPrivateKey')
+    //未初期化の場合は
+    if (!adminPrivateKey && !userPrivateKey) {
+      save(defaultValues)
+    } else {
+      // ローカルストレージから取得した値をフォームにセット
+      setValue('adminPrivateKey', localStorage.getItem('adminPrivateKey') || '');
+      setValue('userPrivateKey', localStorage.getItem('userPrivateKey') || '');
+    }
     //setValue('appPrivateKey', localStorage.getItem('appPrivateKey') || '');
   }, [setValue]);
 
